@@ -10,6 +10,7 @@
     <modules>
         <module>springboot-demo1</module>
         <module>springboot-demo2</module>
+        <module>springboot-demo3</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>

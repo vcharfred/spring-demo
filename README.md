@@ -2,6 +2,12 @@
 * spring官网地址：https://spring.io
 * spring项目快速构建：https://start.spring.io
 
+项目包说明:
+
+    |---springboot-demo1  springboot启动类，使用不使用spring-boot-starter-parent作为父级依赖
+    |---springboot-demo2  springboot启动类，使用使用spring-boot-starter-parent作为父级依赖
+    |---springboot-demo3  springboot的controller相关注解说明
+
 ## 一、springboot
 ## 1、 简单Demo
 ### 1.1 添加maven依赖
@@ -194,4 +200,126 @@
   
       
 
-## 2、      
+---
+
+## 2、springboot的controller相关注解说明
+### 2.1 @RestController 
+这个注解相比于@Controller可以让我们在返回json等数据类型时，不用再方法上加@ResponseBody注解
+
+    package top.vchar.demo.spring.controller;
+    
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RestController;
+    
+    /**
+     * <p> @RestController使用 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/7 23:43
+     */
+    @RestController
+    public class DemoController {
+        
+        //返回String
+        @RequestMapping("/")
+        public String home(){
+            return "hello word";
+        }
+        
+        /**
+         * 使用bean对象传参
+         * @param member 用户信息
+         * @return
+         */
+        @RequestMapping("/v1/save_user")
+        public String saveUser1(Member member){
+            if(null==member){
+                return "save fail";
+            }
+            System.out.println(member.toString());
+            return "save success";
+        }
+        
+    } 
+    
+### 2.2 获取POST请求的body信息 @RequestBody 
+注意事项：
+    
+    a.需要指定http头为Content-Type为application/json;
+    b.必须使用body传送参数
+
+
+    /**
+     * 使用bean对象传参
+     * 注意：a.需要指定http头为Content-Type为application/json
+     *      b.使用body传送参数
+     * @param member 用户信息
+     * @return
+     */
+    @RequestMapping("/v2/save_user")
+    public String saveUser2(@RequestBody Member member){
+        if(null==member){
+            return "save fail";
+        }
+        System.out.println(member.toString());
+        return "save success";
+    }    
+  
+### 2.3 @GetMapping和@PostMapping
+    package top.vchar.demo.spring.controller;
+    
+    import org.springframework.web.bind.annotation.*;
+    
+    /**
+     * <p> 只允许GET请求 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/7 23:48
+     */
+    @RestController
+    public class GetController {
+        /**
+         * 只允许GET请求
+         */
+        @RequestMapping(path = "/get/v1/user/{id}", method = RequestMethod.GET)
+        public String findUserById1(@PathVariable("id") String uid){
+            if("123456".equals(uid)){
+                return "find it";
+            }
+            return "no this user";
+        }
+    
+        /**
+         * 只允许GET请求
+         */
+        @GetMapping(path = "/get/v2/user/{id}")
+        public String findUserById2(@PathVariable("id") String uid){
+            if("123456".equals(uid)){
+                return "find it";
+            }
+            return "no this user";
+        }
+    }    
+>@PathVariable可以将使其接收到url上动态拼接的参数，默认是必传
+
+其他类似的
+
+    @GetMapping(path = "/get/v2/user/{id}")==@RequestMapping(path = "/get/v1/user/{id}", method = RequestMethod.GET)
+    @PostMapping(path = "/post/v2/user/{id}")==@RequestMapping(path = "/post/v1/user/{id}", method = RequestMethod.POST)
+    @PutMapping(path = "/put/v2/user/{id}")==@RequestMapping(path = "/put/v1/user/{id}", method = RequestMethod.PUT)
+    ...
+    
+### 2.4 @RequestHeader获取http头信息
+使用这个注解可以获取请求头信息
+
+    /**
+     * 获取http头信息
+     */
+    @RequestMapping("/get_header")
+    public String saveUser3(@RequestHeader(value = "access_token", required = false) String accessToken){
+        return accessToken;
+    }
+
+   
