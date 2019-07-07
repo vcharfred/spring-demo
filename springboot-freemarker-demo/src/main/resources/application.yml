@@ -1,0 +1,6 @@
+server:
+  # 设置端口号
+  port: 8080
+  servlet:
+    # 配置部署的路径
+    context-path: /

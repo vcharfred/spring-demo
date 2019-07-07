@@ -11,6 +11,8 @@
         <module>springboot-demo1</module>
         <module>springboot-demo2</module>
         <module>springboot-demo3</module>
+        <module>springboot-thymeleaf-demo</module>
+        <module>springboot-freemarker-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>

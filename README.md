@@ -1,21 +1,34 @@
 # Spring 全家桶学习笔记
+
+<a href="#SpringMvc">一、SpringMvc搭建</a><br>
+<a href="#Springboot">二、Springboot使用</a>
+
+---
+
+## <span id="desc"/>简要说明
+使用的是springboot2.x
+
 * spring官网地址：https://spring.io
 * spring项目快速构建：https://start.spring.io
-
-目录：<br/>
-一、<a href="#SpringMvc">SpringMvc搭建</a><br>
-二、<a href="#Springboot">Springboot使用</a>
-
+* springbootGitHub地址：https://github.com/spring-projects/spring-boot
+* springboot官方文档：https://spring.io/guides/gs/spring-boot/
 
 项目包说明:
 
     |---springboot-demo1  springboot启动类，使用不使用spring-boot-starter-parent作为父级依赖
     |---springboot-demo2  springboot启动类，使用使用spring-boot-starter-parent作为父级依赖
     |---springboot-demo3  springboot的controller相关注解说明
-## 一、SpringMvc<span id="SpringMvc"/>
+    |---springboot-thymeleaf-demo  使用thymeleaf做页面渲染引擎
+    |---springboot-freemarker-demo  使用freemarker做页面渲染引擎
+
+---
+
+## 一、<span id="SpringMvc"/>SpringMvc
 TODO 
 
-## 二、Springboot<span id="Springboot"/>
+---
+
+## 二、<span id="Springboot"/>Springboot
 ### 1、 简单Demo
 #### 1.1 添加maven依赖
 
@@ -331,4 +344,29 @@ TODO
 
    
 
-### 3、   
+### 3、springboot官方推荐的目录规范
+
+    src/main/java：存放代码
+    src/main/resources
+        static: 存放静态文件，比如 css、js、image, （访问方式 http://localhost:8080/js/main.js）
+        templates:存放静态页面jsp,html,tpl
+        config:存放配置文件
+        resources:
+>同个文件的加载顺序,静态资源文件
+ 	 Spring Boot 默认会挨个从
+ 	 META/resources > resources > static > public  里面找是否存在相应的资源，如果有则直接返回。
+ 	         
+* 页面模板引擎 Thymeleaf加入如下maven依赖
+
+        <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+* 页面模板引擎 freemarker加入如下maven依赖
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+        
