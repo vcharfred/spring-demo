@@ -15,11 +15,17 @@
 
 项目包说明:
 
-    |---springboot-demo1  springboot启动类，使用不使用spring-boot-starter-parent作为父级依赖
-    |---springboot-demo2  springboot启动类，使用使用spring-boot-starter-parent作为父级依赖
-    |---springboot-demo3  springboot的controller相关注解说明
-    |---springboot-thymeleaf-demo  使用thymeleaf做页面渲染引擎
-    |---springboot-freemarker-demo  使用freemarker做页面渲染引擎
+    |---springboot-demo1                 springboot启动类，使用不使用spring-boot-starter-parent作为父级依赖
+    |---springboot-demo2                 springboot启动类，使用使用spring-boot-starter-parent作为父级依赖
+    |---springboot-demo3                 springboot的controller相关注解说明
+    |---springboot-dev-demo              springboot 热部署
+    |---springboot-test-demo             springboot 测试类demo
+    |---springboot-customer-banner-demo  自定义springboot启动样式  
+    |---springboot-thymeleaf-demo        使用thymeleaf做页面渲染引擎
+    |---springboot-freemarker-demo       使用freemarker做页面渲染引擎
+    
+
+项目源代码： https://github.com/vcharfred/spring-demo.git
 
 ---
 
