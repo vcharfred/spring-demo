@@ -370,3 +370,152 @@ TODO
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
         
+
+### 4、热部署
+加入如下依赖：
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <optional>true</optional>
+    </dependency>
+    
+* 指定文件不进行热部署 spring.devtools.restart.exclude=static/**,public/**
+* 手工触发重启 spring.devtools.restart.trigger-file=trigger.txt 改代码不重启，通过一个文本去控制,里面可以填写版本号等配置
+
+### 5、注入配置文件    
+#### 5.1 直接注入属性值
+* 首先需要在类上加上 @PropertySource({"classpath:resource.properties"})指定需要加载的配置文件
+* 定义一个属性值，在上面加上@Value注解
+
+        @RestController
+        @PropertySource({"classpath:resource.properties"})
+        public class AutoConfigController {
+        
+            @Value("${soft.version}")
+            private String version;
+        
+            @GetMapping("/get/soft_version")
+            public String getSoftVersion(){
+                System.out.println(version);
+                return version;
+            }
+        }
+#### 5.2 注入实体类配置文件
+直接注入
+
+    @Configuration
+    @PropertySource(value="classpath:resource.properties")
+    public class ServerConfig2 {
+    
+        @Value("${soft.domain}")
+        private String domain;
+        @Value("${soft.name}")
+        private String name;
+    
+        public String getDomain() {
+            return domain;
+        }
+    
+        public void setDomain(String domain) {
+            this.domain = domain;
+        }
+    
+        public String getSoftname() {
+            return name;
+        }
+    
+        public void setSoftname(String softname) {
+            this.name = softname;
+        }
+    
+        @Override
+        public String toString() {
+            return "ServerConfig{" +
+                    "domain='" + domain + '\'' +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
+    }
+    
+使用前缀注入;需要引入如下依赖
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-configuration-processor</artifactId>
+        <optional>true</optional>
+    </dependency>
+
+列子：
+
+    @Configuration
+    @PropertySource(value="classpath:resource.properties")
+    @ConfigurationProperties(prefix = "soft")
+    public class ServerConfig {
+    
+        private String domain;
+    
+        private String name;
+    
+        public String getDomain() {
+            return domain;
+        }
+    
+        public void setDomain(String domain) {
+            this.domain = domain;
+        }
+    
+        public String getName() {
+            return name;
+        }
+        
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return "ServerConfig{" +
+                    "domain='" + domain + '\'' +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
+    }  
+    
+    
+    
+      
+
+### 6、单元测试
+引入如下依赖
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+
+列子：
+
+    @RunWith(SpringRunner.class)  //底层用junit  SpringJUnit4ClassRunner
+    @SpringBootTest(classes={StartApplication.class})//启动整个springboot工程
+    public class TestDemo {
+        
+        //测试方法运行前执行
+        @Before
+        public void beforeTest(){
+            System.out.println("=======before====");
+        }
+    
+        @Test
+        public void demo(){
+            System.out.println("========OK=====");
+            TestCase.assertEquals(1, 1);
+        }
+    
+        //测试方法运行后执行
+        @After
+        public void afterTest(){
+            System.out.println("=======after====");
+        }
+    }      

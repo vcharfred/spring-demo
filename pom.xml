@@ -13,6 +13,8 @@
         <module>springboot-demo3</module>
         <module>springboot-thymeleaf-demo</module>
         <module>springboot-freemarker-demo</module>
+        <module>springboot-dev-demo</module>
+        <module>springboot-test-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>
