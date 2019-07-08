@@ -486,7 +486,8 @@ TODO
     
       
 
-### 6、单元测试
+### 6、springboot测试
+#### 6.1 单元测试
 引入如下依赖
 
     <dependency>
@@ -518,4 +519,25 @@ TODO
         public void afterTest(){
             System.out.println("=======after====");
         }
-    }      
+    }   
+
+#### 6.2 MockMvc测试，模拟请求
+
+    @RunWith(SpringRunner.class)
+    @SpringBootTest(classes = StartApplication.class)
+    @AutoConfigureMockMvc
+    public class MockMvcTest {
+    
+        @Autowired
+        private MockMvc mockMvc;
+    
+        @Test
+        public void apiGETest() throws Exception {
+            MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/get/version"))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andReturn();
+    
+            System.out.println(mvcResult.getResponse().getContentAsString());
+        }
+    
+    }       
