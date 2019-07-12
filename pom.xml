@@ -16,6 +16,8 @@
         <module>springboot-dev-demo</module>
         <module>springboot-test-demo</module>
         <module>springboot-customer-banner-demo</module>
+        <module>springboot-exception-demo</module>
+        <module>springboot-war-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>
