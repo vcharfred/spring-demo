@@ -23,8 +23,11 @@
     |---springboot-customer-banner-demo  自定义springboot启动样式  
     |---springboot-thymeleaf-demo        使用thymeleaf做页面渲染引擎
     |---springboot-freemarker-demo       使用freemarker做页面渲染引擎
+    |---springboot-filter-demo           filter、listener、interceptor的使用
+    |---springboot-war-demo              springboot 打war包
+    |---springboot-timer-demo            springboot 定时任务
+    |---springboot-exception-demo        springboot 异常出来demo
     
-
 项目源代码： https://github.com/vcharfred/spring-demo.git
 
 ---
@@ -546,4 +549,235 @@ TODO
             System.out.println(mvcResult.getResponse().getContentAsString());
         }
     
-    }       
+    } 
+
+### 7、使用servlet3.0注解配置Filter
+主要用于权限控制、用户登录等; Filter优先级
+
+    Ordered.HIGHEST_PRECEDENCE
+    Ordered.LOWEST_PRECEDENCE
+    低位值意味着更高的优先级 Higher values are interpreted as lower priority
+    自定义Filter，避免和默认的Filter优先级一样，不然会冲突
+SpringBoot启动默认加载的Filter 
+    characterEncodingFilter
+    hiddenHttpMethodFilter
+    httpPutFormContentFilter
+    requestContextFilter    
+#### 7.1 使用servlet3.0注解配置自定义Filter
+* 使用Servlet3.0的注解进行配置
+* 启动类里面增加 @ServletComponentScan，进行扫描
+* 新建一个Filter类，implements Filter，并实现对应的接口
+* @WebFilter 标记一个类为filter，被spring进行扫描；urlPatterns：拦截规则，支持正则
+* 控制chain.doFilter的方法的调用，来实现是否通过放行；不放行，web应用resp.sendRedirect("/index.html");
+
+
+    import javax.servlet.*;
+    import javax.servlet.annotation.WebFilter;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    
+    /**
+     * <p> 过滤器 </p>
+     *
+     *  拦截以api开头的请求
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/17 21:09
+     */
+    @WebFilter(urlPatterns = "/api/*", filterName = "loginFilter")
+    public class LoginFilter implements Filter {
+    
+        //初始化: 容器加载时调用
+        @Override
+        public void init(FilterConfig filterConfig) throws ServletException {
+            System.out.println("初始化 LoginFilter");
+        }
+    
+        //请求被拦截的时候进行调用
+        @Override
+        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+            System.out.println("执行 LoginFilter");
+            HttpServletRequest request = (HttpServletRequest) servletRequest;
+            HttpServletResponse response = (HttpServletResponse) servletResponse;
+    
+            String token = request.getParameter("token");
+            if("1234".equals(token)){
+                filterChain.doFilter(servletRequest, servletResponse);
+            }else{
+                System.out.println("LoginFilter 拦截请求");
+                response.sendRedirect("/no_auth");
+            }
+    
+        }
+    
+        //容器被销毁时调用
+        @Override
+        public void destroy() {
+            System.out.println("销毁 LoginFilter");
+        }
+    }
+
+### 8、 使用servlet3.0注解配置自定义原生的Servlet
+现在都是使用基本都是spring等框架，都是自动将参数处理后直接传入给我们的controller；
+
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    
+    /**
+     * <p> 自定义Servlet </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/17 21:32
+     */
+    @WebServlet(name = "userServlet", urlPatterns = "/v1/*")
+    public class UserServlet extends HttpServlet {
+    
+        @Override
+        public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            System.out.println("执行userServlet Get");
+            resp.getWriter().println("custom servlet");
+            resp.getWriter().flush();
+            resp.getWriter().close();
+        }
+    
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            System.out.println("执行userServlet Post");
+            this.doGet(req, resp);
+        }
+    }
+
+### 9、 使用servlet3.0注解配置自定义Listener
+执行顺序：
+
+    Listener.requestInitialized-->>Controller--->>Listener.requestDestroyed
+
+代码实现：
+
+    import javax.servlet.ServletRequestEvent;
+    import javax.servlet.ServletRequestListener;
+    import javax.servlet.annotation.WebListener;
+    
+    /**
+     * <p> 自定义ServletRequestListener监听器 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/17 21:42
+     */
+    @WebListener
+    public class RequestListener implements ServletRequestListener {
+        
+        @Override
+        public void requestInitialized(ServletRequestEvent sre) {
+            System.out.println("=====请求初始化 RequestListener====");
+        }
+    
+        @Override
+        public void requestDestroyed(ServletRequestEvent sre) {
+            System.out.println("====请求销毁 RequestListener=====");
+        }
+    }
+    
+
+### 10、SpringBoot拦截器Interceptor
+2.x以后注册Interceptor
+
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+    import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+    
+    /**
+     * <p> 2.x以后注册Interceptor </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/17 21:59
+     */
+    @Configuration
+    public class CustomWebMvcConfigurer implements WebMvcConfigurer {
+    
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+            registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/v2/*");
+            WebMvcConfigurer.super.addInterceptors(registry);
+        }
+    }
+   
+2.x以前注册Interceptor
+          
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+    import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+    
+    /**
+     * <p> 2.x以前注册Interceptor  </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/17 22:00
+     */
+    @Configuration
+    public class CustomOldWebMvcConfigurer extends WebMvcConfigurerAdapter {
+    
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+            registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/v2/*");
+    
+        }
+    }    
+    
+拦截器实现
+ 
+    import org.springframework.web.servlet.HandlerInterceptor;
+    import org.springframework.web.servlet.ModelAndView;
+    
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    
+    /**
+     * <p> 拦截器 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/17 22:09
+     */
+    public class LoginInterceptor implements HandlerInterceptor {
+    
+        //进入controller方法前
+        @Override
+        public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            System.out.println("=====LoginInterceptor preHandle======");
+            return HandlerInterceptor.super.preHandle(request, response, handler);
+        }
+    
+        //调用完Controller之后，视图渲染之前，如果控制器Controller出现了异常，则不会执行此方法
+        @Override
+        public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+            System.out.println("=====LoginInterceptor postHandle======");
+            HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+        }
+    
+        //整个完成后，通常用于资源清理
+        @Override
+        public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+            System.out.println("=====LoginInterceptor afterCompletion======");
+            HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+        }
+    } 
+
+>Filter是基于函数回调 doFilter()，而Interceptor则是基于AOP思想
+>Filter在只在Servlet前后起作用，而Interceptor够深入到方法前后、异常抛出前后等
+>依赖于Servlet容器即web应用中，而Interceptor不依赖于Servlet容器所以可以运行在多种环境。
+>在接口调用的生命周期里，Interceptor可以被多次调用，而Filter只能在容器初始化时调用一次。
+>Filter和Interceptor的执行顺序
+>过滤前->拦截前->action执行->拦截后->过滤后  
+
+
+### 11、 
