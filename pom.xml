@@ -20,6 +20,7 @@
         <module>springboot-war-demo</module>
         <module>springboot-timer-demo</module>
         <module>springboot-filter-demo</module>
+        <module>springboot-mybatis-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>

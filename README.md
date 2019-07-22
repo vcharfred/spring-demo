@@ -27,6 +27,7 @@
     |---springboot-war-demo              springboot 打war包
     |---springboot-timer-demo            springboot 定时任务
     |---springboot-exception-demo        springboot 异常出来demo
+    |---springboot-mybatis-demo          springboot 中使用mybatis
     
 项目源代码： https://github.com/vcharfred/spring-demo.git
 
@@ -230,7 +231,6 @@ TODO
       
 
 ---
-
 ### 2、springboot的controller相关注解说明
 #### 2.1 @RestController 
 这个注解相比于@Controller可以让我们在返回json等数据类型时，不用再方法上加@ResponseBody注解
@@ -352,7 +352,6 @@ TODO
     }
 
    
-
 ### 3、springboot官方推荐的目录规范
 
     src/main/java：存放代码
@@ -364,7 +363,7 @@ TODO
 >同个文件的加载顺序,静态资源文件
  	 Spring Boot 默认会挨个从
  	 META/resources > resources > static > public  里面找是否存在相应的资源，如果有则直接返回。
- 	         
+>可以配置resources.static-locations修改，多个使用英文逗号分隔 	         
 * 页面模板引擎 Thymeleaf加入如下maven依赖
 
         <dependency>
@@ -379,7 +378,6 @@ TODO
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
         
-
 ### 4、热部署
 加入如下依赖：
 
@@ -391,7 +389,6 @@ TODO
     
 * 指定文件不进行热部署 spring.devtools.restart.exclude=static/**,public/**
 * 手工触发重启 spring.devtools.restart.trigger-file=trigger.txt 改代码不重启，通过一个文本去控制,里面可以填写版本号等配置
-
 ### 5、注入配置文件    
 #### 5.1 直接注入属性值
 * 首先需要在类上加上 @PropertySource({"classpath:resource.properties"})指定需要加载的配置文件
@@ -494,7 +491,6 @@ TODO
     
     
       
-
 ### 6、springboot测试
 #### 6.1 单元测试
 引入如下依赖
@@ -550,7 +546,6 @@ TODO
         }
     
     } 
-
 ### 7、使用servlet3.0注解配置Filter
 主要用于权限控制、用户登录等; Filter优先级
 
@@ -617,7 +612,6 @@ SpringBoot启动默认加载的Filter
             System.out.println("销毁 LoginFilter");
         }
     }
-
 ### 8、 使用servlet3.0注解配置自定义原生的Servlet
 现在都是使用基本都是spring等框架，都是自动将参数处理后直接传入给我们的controller；
 
@@ -652,7 +646,6 @@ SpringBoot启动默认加载的Filter
             this.doGet(req, resp);
         }
     }
-
 ### 9、 使用servlet3.0注解配置自定义Listener
 执行顺序：
 
@@ -685,7 +678,6 @@ SpringBoot启动默认加载的Filter
         }
     }
     
-
 ### 10、SpringBoot拦截器Interceptor
 2.x以后注册Interceptor
 
@@ -778,6 +770,98 @@ SpringBoot启动默认加载的Filter
 >在接口调用的生命周期里，Interceptor可以被多次调用，而Filter只能在容器初始化时调用一次。
 >Filter和Interceptor的执行顺序
 >过滤前->拦截前->action执行->拦截后->过滤后  
+### 11、使用freemarker做页面渲染引擎
+添加依赖
 
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-freemarker</artifactId>
+    </dependency>
 
-### 11、 
+配置
+
+    spring:
+      freemarker:
+        # 编码
+        charset: UTF-8
+        # 本地开发关闭缓存
+        cache: false
+        content-type: text/html
+        # 文件后缀
+        suffix: .ftl
+        # 文件目录，这个是默认的
+        template-loader-path: classpath:/templates/
+    
+### 12、使用thymeleaf做页面渲染引擎
+添加依赖
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+
+配置
+    
+    spring:
+      thymeleaf:
+        # 本地开发关闭缓存
+        cache: false
+        encoding: UTF-8
+        suffix: .html
+        prefix: classpath:/templates/  
+        
+### 13、mybatis配置
+添加maven依赖
+
+    <!--mybatis-boot-->
+    <dependency>
+        <groupId>org.mybatis.spring.boot</groupId>
+        <artifactId>mybatis-spring-boot-starter</artifactId>
+        <version>2.1.0</version>
+    </dependency>
+    <!--MySQL的JDBC驱动包-->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+    <!--第三方数据源druid-->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.1.10</version>
+    </dependency>
+    
+或使用druid-spring-boot-starter可以简化druid配置
+
+        <!--这个可以简化druid配置-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>1.1.10</version>
+        </dependency>
+在启动类上加入 @MapperScan("包名")设置扫描dao的包；如：
+
+    @MapperScan("top.vchar.demo.spring.mapper")
+    # 有多个不同路径时
+    @MapperScan(value = {"top.vchar.demo.spring.mapper", "com.xx.dao"})
+        
+dao使用示例，不用再在xml文件中写sql了, 直接在方法上写：
+
+public interface DemoMapper {
+    
+    //keyProperty--Java对象属性，keyColumn--数据库字段
+    @Insert("INSERT INTO user(name, age) VALUES(#{name}, #{age})")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+    int insert(User user);  
+
+>推荐使用#{}； 不建议使用${},因为存在sql注入风险    
+
+开启事务：在service的实现方法上加入如下注解：
+
+    @Transactional(propagation = Propagation.REQUIRED)//开启事务，设置事务级别(若不配置propagation则使用数据库默认的级别)
+    public int addUser(User user) {
+        //TODO something
+ 
+    }    
+        

@@ -4,3 +4,12 @@ server:
   servlet:
     # 配置部署的路径
     context-path: /
+spring:
+  thymeleaf:
+    # 本地开发关闭缓存
+    cache: false
+    encoding: UTF-8
+    suffix: .html
+    prefix: classpath:/templates/
+  resources:
+    static-locations:
