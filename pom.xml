@@ -21,6 +21,8 @@
         <module>springboot-timer-demo</module>
         <module>springboot-filter-demo</module>
         <module>springboot-mybatis-demo</module>
+        <module>springboot-redis-demo</module>
+        <module>springboot-elasticsearch-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>

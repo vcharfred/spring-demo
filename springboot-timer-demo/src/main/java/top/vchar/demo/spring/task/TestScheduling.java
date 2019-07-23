@@ -1,14 +1,14 @@
 package top.vchar.demo.spring.task;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+        import org.springframework.scheduling.annotation.Scheduled;
+        import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+        import java.util.ArrayList;
+        import java.util.Arrays;
+        import java.util.List;
+        import java.util.concurrent.ExecutionException;
+        import java.util.concurrent.Future;
 
 /**
  * <p> 定时任务 </p>
@@ -61,5 +61,4 @@ public class TestScheduling {
             System.out.println(Arrays.toString(ids.toArray()));
         }
     }
-
 }

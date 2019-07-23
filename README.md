@@ -28,6 +28,10 @@
     |---springboot-timer-demo            springboot 定时任务
     |---springboot-exception-demo        springboot 异常出来demo
     |---springboot-mybatis-demo          springboot 中使用mybatis
+    |---springboot-redis-demo            springboot 中使用redis
+    |---springboot-elasticsearch-demo    springboot 中使用elasticsearch
+    
+    
     
 项目源代码： https://github.com/vcharfred/spring-demo.git
 
@@ -376,8 +380,7 @@ TODO
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
-        </dependency>
-        
+        </dependency>      
 ### 4、热部署
 加入如下依赖：
 
@@ -763,7 +766,6 @@ SpringBoot启动默认加载的Filter
             HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
         }
     } 
-
 >Filter是基于函数回调 doFilter()，而Interceptor则是基于AOP思想
 >Filter在只在Servlet前后起作用，而Interceptor够深入到方法前后、异常抛出前后等
 >依赖于Servlet容器即web应用中，而Interceptor不依赖于Servlet容器所以可以运行在多种环境。
@@ -864,4 +866,247 @@ public interface DemoMapper {
         //TODO something
  
     }    
+### 14、redis使用
+添加依赖：
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+ 
+配置：
+
+    spring:
+      redis:
+        # 链接地址
+        host: 127.0.0.1
+        # 认证密码
+        password: 123456
+        # 数据库序号
+        database: 0
+        # 链接超时，单位毫秒
+        timeout: 2000
+        # 这个比jedis性能更好
+        lettuce:
+          pool:
+            # 池中最大活跃数，-1表示不限制
+            max-active: 10
+            # 池中最小空闲链接
+            min-idle: 1
+            # 池中最大空闲链接
+            max-idle: 8
+            # 最大等待时间，单位毫秒，-1表示不限
+            max-wait: 1000
+                
+简单使用：
+     
+    @RestController
+    public class IndexController {
+         @Autowired
+         private StringRedisTemplate redisTemplate;
+     
+         @GetMapping("/redis_test")
+         public String redisTest() {
+             String val = redisTemplate.opsForValue().get("test:demo");
+             //key建议都使用一个前缀加上 : 这样在查看redis库时会方便许多，同时也便于管理
+             redisTemplate.opsForValue().set("test:demo", "this is test");
+             return val;
+         }
+    }
+### 15、springboot 使用定时任务和异步执行
+在启动类上加上开启定时的注解
+
+    @EnableScheduling 
+使用示例：    
+
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.scheduling.annotation.Scheduled;
+    import org.springframework.stereotype.Component;
+    
+    import java.util.ArrayList;
+    import java.util.Arrays;
+    import java.util.List;
+    import java.util.concurrent.ExecutionException;
+    import java.util.concurrent.Future;
+    
+    /**
+     * <p> 定时任务 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/16 23:31
+     */
+    @Component
+    public class TestScheduling {
+    
+        @Autowired
+        private DmoTask dmoTask;
+    
+        //每隔2s执行一次
+        @Scheduled(fixedDelay = 2000)//支持core表达式
+        public void demo() throws ExecutionException, InterruptedException {
+            //TODO 
+            System.out.println("开始执行定时任务");
+        }
+    }
+@Scheduled配置说明：
+
+* cron 定时任务表达式 @Scheduled(cron="*/1 * * * * *") 表示每秒
+    1）crontab 工具  https://tool.lu/crontab/
+* fixedRate: 定时多久执行一次（上一次开始执行时间点后xx秒再次执行；）
+* fixedDelay: 上一次执行结束时间点后xx秒再次执行
+* fixedDelayString:  字符串形式，可以通过配置文件指定    
+            
+在启动类上加上开启异步执行的的注解；当某几个方法执行顺序无关联影响，又比较耗时时，则可以使用异步执行，这样也就可以提高系统速度 
+    
+    @EnableAsync
+  
+示例：异步执行该方法，并等待结果返回。
+
+    //有这个注解的即表示异步执行方法（放在类上则类中所有方法都是异步方法），若不配做线程池，则springboot会使用默认的 SimpleThreadPoolTaskExecutor (每调用一次异步方法，都会创建一个线程去执行)
+    @Async 
+    public Future<List<Integer>> pullInfo(int pageIndex, int total){
+        List<Integer> list = new ArrayList<>();
+        do{
+            List<Integer> ids = demoService.demo(pageIndex);
+            if(ids.size()>0){
+                list.addAll(ids);
+            }
+            pageIndex++;
+        }while (pageIndex<=total);
+        return AsyncResult.forValue(list);
+    }
+### 16、elasticsearch使用
+
+查看es数据
+
+    查看索引信息：http://localhost:9200/_cat/indices?v
+    查看某个索引库结构：http://localhost:9200/blog
+    查看某个对象：http://localhost:9200/{indexName}/{type}/1  
+    
+[elasticsearch官网地址](https://www.elastic.co/products/elasticsearch)   
+
+#### 安装问题：
+1. elasticsearch不能以root用户运行；
+
+
+    #添加一个组
+    groupadd -g 1024 bigdata
+    # 在组中添加一个用户
+    useradd -g bigdata es
+    # 进入elasticsearch安装目录修改创建用户的权限
+    chown -R es:bigdata .
+
+
+2. 提示vm.max_map_count太小，需要修改系统配置
+
+    
+    #打开系统配置文件
+    vi  /etc/sysctl.conf
+在里面添加如下配置：
+
+    vm.max_map_count=262144
+3. 开启外网访问：	
+		
+将elasticsearch安装目录下的config目录下面elasticsearch.yml修改为 network.host: 0.0.0.0
+
+添加maven依赖
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+    </dependency>
+    
+> 注意：请注意当前引入的spring-boot-starter-data-elasticsearch支持的elasticsearch的版本，若版本不一样可能会出现一些问题，不要出现大版本的不同。
+
+配置：
+
+    spring:
+      data:
+        elasticsearch:
+          cluster-name: elasticsearch
+          cluster-nodes: 127.0.0.1:9300
+          repositories:
+            enabled: true
+使用：
+
+定义文档映射：
+
+    import org.springframework.data.elasticsearch.annotations.Document;
+    
+    import java.io.Serializable;
+    
+    /**
+     * <p> 实体类（表映射）:火车站点 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/22 23:41
+     */
+    //indexName==db_name, type=table
+    @Document(indexName = "train", type = "station")
+    public class TrainStation implements Serializable {
+    
+        private String id;
+        private String stationName;
+        private int hot;
+        private int priority;
+        private String match;
+        private String stationCode;
+        //TODO GET SET method...
         
+    }
+
+定义文档访问接口    
+
+    import org.springframework.data.elasticsearch.annotations.Document;
+    import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
+    import org.springframework.stereotype.Component;
+    import top.vchar.demo.spring.pojo.TrainStation;
+    
+    /**
+     * <p>  文档访问接口（相当于dao数据库访问） </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/22 23:47
+     */
+    @Component
+    @Document(indexName = "train", type = "station", shards = 1, replicas = 0)
+    public interface TrainStationRepository extends ElasticsearchRepository<TrainStation, String> {
+    }    
+
+调用：  
+  
+    @RestController
+    public class IndexController {
+  
+      @Autowired
+      private TrainStationRepository trainStationRepository;
+        
+        //保存
+      @PostMapping("/save_train")
+      public String esSaveDemo(String stationStr){
+          if(null!=stationStr){
+              TrainStation trainStation = JSONObject.parseObject(stationStr, TrainStation.class);
+              if(trainStation.getId()!=null){
+                  trainStationRepository.save(trainStation);
+                  System.out.println("保存成功");
+                  return "200";
+              }
+          }
+          System.out.println("保持失败");//INSTANCE
+          return "401";
+      }
+  
+       //搜索
+      @GetMapping("/search_train")
+      public String esSearchDemo(String key){
+          QueryBuilder queryBuilder = QueryBuilders.matchQuery("stationName", key);
+          List<TrainStation> list = new ArrayList<>();
+          Iterable<TrainStation> search = trainStationRepository.search(queryBuilder);
+          search.forEach(list::add);
+          return JSONObject.toJSONString(list);
+      }   
+      
+           
