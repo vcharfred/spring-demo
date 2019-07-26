@@ -1108,5 +1108,34 @@ public interface DemoMapper {
           search.forEach(list::add);
           return JSONObject.toJSONString(list);
       }   
-      
+### 17、activemq使用
+添加maven依赖：
+
+    <!-- 整合消息队列ActiveMQ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-activemq</artifactId>
+        </dependency>
+
+使用的springboot2.1.x以上的使用这个连接池
+
+    <!-- 如果配置线程池则加入: -->
+        <dependency>
+            <groupId>org.messaginghub</groupId>
+            <artifactId>pooled-jms</artifactId>
+        </dependency>
+              
+使用的springboot2.0.x以下的使用这个连接池 
+        
+        <!-- 如果配置线程池则加入: -->
+        <dependency>  
+            <groupId>org.apache.activemq</groupId>  
+            <artifactId>activemq-pool</artifactId>  
+        </dependency>
+     
+#### 使用
+生产者：
+
+           
+           
            

@@ -23,6 +23,7 @@
         <module>springboot-mybatis-demo</module>
         <module>springboot-redis-demo</module>
         <module>springboot-elasticsearch-demo</module>
+        <module>springboot-mq-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>
