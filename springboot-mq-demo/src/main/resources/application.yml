@@ -15,3 +15,6 @@ spring:
     pool:
       enabled: true
       max-connections: 100
+#  jms:
+##     开启发布订阅模式
+#    pub-sub-domain: true

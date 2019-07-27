@@ -24,4 +24,6 @@ public interface ProducerService {
      */
     void sendMessage(final String message);
 
+    //发布消息
+    void publish(String msg);
 }

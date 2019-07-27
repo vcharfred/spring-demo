@@ -1133,9 +1133,145 @@ public interface DemoMapper {
             <artifactId>activemq-pool</artifactId>  
         </dependency>
      
-#### 使用
-生产者：
+#### 消息队列使用--点对点模式
+点对点模式：可以有多个接收方和发送方，消息会根据发送时间进行排队，先发送的先处理；每条消息只会有一个消息接收者收到。同时当没有消息接收者监听消息，那么这些消息会存储在队列里面，
+直到有消息接收者启动
 
-           
+示例：
+
+在springboot启动类上添加 `````@EnableJms```注解开启jms支持
+
+    //注入队列，交给spring管理；也可以不做这个操作，只是后面发消息时每次都需要创建
+    @Bean
+    public Queue queue(){
+        //指定队列名称
+        return new ActiveMQQueue("common.queue");
+    }
+
+消息生产者：
+
+    @Service
+    public class ProducerServiceImpl implements ProducerService {
+        
+        @Autowired
+        private JmsMessagingTemplate jmsMessagingTemplate;
+        
+        //注入上面注入的bean
+        @Autowired
+        private Queue queue;
+        
+        /**
+         * 发送消息
+         * @param destination 指定发送到的队列，手动创建
+         * @param message 待发送的消息
+         */
+        @Override
+        public void sendMessage(Destination destination, String message) {
+            jmsMessagingTemplate.convertAndSend(destination, message);
+        }
+    
+        /**
+         * 发送消息, 使用注入的队列发消息
+         * @param message 待发送的消息
+         */
+        @Override
+        public void sendMessage(String message) {
+            jmsMessagingTemplate.convertAndSend(this.queue, message);
+        }
+    }
+
+调用：
+
+    @RestController
+    @RequestMapping("/api/v1")
+    public class OrderController {
+
+        @Autowired
+        private ProducerService producerService;
+    
+        @GetMapping("/order")
+        public String order(String msg){
+            //生成队列地址；这里手动创建
+            Destination destination = new ActiveMQQueue("order.queue");
+            producerService.sendMessage(destination, msg);
+            return "ok";
+        }
+    
+        @GetMapping("/common")
+        public String common(String msg){
+            System.out.println("common: "+msg);
+            producerService.sendMessage(msg);
+            return "ok";
+        }
+    }    
+
+消息接收者
+
+    @Component
+    public class OrderConsumer {
+    
+        @JmsListener(destination = "order.queue")
+        public void orderConsumer(String text){
+            System.out.println("order.queue接收到消息："+text);
+        }
+    
+    }
+
+
+
+#### 消息队列使用--发布订阅模式
+发布订阅模式：可以有多个接收方和发送方，每条消息会被所有的接收方收到，若没有接收方那么这条消息也会被认为是发送成功的，后面将不会再收到该消息。   
+
+修改配置文件，开启发布订阅模式
+
+    jms:
+        #开启发布订阅模式
+        pub-sub-domain: true
+
+消息发布者：
+
+    @Autowired
+    private Topic topic;
+    @Override
+    public void publish(String msg){
+        jmsMessagingTemplate.convertAndSend(this.topic, msg);
+    }
+
+消息订阅者：
+
+    @Component
+    public class VideoTopicSub {
+        @JmsListener(destination = "video.topic")
+        public void video(String text){
+            System.out.println("video.topic接收到消息："+text);
+        }
+    }
+
+> 注意：springboot只能同时支持点对点模式或发布订阅模式中的一个，若要都支持需要指定链接工厂。
+
+自己手动注入Topic工厂
+
+    @Bean
+    public JmsListenerContainerFactory<?> jmsListenerContainerTopic(ConnectionFactory activeMQConnectionFactory) {//idea可能会报找不到activeMQConnectionFactory的bean错误提升。不用管这是可以正常使用的
+        DefaultJmsListenerContainerFactory bean = new DefaultJmsListenerContainerFactory();
+        bean.setPubSubDomain(true);//开启订阅发布模式
+        bean.setConnectionFactory(activeMQConnectionFactory);
+        return bean;
+    }
+同时需要关闭配置文件中
+    
+        jms:
+            #关闭发布订阅模式，默认就是关闭状态
+            pub-sub-domain: false    
+
+消息订阅者需要设置监听的链接工厂，使其不和点对点的消息队列冲突
+ 
+    @Component
+    public class VideoTopicSub {
+        @JmsListener(destination = "video.topic", containerFactory="jmsListenerContainerTopic")
+        public void video(String text){
+            System.out.println("video.topic接收到消息："+text);
+        }
+    }            
            
            

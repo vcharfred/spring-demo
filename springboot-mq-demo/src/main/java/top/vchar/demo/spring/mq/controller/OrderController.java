@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import top.vchar.demo.spring.mq.service.ProducerService;
 
 import javax.jms.Destination;
+import java.util.UUID;
 
 /**
  * <p> 消息发送暴露 </p>
@@ -25,10 +26,11 @@ public class OrderController {
 
     @GetMapping("/order")
     public String order(String msg){
-        System.out.println("order: "+msg);
         //生成队列地址
         Destination destination = new ActiveMQQueue("order.queue");
-        producerService.sendMessage(destination, msg);
+        for(int i=0; i<30; i++){
+            producerService.sendMessage(destination, i+"-"+ UUID.randomUUID().toString());
+        }
         return "ok";
     }
 
@@ -38,5 +40,12 @@ public class OrderController {
         producerService.sendMessage(msg);
         return "ok";
     }
+
+    @GetMapping("/publish")
+    public String publish(String msg){
+        producerService.publish(msg);
+        return "ok";
+    }
+
 
 }

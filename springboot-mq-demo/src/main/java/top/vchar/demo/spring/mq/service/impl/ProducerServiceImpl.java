@@ -7,6 +7,7 @@ import top.vchar.demo.spring.mq.service.ProducerService;
 
 import javax.jms.Destination;
 import javax.jms.Queue;
+import javax.jms.Topic;
 
 /**
  * <p> 消息生产者实现 </p>
@@ -40,5 +41,14 @@ public class ProducerServiceImpl implements ProducerService {
     @Override
     public void sendMessage(String message) {
         jmsMessagingTemplate.convertAndSend(this.queue, message);
+    }
+
+
+    //============发布订阅===========
+    @Autowired
+    private Topic topic;
+    @Override
+    public void publish(String msg){
+        jmsMessagingTemplate.convertAndSend(this.topic, msg);
     }
 }
