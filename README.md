@@ -1503,7 +1503,22 @@ RocketMQ是一款高性能、高吞吐量的分布式消息中间件的阿里开
             return result.toString();
         }    
     }    
+### 18、多环境配置
+在resource目录下的config目录；分别创建各个环境的配置文件
 
+    application.yml # 主配置文件，里面指定环境
+
+方式如下：
+    
+    spring:
+      profiles:
+        active: test
+
+    application-dev.yml # 测试环境
+    application-local.yml # 本地环境
+    ....
+    
+    
 
 
     

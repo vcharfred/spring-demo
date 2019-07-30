@@ -25,6 +25,7 @@
         <module>springboot-elasticsearch-demo</module>
         <module>springboot-mq-demo</module>
         <module>springboot-rocketMQ-demo</module>
+        <module>springboot-more-environment</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>
