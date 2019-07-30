@@ -24,6 +24,7 @@
         <module>springboot-redis-demo</module>
         <module>springboot-elasticsearch-demo</module>
         <module>springboot-mq-demo</module>
+        <module>springboot-rocketMQ-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>

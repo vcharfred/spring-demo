@@ -1273,5 +1273,246 @@ public interface DemoMapper {
             System.out.println("video.topic接收到消息："+text);
         }
     }            
+### 17、RocketMQ使用  
+* 官网地址：[http://rocketmq.apache.org/](http://rocketmq.apache.org/)
+* 学习资源1：[http://jm.taobao.org/2017/01/12/rocketmq-quick-start-in-10-minutes/](http://jm.taobao.org/2017/01/12/rocketmq-quick-start-in-10-minutes/)
+* 学习资源2：[https://www.jianshu.com/p/453c6e7ff81c](https://www.jianshu.com/p/453c6e7ff81c)
+
+
+RocketMQ是一款高性能、高吞吐量的分布式消息中间件的阿里开源中间件；
+特点：
+
+    1)在高压下1毫秒内响应延迟超过99.6％。
+    2)适合金融类业务，高可用性跟踪和审计功能。
+    3)支持发布订阅模型，和点对点
+    4）支持拉pull和推push两种消息模式
+    5)单一队列百万消息
+    6)支持单master节点，多master节点，多master多slave节点
+    ...
+概念:
+
+    Producer:消息生产者
+    Producer Group:消息生产者组，发送同类消息的一个消息生产组
+    Consumer:消费者
+    Consumer Group:消费同个消息的多个实例
+    Tag:标签，子主题（二级分类）,用于区分同一个主题下的不同业务的消息
+    Topic:主题
+    Message：消息
+    Broker：MQ程序，接收生产的消息，提供给消费者消费的程序
+    Name Server：给生产和消费者提供路由信息，提供轻量级的服务发现和路由
+    		
+
+
+#### 安装RocketMQ
+官网提供了源码（带source文件名的）安装和二进制安装，源码安装需要自己去编码；这里直接下载二进制安装包[http://rocketmq.apache.org/release_notes/release-notes-4.4.0/](http://rocketmq.apache.org/release_notes/release-notes-4.4.0/)
+
+1. 将下载的压缩解压即可；
+2. 进入解压包中中bin目录下，修改runserver.sh和runbroker.sh这个2文件；
+    
+    
+    #将Java虚拟机参数设置小点，避免启动时报内存不足的错误；参考如下：
+    JAVA_OPT=”${JAVA_OPT} -server -Xms256m -Xmx256m -Xmn125m....
+3. 启动服务，执行如下命令：
+ 
+    
+    nohup sh mqnamesrv & 
+启动后按Ctrl+c退出后，输入如下命令查看是否启动成功
+
+    tail -f nohup.out
+结尾：The Name Server boot success. serializeType=JSON 表示启动成功
+4. 启动broker; 这里由于我的不是本地服务器而是阿里云的服务，因此需要开启外网访问。
+修改conf下的配置文件broker.conf
+
+    
+    vi conf/broker.conf
+在里面添加如下配置：
+
+    namesrvAddr=外网IP:9876
+    brokerIP1=外网IP
+
+保存后执行启动命令：
+
+    nohup sh bin/mqbroker -c conf/broker.conf &
+
+#### springboot使用 
+添加maven依赖
+
+    <dependency>
+        <groupId>org.apache.rocketmq</groupId>
+        <artifactId>rocketmq-client</artifactId>
+        <version>4.5.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.rocketmq</groupId>
+        <artifactId>rocketmq-common</artifactId>
+        <version>4.5.1</version>
+    </dependency>
+
+
+添加配置
+
+    server:
+      # 设置端口号
+      port: 8080
+      servlet:
+        # 配置部署的路径
+        context-path: /
+    apache:
+      rocketmq:
+        consumer:
+        #消费者
+          push-consumer: orderConsumer
+        producer:
+        # 生产者
+          producer-group: orderProducer
+        # 服务地址  
+        namesrv-addr: 127.0.0.1:9876   
+
+生产者：
+
+    /**
+     * <p> 消息生产者 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/29 22:43
+     */
+    @Component
+    public class MsgProducer {
+    
+    
+        /**
+         * 生产者的组名
+         */
+        @Value(value = "${apache.rocketmq.producer.producer-group}")
+        private String producerGroup;
+    
+        /**
+         * NameServer 地址
+         */
+        @Value(value = "${apache.rocketmq.namesrv-addr}")
+        private String namesrvAddr;
+    
+        private DefaultMQProducer producer ;
+    
+    
+        public DefaultMQProducer getProducer(){
+            return this.producer;
+        }
+    
+        @PostConstruct
+        public void defaultMQProducer() {
+            //生产者的组名
+            producer = new DefaultMQProducer(producerGroup);
+            //指定NameServer地址，多个地址以 ; 隔开
+            //如 producer.setNamesrvAddr("192.168.100.141:9876;192.168.100.142:9876;192.168.100.149:9876");
+            producer.setNamesrvAddr(namesrvAddr);
+            producer.setVipChannelEnabled(false);
+    
+            try {
+                /**
+                 * Producer对象在使用之前必须要调用start初始化，只能初始化一次
+                 */
+                producer.start();
+    
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    
+            // producer.shutdown();  一般在应用上下文，关闭的时候进行关闭，用上下文监听器
+    
+        }
+    
+    }
+消费者：
+    
+    /**
+     * <p> 消息消费者 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/7/29 22:43
+     */
+    @Component
+    public class MsgConsumer {
+    
+        /**
+         * 消息消费者
+         */
+        @Value("${apache.rocketmq.consumer.push-consumer}")
+        private String pushConsumer;
+    
+        /**
+         * NameServer 地址
+         */
+        @Value("${apache.rocketmq.namesrv-addr}")
+        private String namesrvAddr;
+    
+        @PostConstruct
+        public void defaultMQPushConsumer(){
+            DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(pushConsumer);
+            consumer.setNamesrvAddr(namesrvAddr);
+            try {
+                //设置consumer所订阅的Topic和Tag, *代表所有的Tag
+                consumer.subscribe("testTopic", "*");
+    
+                // CONSUME_FROM_LAST_OFFSET 默认策略。从该队列最尾开始消费，跳过历史消息
+                // CONSUME_FROM_FIRST_OFFSET, 从队列最开始开始消费，即历史消息（还存在broker的）全部消费一遍
+                // CONSUME_FROM_TIMESTAMP;//根据时间消费
+                consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
+    
+    //            MessageListenerOrderly 有序的
+                //MessageListenerConcurrently无序的，效率更高
+                consumer.registerMessageListener((MessageListenerConcurrently)(list, context)->{
+                    try{
+                        for(MessageExt messageExt:list){
+                            //打印消息内容
+                            System.out.println("messageExt: "+messageExt);
+                            String messageBody = new String(messageExt.getBody(), RemotingHelper.DEFAULT_CHARSET);
+                            //输出消息内容
+                            System.out.println("消费响应msgId: "+messageExt.getMsgId()+", msgBody: "+messageBody);
+                        }
+    
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        return ConsumeConcurrentlyStatus.RECONSUME_LATER;//稍后再试
+                    }
+                    return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;//消费成功
+                });
+                consumer.start();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    
+    }
+
+测试发送消息：
+
+    @RestController
+    public class OrderController {
+
+        @Autowired
+        private MsgProducer msgProducer;
+    
+        @GetMapping("/order")
+        public String order(String msg, String tag) throws InterruptedException, RemotingException, MQClientException, MQBrokerException {
+            Message message = new Message("testTopic", tag, msg.getBytes(StandardCharsets.UTF_8));
+            SendResult result = msgProducer.getProducer().send(message);
+            System.out.println("发送响应：MsgId: "+result.getMsgId()+", 发送状态："+result.getSendStatus());
+            return result.toString();
+        }    
+    }    
+
+
+
+    
+
+
+
+
+
+ 
+    
            
            
