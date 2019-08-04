@@ -30,9 +30,12 @@
     |---springboot-mybatis-demo          springboot 中使用mybatis
     |---springboot-redis-demo            springboot 中使用redis
     |---springboot-elasticsearch-demo    springboot 中使用elasticsearch
-    
-    
-    
+    |---springboot-mq-demo               springboot 中使用activemq
+    |---springboot-rocketMQ-demo         springboot 中使用rocketMQ
+    |---springboot-more-environment      springboot 多环境配置
+    |---springboot-webflux-demo          springboot webflux响应式编程
+    |---springboot-actuator-demo         springboot 监控
+        
 项目源代码： https://github.com/vcharfred/spring-demo.git
 
 ---
@@ -1633,10 +1636,33 @@ import reactor.core.publisher.Mono;
         }
     
     }
+### 20、springboot监控actuator
+加入如下依赖：
 
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
 
+访问监控地址：
 
- 
-    
+    http://127.0.0.1:8080/actuator
+    http://127.0.0.1:8080/actuator/health
+    http://127.0.0.1:8080/actuator/info
+    http://127.0.0.1:8080/actuator/metrics	查看应用基本指标列表
+    http://127.0.0.1:8080/actuator/metrics/{name}		通过上述列表，查看具体 查看具体指标
+
+出于安全考虑，除/health和/info之外的所有执行器默认都是禁用的；若需要打开如做如下配置
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            # 开启全部
+            include: '*'
+            # 开启某个
+            #include: metrics
+            # 关闭某个
+            #exclude: metrics
            
            
