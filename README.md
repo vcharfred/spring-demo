@@ -1517,13 +1517,122 @@ RocketMQ是一款高性能、高吞吐量的分布式消息中间件的阿里开
     application-dev.yml # 测试环境
     application-local.yml # 本地环境
     ....
+### 19、webFlux响应式编程
+[reactive-streams学习资料](http://www.reactive-streams.org/)
+[web-flux spring官方介绍](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#spring-webflux)
+
+响应式编程特点：
+
+1. 是Spring Framework 5.0中引入的新的反应式Web框架   
+2. 应用程序不严格依赖于Servlet API，因此它们不能作为war文件部署，也不能使用src/main/webapp目录
+3. 完全异步和非阻塞    
+4. 启动方式默认是Netty
+
+需要的maven依赖：(加入依赖，如果同时存在spring-boot-starter-web，则会优先用spring-boot-starter-web)
+
+    <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+    </dependency>
+使用：
+
+    import org.springframework.http.MediaType;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RestController;
+    import reactor.core.publisher.Flux;
+    import reactor.core.publisher.Mono;
+    import top.vchar.demo.spring.pojo.Member;
+    
+    import java.time.Duration;
+    import java.util.Collection;
+    import java.util.HashMap;
+    import java.util.Map;
+    
+    /**
+     * <p> 测试 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/8/3 16:04
+     */
+    @RestController
+    public class IndexController {
+    
+        @GetMapping("/demo1")
+        public String demo1(){
+            return "demo-1";
+        }
+    
+        //Mono用于返回0或1个元素
+        @GetMapping("/demo2")
+        public Mono<String> demo2(){
+            return Mono.just("demo2");
+        }
     
     
-
-
+        private static Map<String, Member> map = new HashMap<>();
+        static {
+            for(int i=0; i<10; i++){
+                map.put(""+i, new Member(i, "demo-"+i));
+            }
+        }
     
+        //Flux返回0或N个元素
+        @GetMapping("/demo3")
+        public Flux<Member> demo3(){
+          Collection<Member> members = map.values();
+          return Flux.fromIterable(members);
+        }
+    
+        //Mono用于返回0或1个元素
+        @GetMapping("/demo4")
+        public Mono<Member> demo4(final String id){
+            return Mono.justOrEmpty(map.get(id));
+        }
+    
+        /**
+         * 分批次返回
+         *
+         * 这里每隔2s返回一个对象；webflux是字符串，需要做特殊设置
+         */
+        @GetMapping(value = "/demo5", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+        public Flux<Member> demo5(){
+            Collection<Member> members = map.values();
+            //每个延迟2秒返回
+            return Flux.fromIterable(members).delayElements(Duration.ofSeconds(2));
+        }
+    }
 
+>Mono 是响应流 Publisher 具有基础 rx 操作符，可以成功发布元素或者错误    
+>
+>Flux 是响应流 Publisher 具有基础 rx 操作符，可以成功发布 0 到 N 个元素或者错误。Flux 其实是 Mono 的一个补充
 
+响应式编程使用的数据库需要保证访问速度的快速，即通常使用redis等数据库，否则和普通的方式区别不会太大。    
+
+import org.junit.Test;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+    /**
+     * <p> webflux客户端Webclient测试 </p>
+     *
+     * @author vchar fred
+     * @version 1.0
+     * @create_date 2019/8/4 9:48
+     */
+    public class WebClientTest {
+    
+        @Test
+        public void testBase(){
+            Mono<String> result = WebClient.create().get()
+                    .uri("http://127.0.0.1:8080//demo4?id={id}", 2)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve().bodyToMono(String.class);
+            System.out.println(result.block());//阻塞等待结果返回
+        }
+    
+    }
 
 
 
