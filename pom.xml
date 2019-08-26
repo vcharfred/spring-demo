@@ -5,14 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.vchar.demo.spring</groupId>
-    <artifactId>springboot2-demo</artifactId>
+    <artifactId>Spring-Cloud-Demo</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>springboot-start-demo</module>
-    </modules>
     <packaging>pom</packaging>
     <name>SpringBoot2-Demo</name>
     <description>SpringBoot2学习笔记</description>
 
-
+    <modules>
+        <module>product-server</module>
+        <module>springcloud-eureka-server</module>
+        <module>springcloud-ribbon</module>
+    </modules>
 </project>

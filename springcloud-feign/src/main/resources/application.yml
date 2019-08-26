@@ -1,0 +1,11 @@
+server:
+  port: 8782
+# \u914D\u7F6E\u6CE8\u518C\u4E2D\u5FC3\u5730\u5740
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+# \u914D\u7F6E\u5E94\u7528\u540D\u79F0
+spring:
+  application:
+    name: order-service
