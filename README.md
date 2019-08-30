@@ -446,4 +446,34 @@ fallback中配置的类必须实现这个接口，并且注入微spring的bean
     feign:
       hystrix:
         enabled: true    
-     
+
+#### 监控界面
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+ 
+ 添加注解：
+ 
+    @EnableHystrixDashboard
+ 添加配置：
+ 
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"    
+
+地址：
+ 
+    http://localhost:8783/hystrix    
+在输入框中输入：
+
+    http://localhost:8783/actuator/hystrix.stream    
+点击 ```Monitor Stream```进入监控界面
+    
