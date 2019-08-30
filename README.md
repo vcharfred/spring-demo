@@ -19,7 +19,7 @@ SpringCloud微服务组件
     断路器--------hystrix
     分布式追踪系统--sleuth+zipkin
 
-## 一、注册中心
+## 一、注册中心和服务调用
 注册中心：服务管理，核心是有个服务注册表，心跳机制动态维护。
 
 分布式CAP原理：一致性（C:数据同步）、可用性(A:正常响应时间)、分区容错性（P:机器数）三者不可同时获取
@@ -324,7 +324,6 @@ ribbon和httpClient等类似
     }
 #### 说明    
 @LoadBalanced会从注册中心获取节点信息，然后从中选择一个节点给RestTemplate使用
-
 ### feign：伪RPC客户端
 feign已经集成了ribbon
 
@@ -374,3 +373,77 @@ service中注入使用
 > 1. 路径必须和服务的一致；
 > 2. 使用RequestBody时，必须使用postMapping
 > 3. 多个参数时，通过@RequestParam来指定参数，名称要和服务的一样           
+
+## 二、服务降级熔断
+系统负载过高，突发流量或网络等各种异常情况，常用解决方案
+
+1. 熔断：为了防止整个系统故障，停止出现问题的服务的访问
+2. 降级：抛弃一些非核心的接口和数据
+3. 熔断和降级互相交集：
+    * 相同点：从可用性和可靠信息出发，为防止系统崩溃；最终让用户体验到的是某些功能暂时不可用
+    * 不同点：服务熔断一般是下游服务故障导致，而服务降级一般是从整个系统负荷考虑，有调用方控制
+    
+### Hystrix （豪猪）
+添加maven依赖
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+    </dependency>
+ 
+在启动类上添加注解
+
+    @EnableCircuitBreaker   
+   
+#### 使用示例    
+在方法上加@HystrixCommand(fallbackMethod = "xxx")注解
+
+    @RestController
+    @RequestMapping("/api/v3/order")
+    public class IndexController {
+    
+        @Autowired
+        private OrderService orderService;
+    
+        @RequestMapping("/update")
+        @HystrixCommand(fallbackMethod = "updateOrderFail")
+        public String update(@RequestParam("id") int id, @RequestParam("name")String name){
+            return orderService.update(id, name);
+        }
+    
+        //这里一定要和HystrixCommand注解中的方法一致，且参数也必须一致；当服务异常时会调用此方法
+        private String updateOrderFail(int id, String name){
+            System.out.println("服务异常： "+id+" "+name);
+            return "{'code':'-1', 'msg':'当前访问人数过多，请稍后再试'}";
+        }
+    }
+     
+##### 对于Feign
+
+    @FeignClient(name = "product-service", fallback = ProductClientFallback.class)
+    public interface ProductClient {
+    
+        @GetMapping("/api/v1/product/find")
+        String findProductById(@RequestParam(value = "id") int id);
+    
+    }
+ 
+fallback中配置的类必须实现这个接口，并且注入微spring的bean
+
+    @Component
+    public class ProductClientFallback implements ProductClient {
+    
+        @Override
+        public String findProductById(int id) {
+            System.out.println("Feign 调用服务异常");
+            return null;
+        }
+    }
+
+同时在配置文件中开启 Hystrix
+
+    # 开启  feign的  hystrix支持
+    feign:
+      hystrix:
+        enabled: true    
+     

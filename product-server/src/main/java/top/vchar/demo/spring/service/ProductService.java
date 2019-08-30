@@ -17,4 +17,5 @@ public interface ProductService {
 
     Product findProductById(int id);
 
+    Product edit(int id, String name);
 }

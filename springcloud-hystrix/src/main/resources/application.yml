@@ -1,5 +1,5 @@
 server:
-  port: 8782
+  port: 8783
 # 配置注册中心地址
 eureka:
   client:
@@ -9,3 +9,7 @@ eureka:
 spring:
   application:
     name: order-service
+# 开启  feign的  hystrix支持
+feign:
+  hystrix:
+    enabled: true

@@ -38,4 +38,15 @@ public class ProductServiceImpl implements ProductService {
     public Product findProductById(int id) {
         return productDao.get(id);
     }
+
+    @Override
+    public Product edit(int id, String name) {
+        Product product = productDao.get(id);
+        if(product!=null){
+            product.setName(name);
+            productDao.put(id, product);
+            return product;
+        }
+        return null;
+    }
 }

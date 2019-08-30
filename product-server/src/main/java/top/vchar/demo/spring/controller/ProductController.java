@@ -40,4 +40,18 @@ public class ProductController {
         result.setName(product.getName()+" data from port="+port);
         return result;
     }
+
+    @RequestMapping("/edit")
+    public Product edit(int id, String name){
+        Product product = productService.edit(id, name);
+        if(product==null){
+            return null;
+        }
+        Product result = new Product();
+        BeanUtils.copyProperties(product, result);
+        result.setName(product.getName()+" data from port="+port);
+        return result;
+    }
+
+
 }
