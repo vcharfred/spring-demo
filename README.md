@@ -476,4 +476,55 @@ fallback中配置的类必须实现这个接口，并且注入微spring的bean
 
     http://localhost:8783/actuator/hystrix.stream    
 点击 ```Monitor Stream```进入监控界面
+
+## 网关
+    
+添加依赖
+    
+    <!--        eureka客户端-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+    <!--        网关zuul-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+        </dependency>
+在启动类上加如下注解
+
+    @EnableZuulProxy    
+
+在配置文件中配置
+
+    server:
+      port: 9000
+    spring:
+      application:
+        name: api-getway-zuul
+    # 配置注册中心地址
+    eureka:
+      client:
+        service-url:
+          default-zone: http://localhost:8761/eureka/
+    
+访问相关的路由
+
+    http://localhost:9000/服务名称/api/v2/order/find?id=3    
+    如：
+    http://localhost:9000/order-service/api/v2/order/find?id=3
+
+自定义各个服务的映射路由，添加如下配置：
+
+    zuul:
+      routes:
+        order-service: /openapi/**
+      # 忽略某些服务不对外提供
+      #ignored-services: order-service
+      # 通过正则表达式匹配，来屏蔽服务的直接访问；这样就只能使用apigetway提供的服务
+      #ignored-patterns: /*-service/**
+    
+现在访问可以直接使用刚刚配置的服务映射地址    
+
+    http://localhost:9000/openapi/api/v2/order/find?id=3 
     
