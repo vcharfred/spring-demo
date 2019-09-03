@@ -3,7 +3,7 @@ server:
 spring:
   application:
     name: api-getway-zuul
-# \u914D\u7F6E\u6CE8\u518C\u4E2D\u5FC3\u5730\u5740
+# 配置注册中心地址
 eureka:
   client:
     service-url:
@@ -11,9 +11,8 @@ eureka:
 zuul:
   routes:
     order-service: /openapi/**
-  # \u5FFD\u7565\u67D0\u4E9B\u670D\u52A1\u4E0D\u5BF9\u5916\u63D0\u4F9B
-  #ignored-services: order-service
-  # \u901A\u8FC7\u6B63\u5219\u8868\u8FBE\u5F0F\u5339\u914D\uFF0C\u6765\u5C4F\u853D\u670D\u52A1\u7684\u76F4\u63A5\u8BBF\u95EE
-  #ignored-patterns: /*-service/**
-  # \u89E3\u51B3http\u8BF7\u6C42\u5934\u4E3A\u7A7A\u7684\u60C5\u51B5
+    # 忽略某些服务不对外提供
+    #ignored-services: order-service
+    # 通过正则表达式匹配，来屏蔽服务的直接访问；这样就只能使用apigetway提供的服务
+    #ignored-patterns: /*-service/**
 #  sensitive-headers:

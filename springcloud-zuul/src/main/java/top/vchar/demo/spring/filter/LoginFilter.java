@@ -39,7 +39,8 @@ public class LoginFilter extends ZuulFilter {
         System.out.println(request.getRequestURI());
         if("/openapi/api/v2/order/find".equalsIgnoreCase(request.getRequestURI())){
             //拦截
-            return true;
+            System.out.println("拦截");
+//            return true;
         }
         return false;
 

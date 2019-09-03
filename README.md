@@ -478,7 +478,7 @@ fallback中配置的类必须实现这个接口，并且注入微spring的bean
 点击 ```Monitor Stream```进入监控界面
 
 ## 网关
-    
+### zuul的使用    
 添加依赖
     
     <!--        eureka客户端-->
@@ -527,4 +527,15 @@ fallback中配置的类必须实现这个接口，并且注入微spring的bean
 现在访问可以直接使用刚刚配置的服务映射地址    
 
     http://localhost:9000/openapi/api/v2/order/find?id=3 
+
+## 链接追踪
+在所有服务和网关中添加依赖即可：
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-sleuth</artifactId>
+        </dependency>
+可视化的(opentracing) zipkin、鹰眼...
+* [http://blog.daocloud.io.cncf-3](http://blog.daocloud.io.cncf-3) 
+    
     
