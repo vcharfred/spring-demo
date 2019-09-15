@@ -12,3 +12,15 @@ spring:
         enabled: true
       profile: rel
       label: master
+  # mq配置，下面这个是默认的配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+# 暴露全部的监控信息
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

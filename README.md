@@ -612,3 +612,36 @@ fallback中配置的类必须实现这个接口，并且注入微spring的bean
           profile: rel    
 建议使用label分支来区分配置文件，防止由于后缀中某些配置被其他的覆盖的问题；
 > 当有多个配置文件时 spring-cloud-config会将其中公共的提取出来，然后在将每个配置文件独有的提取出来返回，这样就可能出现覆盖的问题
+## 消息总线bus
+添加maven依赖：
+
+    <!--监控-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <!--消息总线-bus-mq-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+    </dependency>
+ 
+使用消息队列来更新配置信息；修改配置文件
+
+    # mq的配置使用默认的
+    # 暴露全部的监控信息
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: "*"   
+
+访问这个链接（post）刷新配置            
+    
+    http://localhost:8877/actuator/bus-refresh
+
+自动刷新在需要刷新配置的类上添加如下配置：
+
+    @RefreshScope
+
+             
