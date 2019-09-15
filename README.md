@@ -538,4 +538,77 @@ fallback中配置的类必须实现这个接口，并且注入微spring的bean
 可视化的(opentracing) zipkin、鹰眼...
 * [http://blog.daocloud.io.cncf-3](http://blog.daocloud.io.cncf-3) 
     
-    
+## 配置中心
+* [百度的disconf](https://github.com/knightliao/disconf)
+* [阿里的diamand](https://github.com/takeseem/diamond) 已经停止维护了
+* [SpringCloud-Config]()
+
+### 配置服务端
+添加maven依赖
+
+    <!--配置中心-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
+
+添加配置
+
+    spring:
+      application:
+        name: config-server
+      cloud:
+        config:
+          server:
+            git:
+              # git 仓库地址（如果不是公开的，需要配置账号密码）
+              uri: https://gitee.com/12344/config-cloud
+    #          username: 账号
+    #          password: 密码
+    server:
+      port: 9100
+    # 配置注册中心地址
+    eureka:
+      client:
+        service-url:
+          default-zone: http://localhost:8761/eureka/
+          
+#### 使用说明：
+##### 访问某个配置文件 http://localhost:9100/配置文件名称
+例如：http://localhost:9100/dev-server.yml
+
+访问路径说明：
+
+    /{name}-{profiles}.properties
+    /{name}-{profiles}.yml
+    /{name}-{profiles}.json
+    /{label}/{name}-{profiles}.yml
+
+* name 服务名称    
+* profile 环境名称，开发、测试、生成
+* label 仓库分支，默认master分支
+
+### 配置客户端
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-client</artifactId>
+    </dependency>
+
+修改配置文件application.yml为bootstrap.yml，在里面配置如下配置;(服务端口在远程git库中配置，配置文件名必须包含‘config-service’，即下面配置的spring.application服务名)
+
+    eureka:
+      client:
+        service-url:
+          default-zone: http://localhost:8761/eureka/
+    spring:
+      application:
+        name: config-service
+      cloud:
+        config:
+          discovery:
+            service-id: CONFIG-SERVER
+            enabled: true
+          profile: rel    
+建议使用label分支来区分配置文件，防止由于后缀中某些配置被其他的覆盖的问题；
+> 当有多个配置文件时 spring-cloud-config会将其中公共的提取出来，然后在将每个配置文件独有的提取出来返回，这样就可能出现覆盖的问题
