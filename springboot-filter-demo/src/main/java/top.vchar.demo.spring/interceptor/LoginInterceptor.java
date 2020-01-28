@@ -20,6 +20,10 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         System.out.println("=====LoginInterceptor preHandle======");
         return HandlerInterceptor.super.preHandle(request, response, handler);
+
+
+
+
     }
 
     //调用完Controller之后，视图渲染之前；如果控制器Controller出现了异常，则不会执行此方法

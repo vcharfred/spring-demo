@@ -28,6 +28,7 @@
         <module>springboot-more-environment</module>
         <module>springboot-webflux-demo</module>
         <module>springboot-actuator-demo</module>
+        <module>springboot-config-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-demo</name>
