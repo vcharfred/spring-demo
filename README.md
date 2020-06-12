@@ -1,12 +1,12 @@
 # spring cloud 阿里套件
 
-使用阿里巴巴相关的spring cloud 套件做微服务
+使用阿里巴巴相关的spring cloud 套件做微服务，其根本就是替换掉我们以前用的其他的spring cloud的组件，相关依赖配置的替换而已，Spring Cloud的整体的
 
 ## 相关文档资料
 
 * [nacos文档](https://nacos.io/zh-cn/docs/what-is-nacos.html)
 * [nacos Github](https://github.com/alibaba/nacos/releases)
-
+* [示例项目建表SQL](建表SQL.sql)
 
 ## 一、注册中心nacos
 
@@ -189,6 +189,30 @@ pom依赖示例如下：
             <artifactId>common-dto</artifactId>
         </dependency>
     </dependencies>
+
+## 三、服务调用
+
+### 3.1 使用RestTemplate调用
+
+#### 注入RestTemplate的bean
+
+    /**
+     * 加上 @LoadBalanced使其使用ribbon的负载均衡
+     */
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
+    }
+
+#### 方式一：直接写服务地址调用服务
+
+这种方式就不需要注册中心了
+
+    restTemplate.getForObject("http://127.0.0.1:8093/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+
+#### 方式二：通过`org.springframework.cloud.client.discovery.DiscoveryClient`来获取服务信息
+
 
 
 
