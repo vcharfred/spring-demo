@@ -1,0 +1,10 @@
+server:
+  # 设置端口号
+  port: 8080
+  servlet:
+    # 配置部署的路径
+    context-path: /
+spring:
+  banner:
+    # 修改控制台打印信息
+    location: banner.txt

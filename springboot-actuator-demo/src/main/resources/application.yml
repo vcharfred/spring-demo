@@ -1,0 +1,10 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        #开启全部
+        include: '*'
+        #开启某个
+#        include: metrics
+        # 关闭某个
+        #exclude: metrics
