@@ -13,6 +13,8 @@ import top.vchar.goods.dto.GoodsDetailDTO;
 import top.vchar.order.dto.CreateOrderDTO;
 import top.vchar.order.dto.OrderDetailDTO;
 import top.vchar.order.entity.Order;
+import top.vchar.order.feign.GoodsFeignClient;
+import top.vchar.order.feign.UserFeignClient;
 import top.vchar.order.mapper.OrderMapper;
 import top.vchar.order.service.IOrderService;
 import top.vchar.user.dto.UserDetailDTO;
@@ -30,9 +32,13 @@ import java.math.BigDecimal;
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
 
     private final RestTemplate restTemplate;
+    private final GoodsFeignClient goodsFeignClient;
+    private final UserFeignClient userFeignClient;
 
-    public OrderServiceImpl(RestTemplate restTemplate) {
+    public OrderServiceImpl(RestTemplate restTemplate, GoodsFeignClient goodsFeignClient, UserFeignClient userFeignClient) {
         this.restTemplate = restTemplate;
+        this.goodsFeignClient = goodsFeignClient;
+        this.userFeignClient = userFeignClient;
     }
 
     /**
@@ -93,16 +99,30 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
      * @return 返回订单号
      */
     @Override
-    public String crateOrderLoadBalanced(CreateOrderDTO createOrderDTO){
+    public String crateOrderLoadBalanced(CreateOrderDTO createOrderDTO) {
         // 在restTemplate bean注入的地方添加 @LoadBalanced注解；使其使用ribbon来实现负载均衡
-        GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://goods-server/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
-        UserDetailDTO userDetailDTO = restTemplate.getForObject("http://user-server/user/detail/"+createOrderDTO.getUserId(), UserDetailDTO.class);
+        GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://goods-server/goods/detail/" + createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+        UserDetailDTO userDetailDTO = restTemplate.getForObject("http://user-server/user/detail/" + createOrderDTO.getUserId(), UserDetailDTO.class);
         return saveOrder(goodsDetailDTO, userDetailDTO, createOrderDTO);
     }
 
+    /**
+     * 通过feign做服务调用和ribbon负载均衡
+     *
+     * @param createOrderDTO 参数信息
+     * @return 返回订单号
+     */
+    @Override
+    public String crateOrderFeign(CreateOrderDTO createOrderDTO) {
+        // 通过feign做服务调用和ribbon负载均衡
+        GoodsDetailDTO goodsDetailDTO = goodsFeignClient.findGoodsDetailByGoodsNo(createOrderDTO.getGoodsNo());
+        UserDetailDTO userDetailDTO = userFeignClient.findUserById(createOrderDTO.getUserId());
+        return saveOrder(goodsDetailDTO, userDetailDTO, createOrderDTO);
+    }
 
     /**
      * 创建订单号
+     *
      * @param createOrderDTO 参数信息
      * @return 返回订单号
      */

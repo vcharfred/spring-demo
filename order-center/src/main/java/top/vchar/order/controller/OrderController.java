@@ -47,9 +47,12 @@ public class OrderController {
         }else if(2==type){
             // 通过DiscoveryClient获取服务信息
             return orderService.crateOrderDiscoveryClient(createOrderDTO);
-        }else if(3==type){
+        }else if (3 == type) {
             // 在restTemplate bean注入的地方添加 @LoadBalanced注解；使其使用ribbon来实现负载均衡
             return orderService.crateOrderLoadBalanced(createOrderDTO);
+        } else if (4 == type) {
+            // 通过feign 调用服务
+            return orderService.crateOrderFeign(createOrderDTO);
         }
         return null;
     }

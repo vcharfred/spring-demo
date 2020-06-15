@@ -30,10 +30,19 @@ public interface IOrderService extends IService<Order> {
 
     /**
      * 通过DiscoveryClient获取服务地址信息
+     *
      * @param createOrderDTO 参数信息
      * @return 返回订单号
      */
     String crateOrderDiscoveryClient(CreateOrderDTO createOrderDTO);
+
+    /**
+     * 通过feign做服务调用和负载均衡
+     *
+     * @param createOrderDTO 参数信息
+     * @return 返回订单号
+     */
+    String crateOrderFeign(CreateOrderDTO createOrderDTO);
 
     /**
      * 在restTemplate bean注入的地方添加 @LoadBalanced注解；使其使用ribbon来实现负载均衡
