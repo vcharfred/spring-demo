@@ -12,7 +12,7 @@ import top.vchar.goods.dto.GoodsDetailDTO;
  * @version 1.0
  * @create_date 2020/6/15
  */
-@FeignClient(value = "goods-server")
+@FeignClient(value = "goods-server", fallback = GoodsFeignClientFallBack.class)
 public interface GoodsFeignClient {
 
     /**

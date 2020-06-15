@@ -12,7 +12,7 @@ import top.vchar.user.dto.UserDetailDTO;
  * @version 1.0
  * @create_date 2020/6/15
  */
-@FeignClient(value = "user-server")
+@FeignClient(value = "user-server", fallbackFactory = UserFeignClientFallBackFactory.class)
 public interface UserFeignClient {
 
     /**

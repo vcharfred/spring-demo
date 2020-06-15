@@ -26,22 +26,40 @@ public class OrderController {
 
     /**
      * 通过订单号查询订单详情
+     * <p>
+     * 使用 @SentinelResource注解定义资源名称方便做限流操作
+     *
      * @param orderNo 订单号
      * @return 返回订单详情
      */
     @GetMapping("/detail/{orderNo}")
-    public OrderDetailDTO findOrder(@PathVariable("orderNo") String orderNo){
+    public OrderDetailDTO findOrder(@PathVariable("orderNo") String orderNo) {
         return orderService.findOrderByOrderNo(orderNo);
     }
 
     /**
+     * 通过订单号查询订单详情
+     * <p>
+     * 使用 @SentinelResource注解定义资源名称方便做限流操作
+     *
+     * @param orderNo 订单号
+     * @return 返回订单详情
+     */
+    @GetMapping("/detail")
+    public OrderDetailDTO sentinelResourceDemo(String orderNo) {
+        return orderService.sentinelResourceDemo(orderNo);
+    }
+
+
+    /**
      * 创建订单号
+     *
      * @param createOrderDTO 参数信息
      * @return 返回订单号
      */
     @PostMapping("/create/{type}")
-    public String crateOrder(@PathVariable("type") int type, @Valid @RequestBody CreateOrderDTO createOrderDTO){
-        if(1==type){
+    public String crateOrder(@PathVariable("type") int type, @Valid @RequestBody CreateOrderDTO createOrderDTO) {
+        if (1 == type) {
             // 直接写死服务地址
             return orderService.crateOrder(createOrderDTO);
         }else if(2==type){

@@ -6,9 +6,20 @@ spring:
   main:
     allow-bean-definition-overriding: true
   cloud:
+    # 配置 nacos
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
+    # 配置 sentinel
+    sentinel:
+      transport:
+        # 指定和sentinel控制台服务交换的端口，随意指定一个没有使用的即可
+        port: 8719
+        # sentinel控制台的访问地址
+        dashboard: 127.0.0.1:9080
+        #      filter:
+        # 关闭链路收敛使链路收敛能够生效
+  #        enabled: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/demo?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
@@ -17,3 +28,8 @@ spring:
 goods-server:
   ribbon:
     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
+# 开启feign对sentinel的支持
+feign:
+  sentinel:
+    enabled: true

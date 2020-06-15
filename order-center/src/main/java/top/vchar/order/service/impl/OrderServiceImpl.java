@@ -1,7 +1,10 @@
 package top.vchar.order.service.impl;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -130,7 +133,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         Assert.notNull(goodsDetailDTO, "无此商品信息");
         Assert.notNull(userDetailDTO, "用户信息不存在");
         Order order = new Order();
-        order.setOrderNo("EC"+System.currentTimeMillis());
+        order.setOrderNo("EC" + System.currentTimeMillis());
         order.setGoodsNo(createOrderDTO.getGoodsNo());
         order.setGoodsName(goodsDetailDTO.getGoodsName());
         order.setPrice(goodsDetailDTO.getPrice().multiply(new BigDecimal(createOrderDTO.getAmount().toString())));
@@ -140,4 +143,44 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         this.save(order);
         return order.getOrderNo();
     }
+
+    /**
+     * 查询订单信息 @SentinelResource注解实现熔断
+     *
+     * <p>
+     * blockHandler: 当内部发生BlockException异常时触发
+     * fallback：     当内部发生Throwable异常时触发
+     * </p>
+     *
+     * @param orderNo 订单编号
+     * @return 返回订单信息
+     */
+    @SentinelResource(value = "order-detail", blockHandler = "blockHandler", fallbackClass = SentinelResourceDemoFallback.class)
+    @Override
+    public OrderDetailDTO sentinelResourceDemo(String orderNo) {
+        OrderDetailDTO orderDetail = findOrderByOrderNo(orderNo);
+        Assert.notNull(orderDetail, "无此订单信息");
+        return orderDetail;
+    }
+
+    /**
+     * 发生BlockException异常时触发，注意返回值和参数必须和原理的相同，这个和feign的差不多
+     */
+    public OrderDetailDTO blockHandler(String orderNo, BlockException e) {
+        log.error("触发降级限流异常", e);
+        return null;
+    }
+
+    /**
+     * 发生Throwable异常时触发，注意返回值和参数必须和原理的相同，这个和feign的差不多
+     */
+    @Slf4j
+    public static class SentinelResourceDemoFallback {
+        // 这个方法必须使用 static 修饰方法
+        public static OrderDetailDTO fallback(String orderNo, Throwable throwable) {
+            log.error("无此订单信息", throwable);
+            return null;
+        }
+    }
+
 }

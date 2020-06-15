@@ -51,4 +51,12 @@ public interface IOrderService extends IService<Order> {
      * @return 返回订单号
      */
     String crateOrderLoadBalanced(CreateOrderDTO createOrderDTO);
+
+    /**
+     * 查询订单信息 @SentinelResource注解实现熔断
+     *
+     * @param orderNo 订单编号
+     * @return 返回订单信息
+     */
+    OrderDetailDTO sentinelResourceDemo(String orderNo);
 }
