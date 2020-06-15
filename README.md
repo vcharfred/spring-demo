@@ -1,6 +1,6 @@
 # spring cloud 阿里套件
 
-使用阿里巴巴相关的spring cloud 套件做微服务，其根本就是替换掉我们以前用的其他的spring cloud的组件，相关依赖配置的替换而已，Spring Cloud的整体的
+使用阿里巴巴相关的spring cloud 套件做微服务，其根本就是替换掉我们以前用的其他的spring cloud的组件，相关依赖配置的替换而已，Spring Cloud的整体的构成还是一样的。
 
 ## 相关文档资料
 
@@ -281,6 +281,9 @@ pom依赖示例如下：
 
 * [官方文档地址](https://sentinelguard.io/zh-cn/docs/dashboard.html)
 * [Sentinel的github](https://github.com/alibaba/Sentinel)
+
+这个在阿里云有企业级的商用版本 [应用高可用服务 AHAS](https://help.aliyun.com/document_detail/144439.html)；现在有免费的入门级可以先体验下，之后再决定是否使用付费的专业版或者是自己搭建。
+
 ### sentinel功能概述
 
 * 流量控制：将随机的请求调整为合适的形状。即限制请求数量
