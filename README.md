@@ -207,11 +207,31 @@ pom依赖示例如下：
 
 #### 方式一：直接写服务地址调用服务
 
-这种方式就不需要注册中心了
+这种方式就不需要注册中心了, 直接像普通的接口请求即可
 
-    restTemplate.getForObject("http://127.0.0.1:8093/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+    GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://127.0.0.1:8093/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
 
 #### 方式二：通过`org.springframework.cloud.client.discovery.DiscoveryClient`来获取服务信息
+
+`DiscoveryClient` 对象中保存有注册到注册中心的服务信息，包括服务的名称、IP、端口号等信息。通过服务名称可以获取到该服务的信息。
+
+    // discoveryClient.getInstances 返回的是一个list列表，因此可以基于此可以自己去实现负载均衡；  
+    ServiceInstance goodsServer = discoveryClient.getInstances("goods-server").get(0);
+    GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://"+goodsServer.getHost()+":"+goodsServer.getPort()+"/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+
+#### 方式三：在restTemplate bean注入的地方添加 @LoadBalanced注解；会自动使用ribbon来实现负载均衡
+
+    // 在restTemplate bean注入的地方添加 @LoadBalanced注解；会自动使用ribbon来实现负载均衡
+    GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://goods-server/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+
+> 默认的负载均衡规则是轮询的方式；可以在配置文件中指定服务使用那种方式；示例如下：
+
+    # 服务名称
+    goods-server:
+      ribbon:
+        # 使用随机的方式
+        NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+
 
 
 
