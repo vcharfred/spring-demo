@@ -710,6 +710,7 @@ Sentinel 控制台通过 API 将规则推送至客户端并更新到内存中，
 
 上面这种方式无法将异常记录下来，建议使用下面这种方式
 
+    @Component
     public class GoodsFeignClientFallBackFactory implements FallbackFactory<GoodsFeignClient> {
         
         @Override
