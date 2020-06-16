@@ -15,6 +15,8 @@
     |---注册中心改为nacos（nacos也可以作为配置中心）；用于替换eureka
     |---熔断限流组件sentinel；用于替换掉Hystrix
     |---网关`spring-cloud-gateway`，使用nacos做注册中心替换eureka
+    |---`nacos配置中心`，替换掉spring-cloud的config组件，其实原理也是在spring-cloud-config的基础上进行扩展的
+    
 
 ## 一、注册中心nacos
 
@@ -1090,3 +1092,64 @@ gateway同样内置了一些过滤器；整体思路基本是一样的
 
     
 
+## 六、nacos配置中心
+
+nacos既可以是注册中心同时也可以作为配置中心，支持将配置加密。在公司中若不想自己搭建，可以使用阿里云提供的ACM配置中心服务，功能更丰富，目前是免费提供使用，可以节约搭建配置中心的成本。
+
+添加配置中心的依赖：
+
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
+创建`bootstrap.properties`配置文件，也可以是`bootstrap.yml`;在里面添加如下配置(bootstrap.properties示例)：
+
+    # 配置文件名称前缀，使用的是服务名称
+    spring.application.name=nacos-config
+    # 分组
+    spring.cloud.nacos.config.group=DEFAULT_GROUP
+    # nacos 配置中心地址
+    spring.cloud.nacos.config.server-addr=127.0.0.1:8848
+    # 配置文件后缀
+    spring.cloud.nacos.config.file-extension=yml
+    # 激活文件，这个配置可以通过启动参数指定 -Dspring.profiles.active=dev来切换环境, 实现打一次包就可以了
+    spring.profiles.active=dev
+
+> 因为spring会以这个bootstrap配置文件的优先；
+> 
+> 最终组装的DataID = spring.application.name + '-' + spring.profiles.active + spring.cloud.nacos.config.file-extension
+
+#### 将各个组件的配置拆分
+
+将redis、MySQL的等公共基础组件的配置拆分到单个文件中，如在nacos控制台创建一个名为`db-config-dev.yml`的MySQL的配置; 项目中bootstrap配置的信息如下（bootstrap.yml示例）：
+
+    spring:
+      application:
+        # 配置文件名称前缀，即服务名称
+        name: nacos-config
+      cloud:
+        nacos:
+          config:
+            # nacos 配置中心地址
+            server-addr: 127.0.0.1:8848
+            #  分组
+            group: DEFAULT_GROUP
+            # # 配置文件后缀
+            file-extension: yml
+            # 
+            ext-config:
+              - data-id: db-config-${spring.profiles.active}.yml
+                group: DEFAULT_GROUP
+                refresh: true
+
+`db-config-dev.yml`的MySQL的配置：
+
+    spring:
+      datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/demo?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+        username: root
+        password: 123456
+
+> 这拆分后其他微服务需要相关的基础组件，直接添加即可，无需再在自己的配置文件中单独去写这些配置，若需要特殊配置单独配置即可。

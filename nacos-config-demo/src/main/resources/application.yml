@@ -1,0 +1,5 @@
+server:
+  port: 8099
+spring:
+  application:
+    name: nacos-config

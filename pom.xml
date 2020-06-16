@@ -16,6 +16,7 @@
         <module>order-center</module>
         <module>common-dto</module>
         <module>goods-center</module>
+        <module>nacos-config-demo</module>
     </modules>
 
     <properties>
