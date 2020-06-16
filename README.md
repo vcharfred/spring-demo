@@ -10,6 +10,11 @@
 * [Sentinel官方文档](https://sentinelguard.io/zh-cn/docs/dashboard.html)
 * [Sentinel的Github](https://github.com/alibaba/Sentinel)
 
+## 目录
+
+    |---注册中心改为nacos（nacos也可以作为配置中心）；用于替换eureka
+    |---熔断限流组件sentinel；用于替换掉Hystrix
+
 ## 一、注册中心nacos
 
 部署一个服务端；注意分 集群和单机模式，集群模式下必须配置正确，否则将影响服务注册。可以使用docker部署
@@ -723,7 +728,13 @@ Sentinel 控制台通过 API 将规则推送至客户端并更新到内存中，
 
 > 注意2种方式只能使用1种
 
+### 使用配置中心Nacos来获取sentinel的规则，然后主动推送到客户端
 
+TODO ...
 
+参考文档如下：
+
+* [动态规则扩展](https://sentinelguard.io/zh-cn/docs/dynamic-rule-configuration.html)
+* [Nacos实现的demo](https://github.com/alibaba/Sentinel/blob/master/sentinel-extension/sentinel-datasource-nacos/src/main/java/com/alibaba/csp/sentinel/datasource/nacos/NacosDataSource.java)
 
       
