@@ -811,6 +811,8 @@ TODO ...
 
 > 配置上唯一的区别就是`uri`的配置
 
+![](./image/网关执行流程.jpg)
+
 ### 5.3 断言
 
 断言就是设置在什么条件下执行转发
@@ -922,6 +924,9 @@ routes:
 gateway的过滤器分为：GatewayFilter（应用到单个或分组内的路由）和GlobalFilter(应用到所有的路由)
 
 gateway同样内置了一些过滤器；整体思路基本是一样的
+
+内置全局过滤器
+![](./image/内置全局过滤器.jpg)
 
 #### 自定义局部过滤器GatewayFilter
 
@@ -1120,6 +1125,12 @@ nacos既可以是注册中心同时也可以作为配置中心，支持将配置
 > 
 > 最终组装的DataID = spring.application.name + '-' + spring.profiles.active + spring.cloud.nacos.config.file-extension
 
+在nacos控制台上配置相关配置
+
+![](./image/添加配置.jpg)
+
+![](./image/详情配置步骤.jpg)
+
 #### 将各个组件的配置拆分
 
 将redis、MySQL的等公共基础组件的配置拆分到单个文件中，如在nacos控制台创建一个名为`db-config-dev.yml`的MySQL的配置; 项目中bootstrap配置的信息如下（bootstrap.yml示例）：
@@ -1154,6 +1165,6 @@ nacos既可以是注册中心同时也可以作为配置中心，支持将配置
 
 > 这拆分后其他微服务需要相关的基础组件，直接添加即可，无需再在自己的配置文件中单独去写这些配置，若需要特殊配置单独配置即可。
 
-####　关于动态刷新配置
+#### 关于动态刷新配置
 
 需要在类上添加`@RefreshScope`注解才能实现动态刷新
