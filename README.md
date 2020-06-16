@@ -1168,3 +1168,9 @@ nacos既可以是注册中心同时也可以作为配置中心，支持将配置
 #### 关于动态刷新配置
 
 需要在类上添加`@RefreshScope`注解才能实现动态刷新
+
+在配置中添加如下配置实现刷新：
+    
+    shared-dataids: shared.yml
+    refreshable-dataids: shared.yml
+
