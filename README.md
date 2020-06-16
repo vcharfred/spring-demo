@@ -14,6 +14,7 @@
 
     |---注册中心改为nacos（nacos也可以作为配置中心）；用于替换eureka
     |---熔断限流组件sentinel；用于替换掉Hystrix
+    |---网关`spring-cloud-gateway`，使用nacos做注册中心替换eureka
 
 ## 一、注册中心nacos
 
@@ -738,4 +739,354 @@ TODO ...
 * [动态规则扩展](https://sentinelguard.io/zh-cn/docs/dynamic-rule-configuration.html)
 * [Nacos实现的demo](https://github.com/alibaba/Sentinel/blob/master/sentinel-extension/sentinel-datasource-nacos/src/main/java/com/alibaba/csp/sentinel/datasource/nacos/NacosDataSource.java)
 
-      
+## 五、网关`spring-cloud-gateway`
+
+### 5.1 添加依赖：
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-gateway</artifactId>
+    </dependency>
+
+> 不要引入 spring-boot-starter-web的包，因为spring-cloud-gateway使用的是响应式编程webflux
+
+### 5.2 网关配置
+
+#### 简单的配置
+
+    spring:
+      cloud:
+          gateway:
+            # 配置路由
+            routes:
+              # 当前路由转发标识，需要唯一；默认是UUID
+              - id: order_server
+              # 请求最终要转发的地址
+                uri: http://127.0.0.1:8095
+              # 路由优先级，数字越小优先级越大
+                order: 1
+              # 断言（返回的是boolean, 即路由转发满足的条件；可以写多个条件）
+                predicates:
+                  - Path=/order/**  # 以/order开头的地址
+              # 过滤器
+                filters:
+                  - StripPrefix=1  # 在请求转发前去掉一层路径
+ 
+> 最终转发地址说明：当请求路径符合predicates中配置的规则时，最终转发的地址为 `uri+predicates.Path`, 即会将实际访问地址的前面的`http://127.0.0.1:7000`替换为配置的uri。
+> 因此我们可以通过filters来对转发路径进行处理。
+
+示例：当通过网关访问`http://127.0.0.1:7000/order/detail/EC1591941371689`时，最终访问的是`http://127.0.0.1:8095/order/detail/EC1591941371689`
+
+#### 基于注册中心Nacos来配置
+
+引入依赖包：
+
+    <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+    </dependency>
+
+在启动类上添加`@EnableDiscoveryClient`注解
+    
+修改配置
+
+    spring:
+      cloud:
+        nacos:
+          discovery:
+            server-addr: 127.0.0.1:8848
+        gateway:
+          discovery:
+            locator:
+              # 开启网关对注册中心的支持
+              enabled: true
+          routes:
+            - id: order_server
+            # lb是设置从注册中心按服务名称获取服务信息，并遵循负载均衡策略
+              uri: lb://order-server
+              predicates:
+                - Path=/order/**
+
+> 配置上唯一的区别就是`uri`的配置
+
+### 5.3 断言
+
+断言就是设置在什么条件下执行转发
+
+#### 网关内置断言工厂 
+
+1. 基于Datetime类型的断言工厂：此类型的断言根据时间做判断，主要有三个：
+ - AfterRoutePredicateFactory: 接收一个日期参数，判断请求日期是否晚于指定日期
+ - BeforeRoutePredicateFactory: 接收一个日期参数，判断请求日期是否早于指定日期
+ - BetweenRoutePredicateFactory: 接收2个日期参数，判断请求日期是否在指定日期的之间
+> -After=2020-01-01T00:00:00.000+08:00[Asia/Shanghai]
+
+2. 基于远程地址的断言工厂：RemoteAddrRoutePredicateFactory，接收一个IP地址段，判断请求主机是否在地址段内
+> -RemoteAddr=192.168.1.10/24
+
+3. 基于Cookie的断言工厂：CookieRoutePredicateFactory，接收2个参数，cookie名字和一个正则表达式。
+判断请求cookie是否具有给定名称且值和正则表达式匹配。
+> -Cookie=code, cn.
+
+4. 基于header的断言工厂：HeaderRoutePredicateFactory，接收2个参数，表头名称和正则表达式。
+判断请求header是否具有给定名称且值和正则表达式匹配。
+> -Header=X-Request-Id, \d+
+
+5. 基于method请求方法的断言工厂：MethodRoutePredicateFactory，接收一个参数，判断请求类型是否和指定类型匹配。
+> -Method=GET
+
+6. 基于Path请求路径的断言工厂：PathRoutePredicateFactory，接收一个参数，判断请求的URI部分是否满足路径规则。
+> -Path=/order/**
+
+7. 基于Query请求参数的断言工厂：QueryRoutePredicateFactory，接收2个参数，请求param和正则表达式；
+判断请求参数是否具有给定名称且值和正则表达式匹配。
+> -Query=baz, ba.
+
+8. 基于路由权重的断言工厂：WeightRoutePredicateFactory，接收一个[组名, 权重]，
+然后对于同一个组内的路由按照权重转发。
+
+```$yml
+routes:
+    - id: order_server1
+      uri: lb://order-server1
+      predicates:
+        - Path=/order/**
+        - Weight=order,1
+    - id: order_server2
+      uri: lb://order-server2
+      predicates:
+        - Path=/order/**
+        - Weight=order,2
+```
+
+#### 自定义断言工厂
+
+参考内置断言工厂，其都继承了AbstractRoutePredicateFactory类，类名字必须以RoutePredicateFactory结尾，使用的时候用面部分；示例如下：
+
+    @Component
+    public class SexRoutePredicateFactory extends AbstractRoutePredicateFactory<SexRoutePredicateFactory.Config> {
+    
+        public SexRoutePredicateFactory(){
+            super(SexRoutePredicateFactory.Config.class);
+        }
+    
+        /**
+         * 从配置中获取配置的信息并赋值给配置类
+         * @return 返回配置信息
+         */
+        @Override
+        public List<String> shortcutFieldOrder() {
+            // 这里的顺序需要和配置文件中的一致
+            return Collections.singletonList("sex");
+        }
+    
+        /**
+         * 定义匹配规则
+         * @param config 配置信息
+         * @return 返回结果
+         */
+        @Override
+        public Predicate<ServerWebExchange> apply(SexRoutePredicateFactory.Config config) {
+            return new Predicate<ServerWebExchange>(){
+                @Override
+                public boolean test(ServerWebExchange serverWebExchange) {
+                    // 获取请求中的信息
+                    String sex = serverWebExchange.getRequest().getQueryParams().getFirst("sex");
+                    if(StringUtils.isBlank(sex)){
+                        return false;
+                    }
+                    return Integer.parseInt(sex)==0;
+                }
+            };
+        }
+    
+        @Validated
+        @Data
+        public static class Config{
+            @NotNull
+            private Integer sex;
+        }
+    }
+
+
+
+
+ 
+
+### 5.4 过滤器
+
+过滤器的作用就是在请求的过程中对请求和响应中做一些额外的处理。生命周期pre、post；分配局部和全局过滤器。
+
+gateway的过滤器分为：GatewayFilter（应用到单个或分组内的路由）和GlobalFilter(应用到所有的路由)
+
+gateway同样内置了一些过滤器；整体思路基本是一样的
+
+#### 自定义局部过滤器GatewayFilter
+
+
+    @Component
+    public class LogGatewayFilterFactory extends AbstractGatewayFilterFactory<LogGatewayFilterFactory.Config> {
+    
+        public LogGatewayFilterFactory(){
+            super(LogGatewayFilterFactory.Config.class);
+        }
+    
+        @Override
+        public List<String> shortcutFieldOrder() {
+            return Arrays.asList("console", "file");
+        }
+    
+        @Override
+        public GatewayFilter apply(LogGatewayFilterFactory.Config config) {
+            return new GatewayFilter() {
+                @Override
+                public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+                    Boolean console = config.getConsole();
+                    if(console){
+                        System.out.println("console");
+                    }
+                    if(config.getFile()){
+                        System.out.println("---file---");
+                    }
+                    return null;
+                }
+            };
+        }
+    
+        @Validated
+        @Data
+        public static class Config{
+    
+            private Boolean console;
+    
+            private Boolean file;
+        }
+    }
+
+#### 自定义全局过滤器GlobalFilter
+
+    @Component
+    public class AuthGlobalFilter implements GlobalFilter, Ordered {
+    
+        /**
+         * 过滤器优先级，越小优先级越高
+         */
+        public static final int AUTH_GLOBAL_FILTER_FILTER_ORDER = 10;
+    
+        /**
+         * 过滤器逻辑
+         * @param exchange ServerWebExchange
+         * @param chain GatewayFilterChain
+         * @return 返回结果
+         */
+        @Override
+        public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+            String token = exchange.getRequest().getQueryParams().getFirst("token");
+            if(!StringUtils.equals(token, "admin")){
+                // 拦截
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
+            // 放行
+            return chain.filter(exchange);
+        }
+    
+        @Override
+        public int getOrder() {
+            return AUTH_GLOBAL_FILTER_FILTER_ORDER;
+        }
+    }
+
+### 5.5 网关sentinel限流
+
+[官方demo](https://github.com/alibaba/Sentinel/wiki/%E7%BD%91%E5%85%B3%E9%99%90%E6%B5%81)
+
+使用sentinel组件集成到网关中实现限流。基于sentinel的Gateway限流时通过其提供的Filter来完成的；
+使用时只需注入对应的 SentinelGatewayFilter 实例以及 SentinelGatewayBlockExceptionHandler 实例即可;
+
+添加如下依赖：
+
+    <dependency>
+        <groupId>com.alibaba.csp</groupId>
+        <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
+    </dependency>
+
+#### 添加配置类
+
+    @Configuration
+    public class GatewayConfiguration {
+    
+        private final List<ViewResolver> viewResolvers;
+        private final ServerCodecConfigurer serverCodecConfigurer;
+    
+        public GatewayConfiguration(ObjectProvider<List<ViewResolver>> viewResolversProvider,
+                                    ServerCodecConfigurer serverCodecConfigurer) {
+            this.viewResolvers = viewResolversProvider.getIfAvailable(Collections::emptyList);
+            this.serverCodecConfigurer = serverCodecConfigurer;
+        }
+    
+        @Bean
+        @Order(Ordered.HIGHEST_PRECEDENCE)
+        public SentinelGatewayBlockExceptionHandler sentinelGatewayBlockExceptionHandler() {
+            // Register the block exception handler for Spring Cloud Gateway.
+            return new SentinelGatewayBlockExceptionHandler(viewResolvers, serverCodecConfigurer);
+        }
+    
+        /**
+         * 初始化一个限流的过滤器
+         * @return 返回限流过滤器对象
+         */
+        @Bean
+        @Order(-1)
+        public GlobalFilter sentinelGatewayFilter() {
+            return new SentinelGatewayFilter();
+        }
+    
+        /**
+         * 初始化限流配置
+         */
+        @PostConstruct
+        public void doInit() {
+            initCustomizedApis();
+            initGatewayRules();
+        }
+    
+        /**
+         * 自定义API分组(这个的应用场景是相关关联的接口进行联合限流)
+         */
+        private void initCustomizedApis() {
+            Set<ApiDefinition> definitions = new HashSet<>();
+            // 配置指定资源的 某个路由为前缀的地址
+            ApiDefinition api1 = new ApiDefinition("order_server")
+                    .setPredicateItems(new HashSet<ApiPredicateItem>() {{
+                        add(new ApiPathPredicateItem().setPattern("/order/detail/**"));
+                        add(new ApiPathPredicateItem().setPattern("/order/mall/**")
+                                .setMatchStrategy(SentinelGatewayConstants.URL_MATCH_STRATEGY_PREFIX));
+                    }});
+            definitions.add(api1);
+            /// other api config
+    
+            GatewayApiDefinitionManager.loadApiDefinitions(definitions);
+        }
+    
+        /**
+         * 配置初始化的限流参数: 根据资源来限流
+         */
+        private void initGatewayRules() {
+            Set<GatewayFlowRule> rules = new HashSet<>();
+    
+            // resource: 资源名称，对应路由ID   count: 限流阀值  intervalSec: 统计时间窗口，单位时秒，默认是1秒
+            rules.add(new GatewayFlowRule("order_server")
+                    .setCount(5)
+                    .setIntervalSec(1));
+    
+            /// other resource config
+    
+            GatewayRuleManager.loadRules(rules);
+        }
+    
+    }
+
+
+    
+
