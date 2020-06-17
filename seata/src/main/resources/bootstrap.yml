@@ -1,0 +1,19 @@
+spring:
+  application:
+    # 配置文件名称前缀，即服务名称
+    name: mall-server
+  cloud:
+    nacos:
+      config:
+        # nacos 配置中心地址
+        server-addr: 127.0.0.1:8848
+        #  分组
+        group: DEFAULT_GROUP
+        # 配置文件后缀
+        file-extension: yml
+        # 额外扩展
+        ext-config:
+          # 数据库配置
+          - data-id: db-config-${spring.profiles.active}.yml
+            group: DEFAULT_GROUP
+            refresh: true

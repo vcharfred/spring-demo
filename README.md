@@ -16,6 +16,7 @@
     |---熔断限流组件sentinel；用于替换掉Hystrix
     |---网关`spring-cloud-gateway`，使用nacos做注册中心替换eureka
     |---`nacos配置中心`，替换掉spring-cloud的config组件，其实原理也是在spring-cloud-config的基础上进行扩展的
+    |---分布式事务
     
 
 ## 一、注册中心nacos
@@ -811,7 +812,7 @@ TODO ...
 
 > 配置上唯一的区别就是`uri`的配置
 
-![](image/网关执行流程.jpg)
+![](./image/网关执行流程.jpg)
 
 ### 5.3 断言
 
@@ -926,7 +927,7 @@ gateway的过滤器分为：GatewayFilter（应用到单个或分组内的路由
 gateway同样内置了一些过滤器；整体思路基本是一样的
 
 内置全局过滤器
-![](image/内置全局过滤器.jpg)
+![](./image/内置全局过滤器.jpg)
 
 #### 自定义局部过滤器GatewayFilter
 
@@ -1127,9 +1128,9 @@ nacos既可以是注册中心同时也可以作为配置中心，支持将配置
 
 在nacos控制台上配置相关配置
 
-![](image/添加配置.jpg)
+![](./image/添加配置.jpg)
 
-![](image/详情配置步骤.jpg)
+![](./image/详情配置步骤.jpg)
 
 #### 将各个组件的配置拆分
 
@@ -1174,3 +1175,87 @@ nacos既可以是注册中心同时也可以作为配置中心，支持将配置
     shared-dataids: shared.yml
     refreshable-dataids: shared.yml
 
+## 七、分布式事务
+
+### 解决方案
+
+* 全局事务：通过一个事务管理的中心服务来做最终的事务提交；2阶段提交
+* 基于可靠消息服务：基于可靠消息服务的方案是通过消息中间件来实现的。
+
+![](./image/基于消息中间件的事务.jpg)
+
+* 最大努力通知：也称为定期校对，是对上一种方案的补充。
+
+![](./image/最大努力通知的事务方案.jpg)
+
+* TCC事务：Try Confirm Cancel，属于补偿型分布式事务；
+    - Try: 尝试待执行的业务，此过程执行完成业务一致性的检查，并预留号执行所需的全部资源
+    - Confirm: 确认执行业务，此操作不做任务业务检查，只是使用try阶段预留的业务资源。通常Try阶段成功，Confirm一定会成功
+    - Cancel: 取消待执行业务，取消Try阶段预留的业务资源。通常认为Cancel阶段一定成功。
+
+![](./image/TCC事务.jpg)
+
+### 分布式事务组件Seata
+
+seata原来叫Fescar，后来更名为seata。其设计目标是对业务的无侵入，在传统的2阶段提交上做的优化。它将一个分布式事务理解成一个包含了若干分支事务的全局事务，
+全局事务的职责是协调其下辖的分支事务达成一致，要么一起成功，要么一起失败；通常分支事务就是关系数据库的本地事务。
+
+![](./image/seata组件图.jpg)
+
+#### 安装Seata服务端
+
+* [Seata下载](https://github.com/seata/seata/releases)，下载好后解压
+* 进入解压的目录中，修改conf目录下的 registry.conf配置文件，将注册方式改为nacos
+
+
+    registry {
+      type = "nacos"
+      nacos {
+        application = "seata-server"
+        serverAddr = "localhost"
+        namespace = "public"
+        cluster = "default"
+        username = ""
+        password = ""
+      }
+    }
+    config {
+      type = "nacos"
+      nacos {
+        serverAddr = "localhost"
+        namespace = "public"
+        group = "SEATA_GROUP"
+        username = ""
+        password = ""
+      }
+    }
+    
+* 事务日志存储方式，默认file，修改`file.conf`配置文件里面的`mode`为db, 修改MySQL的连接信息；同时在数据库中创建如下的表：
+
+
+    CREATE TABLE `undo_log` (
+      `id` bigint(20) NOT NULL AUTO_INCREMENT,
+      `branch_id` bigint(20) NOT NULL,
+      `xid` varchar(100) NOT NULL,
+      `context` varchar(128) NOT NULL,
+      `rollback_info` longblob NOT NULL,
+      `log_status` int(11) NOT NULL,
+      `log_created` datetime NOT NULL,
+      `log_modified` datetime NOT NULL,
+      `ext` varchar(100) DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+    
+* 启动Seata服务，运行bin目录下的 `seata-server.bat`文件
+
+### 
+
+
+
+
+
+
+    
+    

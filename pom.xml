@@ -17,6 +17,7 @@
         <module>common-dto</module>
         <module>goods-center</module>
         <module>nacos-config-demo</module>
+        <module>seata</module>
     </modules>
 
     <properties>

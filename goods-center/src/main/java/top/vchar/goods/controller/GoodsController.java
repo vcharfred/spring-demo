@@ -1,10 +1,9 @@
 package top.vchar.goods.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import top.vchar.goods.dto.DeductInventoryDTO;
 import top.vchar.goods.dto.GoodsDetailDTO;
 import top.vchar.goods.service.IGoodsService;
 
@@ -27,9 +26,21 @@ public class GoodsController {
     }
 
     @GetMapping("/detail/{goodNo}")
-    public GoodsDetailDTO findGoodsByGoodsNo(@PathVariable("goodNo") String goodNo){
+    public GoodsDetailDTO findGoodsByGoodsNo(@PathVariable("goodNo") String goodNo) {
         log.info("商品编号：{}", goodNo);
         return goodsService.findGoodsByGoodsNo(goodNo);
+    }
+
+    /**
+     * 扣除库存
+     *
+     * @param deductInventoryDTO 参数
+     * @return 返回结果
+     */
+    @PostMapping("/goods/deduct")
+    public Boolean deductInventory(@Validated @RequestBody DeductInventoryDTO deductInventoryDTO) {
+        log.info("扣除库存：{}", deductInventoryDTO);
+        return goodsService.deductInventory(deductInventoryDTO);
     }
 
 }
