@@ -5,34 +5,66 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.vchar.demo.spring</groupId>
-    <artifactId>spring-demo</artifactId>
+    <artifactId>spring-cloud-hoxton</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>springboot-demo1</module>
-        <module>springboot-demo2</module>
-        <module>springboot-demo3</module>
-        <module>springboot-thymeleaf-demo</module>
-        <module>springboot-freemarker-demo</module>
-        <module>springboot-dev-demo</module>
-        <module>springboot-test-demo</module>
-        <module>springboot-customer-banner-demo</module>
-        <module>springboot-exception-demo</module>
-        <module>springboot-war-demo</module>
-        <module>springboot-timer-demo</module>
-        <module>springboot-filter-demo</module>
-        <module>springboot-mybatis-demo</module>
-        <module>springboot-redis-demo</module>
-        <module>springboot-elasticsearch-demo</module>
-        <module>springboot-mq-demo</module>
-        <module>springboot-rocketMQ-demo</module>
-        <module>springboot-more-environment</module>
-        <module>springboot-webflux-demo</module>
-        <module>springboot-actuator-demo</module>
-        <module>springboot-config-demo</module>
-    </modules>
     <packaging>pom</packaging>
-    <name>spring-demo</name>
-    <description>spring全家桶学习教程</description>
+    <name>spring-cloud-hoxton</name>
+    <description>spring cloud Hoxton示例</description>
 
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>2.3.3.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Hoxton.SR8</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>1.2.73</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>3.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.21</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
