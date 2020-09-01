@@ -1,0 +1,21 @@
+server:
+  port: 8091
+  servlet:
+    context-path: /train
+spring:
+  application:
+    name: train-server
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/life?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+# 注册中心eureka配置
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

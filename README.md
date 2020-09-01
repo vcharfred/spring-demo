@@ -1,6 +1,14 @@
 # Spring Cloud Hoxton版本的demo
 
-## 根项目依赖锁定
+[![build status](https://img.shields.io/badge/build-Hoxton-red)]()
+[![jdk](https://img.shields.io/badge/jdk-1.8-green)]()
+[![mybatis--plus](https://img.shields.io/badge/mybatis--plus-3.4.0-green)](https://mp.baomidou.com/guide/)
+[![spring--boot](https://img.shields.io/badge/spring--boot-2.3.3-green)]()
+[![spring--cloud](https://img.shields.io/badge/spring--cloud-Hoxton.SR8-green)]()
+[![spring--cloud](https://img.shields.io/badge/注册中心-eureka-green)]()
+[![spring--cloud](https://img.shields.io/badge/mysql-8.0-green)]()
+
+### 根项目依赖锁定
 
     <dependencyManagement>
         <dependencies>
@@ -32,6 +40,11 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>8.0.21</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+                <version>2.8.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -245,8 +258,18 @@ eureka注册中心客户端的依赖中排除如下依赖
 
 启动所有服务验证是否成功：`http://127.0.0.1:9000/user/base?id=1`
 
+### 网关鉴权
 
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-pool2</artifactId>
+    </dependency>
 
+> @Configuration 类似以前写在xml中配置bean，可以认为这就是一个xml配置文件
     
     
 

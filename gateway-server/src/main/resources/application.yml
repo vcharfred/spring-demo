@@ -1,10 +1,43 @@
 server:
   port: 9000
+  # 开启对响应数据做压缩处理
+  compression:
+    enabled: true
+    mime-types: application/json,application/stream+json,application/xml,application/xhtml+xml,text/html,text/xml,text/plain
 spring:
   application:
     name: gateway-server
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    # 超时时间，单位毫秒
+    timeout: 3000
+    database: 0
+    lettuce:
+      pool:
+        # 连接池中的最小空闲连接
+        min-idle: 1
+        # 连接池中的最大空闲连接
+        max-idle: 6
+        # 连接池最大连接数（使用负值表示没有限制,不要配置过大，否则可能会影响redis的性能）
+        max-active: 10
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: 1000
+      #关闭超时时间,ms
+      shutdown-timeout: 100
   cloud:
     gateway:
+      # 跨域配置
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
       # 将网关注册到注册中心
       discovery:
         locator:
@@ -17,6 +50,15 @@ spring:
           # 转发匹配规则
           predicates:
             - Path=/user/**
+          filters:
+            - AddRequestHeader=X-Request-Business, user
+        - id: train-server
+          uri: lb://train-server
+          predicates:
+            - Path=/train/**
+            - Time=6,0,23,0
+          filters:
+            - AddRequestHeader=X-Request-Business, train
     # 关闭netflix的ribbon
     loadbalancer:
       ribbon:
