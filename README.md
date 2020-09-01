@@ -866,7 +866,7 @@ routes:
 
 #### 自定义断言工厂
 
-参考内置断言工厂，其都继承了AbstractRoutePredicateFactory类，类名字必须以RoutePredicateFactory结尾，使用的时候用面部分；示例如下：
+参考内置断言工厂，其都继承了AbstractRoutePredicateFactory类，类名字必须以RoutePredicateFactory结尾，`使用的时候用面部分`；示例如下：
 
     @Component
     public class SexRoutePredicateFactory extends AbstractRoutePredicateFactory<SexRoutePredicateFactory.Config> {
@@ -881,7 +881,7 @@ routes:
          */
         @Override
         public List<String> shortcutFieldOrder() {
-            // 这里的顺序需要和配置文件中的一致
+            // 这里的顺序需要和配置文件中的一致，会将配置的值拆分后按这里的顺序赋值
             return Collections.singletonList("sex");
         }
     

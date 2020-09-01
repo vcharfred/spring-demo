@@ -20,3 +20,4 @@ spring:
             - Path=/order/**
             # 设置自定义的断言
             - Sex=0
+            - Time=6,0,23,0
