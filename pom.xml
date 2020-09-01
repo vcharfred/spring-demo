@@ -10,6 +10,7 @@
     <modules>
         <module>eureka-server</module>
         <module>user-server</module>
+        <module>gateway-server</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

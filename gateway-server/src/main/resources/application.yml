@@ -1,0 +1,27 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: gateway-server
+  cloud:
+    gateway:
+      # 将网关注册到注册中心
+      discovery:
+        locator:
+          enabled: true
+      # 路由转发
+      routes:
+        - id: user-server
+          # 服务名称
+          uri: lb://user-server
+          # 转发匹配规则
+          predicates:
+            - Path=/user/**
+    # 关闭netflix的ribbon
+    loadbalancer:
+      ribbon:
+        enabled: false
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

@@ -37,7 +37,7 @@
     </dependencyManagement>
     
 
-## eureka注册中心
+## 一、eureka注册中心
 
 #### 添加maven依赖
 
@@ -45,6 +45,20 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.netflix.ribbon</groupId>
+                    <artifactId>ribbon-eureka</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
         </dependency>
     </dependencies>
  
@@ -88,7 +102,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.cloud</groupId>
-                    <artifactId>spring-cloud-starter-ribbon</artifactId>
+                    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.netflix.ribbon</groupId>
@@ -147,7 +161,7 @@ eureka注册中心客户端的依赖中排除如下依赖
         <exclusions>
             <exclusion>
                 <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-ribbon</artifactId>
+                <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
             </exclusion>
             <exclusion>
                 <groupId>com.netflix.ribbon</groupId>
@@ -162,7 +176,77 @@ eureka注册中心客户端的依赖中排除如下依赖
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>
     </dependency>
+
+## 二、网关
+
+### 添加maven依赖
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+        <!--eureka注册中心客户端-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.netflix.ribbon</groupId>
+                    <artifactId>ribbon-eureka</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+    </dependencies>
+
+### 添加application配置
+
+    server:
+      port: 9000
+    spring:
+      application:
+        name: gateway-server
+      cloud:
+        gateway:
+          discovery:
+            locator:
+              enabled: true
+          routes:
+            - id: user-server
+              uri: lb://user-server
+              predicates:
+                - Path=/user/**
+        loadbalancer:
+          ribbon:
+            enabled: false
+    eureka:
+      client:
+        serviceUrl:
+          defaultZone: http://localhost:8761/eureka/
+
+### 创建启动类
+
+    @EnableDiscoveryClient
+    @SpringBootApplication
+    public class GatewayApplication {
     
+        public static void main(String[] args) {
+            new SpringApplicationBuilder(GatewayApplication.class).web(WebApplicationType.REACTIVE).run(args);
+        }
+    }
+
+启动所有服务验证是否成功：`http://127.0.0.1:9000/user/base?id=1`
+
+
+
     
     
 
