@@ -1,5 +1,8 @@
 package top.vchar.util;
 
+import io.netty.buffer.ByteBufAllocator;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -75,12 +78,19 @@ public class NetworkUtil {
      */
     public static boolean isUploadFile(@Nullable MediaType mediaType) {
         if (mediaType!=null) {
-            return mediaType.equals(MediaType.MULTIPART_FORM_DATA)
-                    || mediaType.equals(MediaType.IMAGE_GIF)
-                    || mediaType.equals(MediaType.IMAGE_JPEG)
-                    || mediaType.equals(MediaType.IMAGE_PNG)
-                    || mediaType.equals(MediaType.MULTIPART_MIXED);
+            return mediaType.equalsTypeAndSubtype(MediaType.MULTIPART_FORM_DATA)
+                    || mediaType.equalsTypeAndSubtype(MediaType.IMAGE_GIF)
+                    || mediaType.equalsTypeAndSubtype(MediaType.IMAGE_JPEG)
+                    || mediaType.equalsTypeAndSubtype(MediaType.IMAGE_PNG)
+                    || mediaType.equalsTypeAndSubtype(MediaType.MULTIPART_MIXED);
         }
         return false;
+    }
+
+    public static DataBuffer toDataBuffer(byte[] bytes) {
+        NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
+        DataBuffer buffer = nettyDataBufferFactory.allocateBuffer(bytes.length);
+        buffer.write(bytes);
+        return buffer;
     }
 }

@@ -1,13 +1,11 @@
 package top.vchar.filter;
 
-import io.netty.buffer.ByteBufAllocator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -34,7 +32,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Component
-public class LogFilter implements GlobalFilter, Ordered {
+public class AccessLogFilter implements GlobalFilter, Ordered {
 
     public static final int ORDER = RequestContentFilter.ORDER+1;
 
@@ -60,14 +58,15 @@ public class LogFilter implements GlobalFilter, Ordered {
 
         switch (method){
             case GET:
-                log.info("requestId={}, [IP:{}], [{}:{}], params:{}", requestId, ip, method, url, uri.getQuery());
+                log.info("traceId={}, [IP:{}], [{}:{}], params:{}", requestId, ip, method, url, uri.getQuery());
                 return chain.filter(exchange);
             case PUT:
             case POST:
             case DELETE:
                 if(NetworkUtil.isUploadFile(mediaType)){
                     // 文件上传
-                    log.info("requestId={}, [IP:{}], [{}:{}], params: upload file request", requestId, ip, method, url);
+                    log.info("traceId={}, [IP:{}], [{}:{}], params: upload file request", requestId, ip, method, url);
+                    return chain.filter(exchange);
                 }
                 return DataBufferUtils.join(request.getBody())
                         .flatMap(d -> Mono.just(Optional.of(d))).defaultIfEmpty(Optional.empty()).flatMap(optional -> {
@@ -78,11 +77,11 @@ public class LogFilter implements GlobalFilter, Ordered {
                                 optional.get().read(oldBytes);
                                 bodyString = new String(oldBytes, StandardCharsets.UTF_8);
                             }
-                            log.info("requestId={}, [IP:{}], [{}:{}], params:{}", requestId, ip, method, url, bodyString);
+                            log.info("traceId={}, [IP:{}], [{}:{}], params:{}", requestId, ip, method, url, bodyString);
 
                             ServerHttpRequest newRequest = request.mutate().uri(uri).build();
                             byte[] newBytes = bodyString.getBytes(StandardCharsets.UTF_8);
-                            DataBuffer bodyDataBuffer = toDataBuffer(newBytes);
+                            DataBuffer bodyDataBuffer = NetworkUtil.toDataBuffer(newBytes);
                             Flux<DataBuffer> bodyFlux = Flux.just(bodyDataBuffer);
 
                             newRequest = new ServerHttpRequestDecorator(newRequest) {
@@ -107,10 +106,4 @@ public class LogFilter implements GlobalFilter, Ordered {
         return ORDER;
     }
 
-    private DataBuffer toDataBuffer(byte[] bytes) {
-        NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
-        DataBuffer buffer = nettyDataBufferFactory.allocateBuffer(bytes.length);
-        buffer.write(bytes);
-        return buffer;
-    }
 }

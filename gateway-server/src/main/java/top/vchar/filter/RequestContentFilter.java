@@ -1,9 +1,11 @@
 package top.vchar.filter;
 
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,10 +13,13 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import top.vchar.dto.ApiResponse;
 import top.vchar.util.NetworkUtil;
 
+import java.nio.charset.StandardCharsets;
+
 /**
- * <p> 安全验证拦截器 </p>
+ * <p> 请求头和请求内容验证拦截器 </p>
  *
  * @author vchar fred
  * @version 1.0
@@ -26,17 +31,27 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
 
     public static final int ORDER = AdditionalHeaderFilter.ORDER+1;
 
+    /**
+     * 请求数据包最大5M
+     */
+    private static final long MAX_PACKAGE_SIZE = 1024*1024*5L;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        // 请求头拦截
+        // 请求头信息验证
         HttpHeaders headers = exchange.getRequest().getHeaders();
-        boolean validateHeader = validateHeader(headers);
-        if(validateHeader){
-            return chain.filter(exchange);
+        if (validateIp(headers)){
+            return write(exchange, HttpStatus.NOT_ACCEPTABLE, "UNKNOWN CLIENT");
         }
-        ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        return Mono.empty();
+        if(!validateMediaType(headers)){
+            return write(exchange, HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED Content-Type");
+        }
+        long length = headers.getContentLength();
+        if(length>MAX_PACKAGE_SIZE){
+            // 请求数据包过大
+            return write(exchange, HttpStatus.PAYLOAD_TOO_LARGE, "PAYLOAD TOO LARGE");
+        }
+        return chain.filter(exchange);
     }
 
     @Override
@@ -44,16 +59,43 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
         return ORDER;
     }
 
-    private boolean validateHeader(HttpHeaders headers){
-        String ip = headers.getFirst(AdditionalHeaderFilter.REQUEST_IP);
-        if(null==ip || NetworkUtil.UNKNOWN.equals(ip)){
+    /**
+     * 请求头MediaType验证
+     * @param headers 请求头内容
+     * @return 非法返回true
+     */
+    private boolean validateMediaType(HttpHeaders headers){
+        // 支持的请求头类型：json、xml、multipart/form-data、multipart/mixed、x-www-form-urlencoded
+        MediaType contentType = headers.getContentType();
+        if(contentType==null){
             return false;
         }
-        // 支持的请求头类型：json、xml、multipart/form-data、multipart/mixed
-        MediaType contentType = headers.getContentType();
-        return contentType == MediaType.APPLICATION_JSON || contentType == MediaType.APPLICATION_STREAM_JSON
-                || contentType == MediaType.TEXT_XML || contentType == MediaType.APPLICATION_XML
-                || contentType == MediaType.TEXT_PLAIN
-                || contentType == MediaType.MULTIPART_FORM_DATA || contentType == MediaType.MULTIPART_MIXED;
+        return contentType.equalsTypeAndSubtype(MediaType.APPLICATION_JSON) || contentType.equalsTypeAndSubtype(MediaType.APPLICATION_STREAM_JSON)
+                || contentType.equalsTypeAndSubtype(MediaType.TEXT_XML) || contentType.equalsTypeAndSubtype(MediaType.APPLICATION_XML)
+                || contentType.equalsTypeAndSubtype(MediaType.TEXT_PLAIN)
+                || contentType.equalsTypeAndSubtype(MediaType.MULTIPART_FORM_DATA) || contentType.equalsTypeAndSubtype(MediaType.MULTIPART_MIXED)
+                || contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
     }
+
+    /**
+     * 验证客户端IP
+     * @param headers 请求头内容
+     * @return 非法返回true
+     */
+    private boolean validateIp(HttpHeaders headers){
+        String ip = headers.getFirst(AdditionalHeaderFilter.REQUEST_IP);
+        return null == ip || NetworkUtil.UNKNOWN.equalsIgnoreCase(ip);
+    }
+
+    private Mono<Void> write(ServerWebExchange exchange, HttpStatus httpStatus, String message){
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(httpStatus);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        ApiResponse apiResponse = ApiResponse.builder().code(String.valueOf(httpStatus.value())).message(message).build();
+        Gson gson = new Gson();
+        Mono<DataBuffer> body = Mono.just(NetworkUtil.toDataBuffer(gson.toJson(apiResponse).getBytes(StandardCharsets.UTF_8)));
+        return response.writeWith(body);
+    }
+
 }
