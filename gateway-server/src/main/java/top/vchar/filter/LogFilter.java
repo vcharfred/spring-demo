@@ -36,7 +36,7 @@ import java.util.Optional;
 @Component
 public class LogFilter implements GlobalFilter, Ordered {
 
-    public static final int ORDER = AdditionalHeaderFilter.ORDER+1;
+    public static final int ORDER = RequestContentFilter.ORDER+1;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

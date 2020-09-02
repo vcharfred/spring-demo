@@ -7,7 +7,6 @@ import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -30,17 +29,14 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         // 请求头拦截
-        ServerHttpRequest request = exchange.getRequest();
         HttpHeaders headers = exchange.getRequest().getHeaders();
         boolean validateHeader = validateHeader(headers);
-        if(!validateHeader){
-            ServerHttpResponse response = exchange.getResponse();
-            response.setStatusCode(HttpStatus.METHOD_NOT_ALLOWED);
-            return Mono.empty();
+        if(validateHeader){
+            return chain.filter(exchange);
         }
-
-
-        return null;
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        return Mono.empty();
     }
 
     @Override
@@ -55,7 +51,6 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
         }
         // 支持的请求头类型：json、xml、multipart/form-data、multipart/mixed
         MediaType contentType = headers.getContentType();
-
         return contentType == MediaType.APPLICATION_JSON || contentType == MediaType.APPLICATION_STREAM_JSON
                 || contentType == MediaType.TEXT_XML || contentType == MediaType.APPLICATION_XML
                 || contentType == MediaType.TEXT_PLAIN
