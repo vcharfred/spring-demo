@@ -10,6 +10,7 @@
     <modules>
         <module>springboot-start-demo</module>
         <module>base-demo</module>
+        <module>test-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>SpringBoot2-Demo</name>
