@@ -1,15 +1,14 @@
 # SpringBoot2.x学习笔记
-## 目录
-* [[SpringBoot开始]]()
 
 ## 一、SpringBoot开始
+
 #### 1.1 添加maven依赖：
 
     <!--首先依赖spring boot 父级maven 包-->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.6.RELEASE</version>
+        <version>2.3.3.RELEASE</version>
     </parent>
 
     <dependencies>
@@ -41,7 +40,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-    </dependencies>   
+    </dependencies>  
+     
 #### 1.2 编写启动类
 
     import org.springframework.boot.SpringApplication;
@@ -74,3 +74,4 @@
     }   
     
 直接运行main方法即可启动SpringBoot，默认使用的端口是8080; 访问：http://127.0.0.1:8080/home查看结果
+
