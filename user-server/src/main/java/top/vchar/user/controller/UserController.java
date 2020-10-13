@@ -1,8 +1,8 @@
 package top.vchar.user.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.alibaba.fastjson.JSONObject;
+import org.springframework.web.bind.annotation.*;
+import top.vchar.user.entity.UserInfo;
 import top.vchar.user.service.UserService;
 
 /**
@@ -29,7 +29,18 @@ public class UserController {
      */
     @GetMapping
     public String findUserName(Long id){
-        return this.userService.findById(id);
+        return userService.findById(id);
+    }
+
+    /**
+     * 通过用户ID查询用户名称
+     * @param userInfo 用户ID
+     * @return 返回用户名称
+     */
+    @PostMapping
+    public String addUserName(@RequestBody UserInfo userInfo){
+        System.out.println(JSONObject.toJSONString(userInfo));
+        return JSONObject.toJSONString(userInfo);
     }
 
 }
