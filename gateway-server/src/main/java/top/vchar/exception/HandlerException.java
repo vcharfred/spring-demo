@@ -6,11 +6,13 @@ import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ReactiveHttpOutputMessage;
 import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.codec.HttpMessageWriter;
 import org.springframework.util.Assert;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.RequestPredicates;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -155,7 +157,7 @@ public class HandlerException implements ErrorWebExceptionHandler {
         log.info("interface exception：{} 异常响应为: {}", request.path(), result);
         return ServerResponse.status(result.getHttpStatus())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(result.getBody()));
+                .body(result.getBody());
     }
 
     @Data
@@ -164,6 +166,13 @@ public class HandlerException implements ErrorWebExceptionHandler {
         private ApiResponse<String> body;
 
        private HttpStatus httpStatus;
+
+       public BodyInserter<ApiResponse<String>, ReactiveHttpOutputMessage> getBody(){
+           if(httpStatus==HttpStatus.NOT_FOUND){
+               return BodyInserters.empty();
+           }
+           return BodyInserters.fromValue(body);
+       }
     }
 
     /**

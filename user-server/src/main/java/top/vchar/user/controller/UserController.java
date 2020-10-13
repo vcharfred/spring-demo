@@ -34,6 +34,16 @@ public class UserController {
 
     /**
      * 通过用户ID查询用户名称
+     * @param name 用户名称
+     * @return 返回用户名称
+     */
+    @GetMapping("/name")
+    public String findUserName(String name){
+        return name;
+    }
+
+    /**
+     * 通过用户ID查询用户名称
      * @param userInfo 用户ID
      * @return 返回用户名称
      */

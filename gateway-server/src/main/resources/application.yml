@@ -10,7 +10,7 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
-    password: 123456
+#    password: 123456
     # 超时时间，单位毫秒
     timeout: 3000
     database: 0
@@ -52,6 +52,15 @@ spring:
             - Path=/user/**
           filters:
             - AddRequestHeader=X-Request-Business, user
+            - name: RequestRateLimiter
+              args:
+                # 每秒允许多少个请求
+                redis-rate-limiter.replenishRate: 10
+                # 一秒钟内执行的最大请求数
+                redis-rate-limiter.burstCapacity: 20
+                # 每次消耗的数量
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@uriKeyResolver}"
         - id: train-server
           uri: lb://train-server
           predicates:
@@ -59,6 +68,12 @@ spring:
             - Time=6,0,23,0
           filters:
             - AddRequestHeader=X-Request-Business, train
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@uriKeyResolver}"
     # 关闭netflix的ribbon
     loadbalancer:
       ribbon:
@@ -67,3 +82,8 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+white-url:
+  xss:
+    white-urls:
+      - url: "/user/base/name"
+        methods: "POST"

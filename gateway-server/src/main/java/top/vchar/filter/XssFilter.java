@@ -1,6 +1,9 @@
 package top.vchar.filter;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -11,7 +14,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
@@ -19,8 +24,10 @@ import reactor.core.publisher.Mono;
 import top.vchar.util.NetworkUtil;
 import top.vchar.util.XssUtil;
 
+import javax.validation.constraints.NotEmpty;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -30,11 +37,18 @@ import java.util.Optional;
  * @version 1.0
  * @create_date 2020/10/12
  */
+@RefreshScope
+@ConfigurationProperties("white-url.xss")
 @Slf4j
 @Component
 public class XssFilter implements GlobalFilter, Ordered {
 
     public static final int ORDER = RequestContentFilter.ORDER+1;
+
+    /**
+     * xss 白名单
+     */
+    private List<XssWhiteUrl> whiteUrls;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -61,12 +75,12 @@ public class XssFilter implements GlobalFilter, Ordered {
     private Mono<Void> doFilter(HttpMethod method, ServerWebExchange exchange, GatewayFilterChain chain){
         ServerHttpRequest request = exchange.getRequest();
         URI uri = request.getURI();
+        URI newUri = UriComponentsBuilder.fromUri(uri)
+                .replaceQuery(XssUtil.cleanXss(uri.getQuery()))
+                .build(false)
+                .toUri();
         switch (method){
             case GET:
-                URI newUri = UriComponentsBuilder.fromUri(uri)
-                        .replaceQuery(XssUtil.cleanXss(uri.getQuery()))
-                        .build(false)
-                        .toUri();
                 ServerHttpRequest newGetRequest = request.mutate().uri(newUri).build();
                 return chain.filter(exchange.mutate().request(newGetRequest).build());
             case POST:
@@ -85,7 +99,7 @@ public class XssFilter implements GlobalFilter, Ordered {
                             // 执行XSS清理
                             bodyString = XssUtil.cleanXss(bodyString);
 
-                            ServerHttpRequest newRequest = request.mutate().uri(uri).build();
+                            ServerHttpRequest newRequest = request.mutate().uri(newUri).build();
 
                             // 重新构造body
                             byte[] newBytes = bodyString.getBytes(StandardCharsets.UTF_8);
@@ -125,6 +139,7 @@ public class XssFilter implements GlobalFilter, Ordered {
         return ORDER;
     }
 
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
     /**
      * 是否是白名单
      * @param url 请求地址
@@ -132,7 +147,31 @@ public class XssFilter implements GlobalFilter, Ordered {
      * @return true：是白名单
      */
     private boolean isWhitelist(String url, HttpMethod method){
-        return false;
+        if(whiteUrls==null || whiteUrls.isEmpty()){
+            return false;
+        }
+        long count = whiteUrls.stream()
+                .filter(p->p.getMethods()==null || p.getMethods().contains(method.name()))
+                .filter(p->antPathMatcher.match(p.getUrl(), url))
+                .count();
+        return count>0;
     }
 
+    @Data
+    @Validated
+    private static class XssWhiteUrl {
+
+        @NotEmpty
+        private String url;
+
+        private String methods;
+    }
+
+    public List<XssWhiteUrl> getWhiteUrls() {
+        return whiteUrls;
+    }
+
+    public void setWhiteUrls(List<XssWhiteUrl> whiteUrls) {
+        this.whiteUrls = whiteUrls;
+    }
 }

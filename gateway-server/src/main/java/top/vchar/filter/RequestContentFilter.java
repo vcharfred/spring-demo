@@ -43,15 +43,16 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
         // 请求头信息验证
         HttpHeaders headers = exchange.getRequest().getHeaders();
         if (validateIp(headers)){
-            return write(exchange, HttpStatus.NOT_ACCEPTABLE, "UNKNOWN CLIENT");
+            return write(exchange, HttpStatus.NOT_ACCEPTABLE);
         }
+
         if(exchange.getRequest().getMethod()!= HttpMethod.GET && !validateMediaType(headers)){
-            return write(exchange, HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED Content-Type");
+            return write(exchange, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         }
         long length = headers.getContentLength();
         if(length>MAX_PACKAGE_SIZE){
             // 请求数据包过大
-            return write(exchange, HttpStatus.PAYLOAD_TOO_LARGE, "PAYLOAD TOO LARGE");
+            return write(exchange, HttpStatus.PAYLOAD_TOO_LARGE);
         }
         return chain.filter(exchange);
     }
@@ -89,13 +90,10 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
         return null == ip || NetworkUtil.UNKNOWN.equalsIgnoreCase(ip);
     }
 
-    private Mono<Void> write(ServerWebExchange exchange, HttpStatus httpStatus, String message){
-        ApiResponse<String> apiResponse = ApiResponseBuilder.error(httpStatus.value(), message);
-
+    private Mono<Void> write(ServerWebExchange exchange, HttpStatus httpStatus){
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        Mono<DataBuffer> body = Mono.just(NetworkUtil.toDataBuffer(new Gson().toJson(apiResponse).getBytes(StandardCharsets.UTF_8)));
-        return response.writeWith(body);
+        return response.writeWith(Mono.empty());
     }
 }
