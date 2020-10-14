@@ -171,7 +171,7 @@ public class HandlerException implements ErrorWebExceptionHandler {
            if(httpStatus==HttpStatus.NOT_FOUND){
                return BodyInserters.empty();
            }
-           return BodyInserters.fromValue(body);
+           return BodyInserters.fromObject(body);
        }
     }
 

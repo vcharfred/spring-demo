@@ -13,12 +13,21 @@ public class ApiResponseBuilder {
 
     /**
      * 成功的响应
+     * @param <T> T
+     * @return 返回响应对象
+     */
+    public static <T> ApiResponse<T> success(){
+        return build(ApiCode.SUCCESS.value(), ApiCode.SUCCESS.defaultMessage(), null);
+    }
+
+    /**
+     * 成功的响应
      * @param message 提示信息
      * @param <T> T
      * @return 返回响应对象
      */
     public static <T> ApiResponse<T> success(String message){
-        return build(ApiCode.SUCCESS, message, null);
+        return build(ApiCode.SUCCESS.value(), message, null);
     }
 
     /**
@@ -28,7 +37,7 @@ public class ApiResponseBuilder {
      * @return 返回响应对象
      */
     public static <T> ApiResponse<T> success(String message, T data){
-        return build(ApiCode.SUCCESS, message, data);
+        return build(ApiCode.SUCCESS.value(), message, data);
     }
 
     /**
@@ -40,6 +49,17 @@ public class ApiResponseBuilder {
      */
     public static <T> ApiResponse<T> error(int code, String message){
         return build(code, message, null);
+    }
+
+    /**
+     * 失败的响应
+     * @param apiCode 响应code
+     * @param message 提示信息
+     * @param <T> T
+     * @return 返回响应对象
+     */
+    public static <T> ApiResponse<T> error(ApiCode apiCode, String message){
+        return error(apiCode.value(), message==null?apiCode.defaultMessage():message);
     }
 
     /**

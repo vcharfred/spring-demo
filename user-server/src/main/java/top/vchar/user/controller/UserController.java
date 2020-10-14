@@ -39,6 +39,7 @@ public class UserController {
      */
     @GetMapping("/name")
     public String findUserName(String name){
+        System.out.println(name);
         return name;
     }
 

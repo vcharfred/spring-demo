@@ -96,7 +96,7 @@ public class XssUtil {
             }
             String afterClean = Jsoup.clean(str, "", CUSTOM_WHITELIST, OUTPUT_SETTINGS);
             if (paramError(richText, afterClean, str)) {
-                throw new BizRunTimeException(ApiCode.PARAM_ERROR, "参数包含特殊字符");
+                throw new BizRunTimeException(ApiCode.PARAM_ERROR.value(), "参数包含特殊字符");
             }
             str = richText ? afterClean : backSpecialStr(afterClean);
         }

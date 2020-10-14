@@ -38,7 +38,7 @@ public class BaseHandlerException {
     @ResponseBody
     public ApiResponse<String> handler(HttpServletRequest request, Exception e) {
         log.error("{} {} 异常: ", request.getMethod(), request.getRequestURL(), e);
-        return ApiResponseBuilder.error(ApiCode.SERVER_ERROR, "服务繁忙，请稍后再试");
+        return ApiResponseBuilder.error(ApiCode.SERVER_ERROR, ApiCode.SERVER_ERROR.defaultMessage());
     }
 
     /**

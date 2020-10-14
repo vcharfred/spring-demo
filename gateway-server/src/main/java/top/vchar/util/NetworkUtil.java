@@ -81,8 +81,7 @@ public class NetworkUtil {
             return mediaType.equalsTypeAndSubtype(MediaType.MULTIPART_FORM_DATA)
                     || mediaType.equalsTypeAndSubtype(MediaType.IMAGE_GIF)
                     || mediaType.equalsTypeAndSubtype(MediaType.IMAGE_JPEG)
-                    || mediaType.equalsTypeAndSubtype(MediaType.IMAGE_PNG)
-                    || mediaType.equalsTypeAndSubtype(MediaType.MULTIPART_MIXED);
+                    || mediaType.equalsTypeAndSubtype(MediaType.IMAGE_PNG);
         }
         return false;
     }

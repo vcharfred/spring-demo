@@ -14,7 +14,7 @@ public class BizRunTimeException extends RuntimeException {
     /**
      * 默认响应状态码
      */
-    private int code = ApiCode.SERVER_ERROR;
+    private int code = ApiCode.SERVER_ERROR.value();
 
     public BizRunTimeException(String message) {
         super(message);

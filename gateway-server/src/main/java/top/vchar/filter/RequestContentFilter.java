@@ -1,5 +1,6 @@
 package top.vchar.filter;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -43,17 +44,18 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
         // 请求头信息验证
         HttpHeaders headers = exchange.getRequest().getHeaders();
         if (validateIp(headers)){
-            return write(exchange, HttpStatus.NOT_ACCEPTABLE);
+            return write(exchange, HttpStatus.NOT_ACCEPTABLE, "UNKNOWN CLIENT");
         }
 
         if(exchange.getRequest().getMethod()!= HttpMethod.GET && !validateMediaType(headers)){
-            return write(exchange, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            return write(exchange, HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED Content-Type");
         }
         long length = headers.getContentLength();
         if(length>MAX_PACKAGE_SIZE){
             // 请求数据包过大
-            return write(exchange, HttpStatus.PAYLOAD_TOO_LARGE);
+            return write(exchange, HttpStatus.PAYLOAD_TOO_LARGE, "PAYLOAD TOO LARGE");
         }
+
         return chain.filter(exchange);
     }
 
@@ -76,7 +78,7 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
         return contentType.equalsTypeAndSubtype(MediaType.APPLICATION_JSON) || contentType.equalsTypeAndSubtype(MediaType.APPLICATION_STREAM_JSON)
                 || contentType.equalsTypeAndSubtype(MediaType.TEXT_XML) || contentType.equalsTypeAndSubtype(MediaType.APPLICATION_XML)
                 || contentType.equalsTypeAndSubtype(MediaType.TEXT_PLAIN)
-                || contentType.equalsTypeAndSubtype(MediaType.MULTIPART_FORM_DATA) || contentType.equalsTypeAndSubtype(MediaType.MULTIPART_MIXED)
+                || contentType.equalsTypeAndSubtype(MediaType.MULTIPART_FORM_DATA)
                 || contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
     }
 
@@ -90,10 +92,14 @@ public class RequestContentFilter implements GlobalFilter, Ordered {
         return null == ip || NetworkUtil.UNKNOWN.equalsIgnoreCase(ip);
     }
 
-    private Mono<Void> write(ServerWebExchange exchange, HttpStatus httpStatus){
+    private Mono<Void> write(ServerWebExchange exchange, HttpStatus httpStatus, String message){
+
+        ApiResponse<String> apiResponse = ApiResponseBuilder.error(httpStatus.value(), message);
+
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        return response.writeWith(Mono.empty());
+        Mono<DataBuffer> body = Mono.just(NetworkUtil.toDataBuffer(JSONObject.toJSONString(apiResponse).getBytes(StandardCharsets.UTF_8)));
+        return response.writeWith(body);
     }
 }

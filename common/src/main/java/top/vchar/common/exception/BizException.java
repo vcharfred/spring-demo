@@ -14,7 +14,7 @@ public class BizException extends Exception {
     /**
      * 默认响应状态码
      */
-    private int code = ApiCode.SERVER_ERROR;
+    private int code = ApiCode.SERVER_ERROR.value();
 
     public BizException(String message) {
         super(message);

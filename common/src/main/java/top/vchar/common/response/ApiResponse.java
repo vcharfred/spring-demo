@@ -14,9 +14,9 @@ import java.io.Serializable;
 @Data
 public class ApiResponse<T> implements Serializable {
 
-    private int code = ApiCode.ERROR;
+    private int code = ApiCode.ERROR.value();
 
-    private String message;
+    private String message = ApiCode.ERROR.defaultMessage();
 
     private T data;
 
