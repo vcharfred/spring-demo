@@ -22,7 +22,7 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <springboot.version>2.3.3.RELEASE</springboot.version>
+        <springboot.version>2.3.4.RELEASE</springboot.version>
         <fastjson.version>1.2.74</fastjson.version>
     </properties>
 

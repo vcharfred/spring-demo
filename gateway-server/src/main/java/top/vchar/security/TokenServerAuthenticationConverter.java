@@ -1,6 +1,9 @@
 package top.vchar.security;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -14,9 +17,19 @@ import reactor.core.publisher.Mono;
  */
 public class TokenServerAuthenticationConverter implements ServerAuthenticationConverter {
 
+    /**
+     * 这里从请求中拿到相关的认证信息，然后将组装好认证对象返回
+     * @param exchange 请求对象
+     * @return 返回认证信息
+     */
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
-        Authentication authentication = new ApiAuthenticationToken("admin", System.currentTimeMillis());
+        // TODO 解析请求头信息
+        String token = exchange.getRequest().getHeaders().getFirst("token");
+        if(StringUtils.isBlank(token)){
+            return Mono.just(new AnonymousAuthenticationToken("ANONYMOUS", "ANONYMOUS", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+        }
+        Authentication authentication = new ApiAuthenticationToken("admin", 110L);
         return Mono.just(authentication);
     }
 }

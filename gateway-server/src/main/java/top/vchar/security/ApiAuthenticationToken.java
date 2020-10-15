@@ -3,6 +3,7 @@ package top.vchar.security;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Collection;
  * @version 1.0
  * @create_date 2020/10/14
  */
-public class ApiAuthenticationToken extends AbstractAuthenticationToken {
+public class ApiAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
 
     /**
      * token原文信息
@@ -45,7 +46,7 @@ public class ApiAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getPrincipal() {
-        return null;
+        return "";
     }
 
     public Long getTimestamp() {

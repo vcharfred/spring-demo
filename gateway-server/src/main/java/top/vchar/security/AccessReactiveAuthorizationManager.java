@@ -28,7 +28,8 @@ public class AccessReactiveAuthorizationManager implements ReactiveAuthorization
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> authentication, AuthorizationContext authorizationContext) {
         // TODO 判断是否有权限访问此接口地址
-        return authentication.map(p->new AuthorizationDecision(true))
+
+        return authentication.map(p-> new AuthorizationDecision(p.isAuthenticated()))
                 .defaultIfEmpty(new AuthorizationDecision(false));
     }
 }

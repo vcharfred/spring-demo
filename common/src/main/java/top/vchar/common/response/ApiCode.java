@@ -1,7 +1,5 @@
 package top.vchar.common.response;
 
-import com.sun.istack.internal.Nullable;
-
 /**
  * <p> 请求响应code </p>
  *
@@ -83,7 +81,6 @@ public enum ApiCode {
      * @param codeValue the Api code (potentially non-standard)
      * @return the corresponding {@code ApiCode}, or {@code null} if not found
      */
-    @Nullable
     public static ApiCode resolve(int codeValue) {
         for (ApiCode code : values()) {
             if (code.value == codeValue) {

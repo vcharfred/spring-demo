@@ -1,10 +1,10 @@
 package top.vchar.security;
 
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -21,8 +21,19 @@ public class TokenReactiveAuthenticationManager implements ReactiveAuthenticatio
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        authentication = new ApiAuthenticationToken("admin", System.currentTimeMillis()
-                , Lists.newArrayList(new SimpleGrantedAuthority("ROLE_PARTNER")));
+        if(authentication.getClass().isAssignableFrom(AnonymousAuthenticationToken.class)){
+            authentication.setAuthenticated(false);
+            return Mono.just(authentication);
+        }
+
+        // TODO 解析token中的信息，查看用户权限类型，进行授权；例如下面的
+
+        String roles = "ROLE_PARTNER";
+        if(authentication.getPrincipal()==null){
+            roles = "ROLE_USER";
+        }
+        authentication = new ApiAuthenticationToken(authentication.getPrincipal(), System.currentTimeMillis()
+                , AuthorityUtils.createAuthorityList(roles));
         return Mono.just(authentication);
     }
 }

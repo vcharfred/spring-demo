@@ -33,8 +33,10 @@ spring:
         cors-configurations:
           '[/**]':
             allowedOrigins: "*"
+            allowedHeaders: "*"
             allowedMethods:
               - GET
+              - OPTIONS
               - POST
               - PUT
               - DELETE
