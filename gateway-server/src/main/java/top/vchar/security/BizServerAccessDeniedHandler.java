@@ -1,6 +1,7 @@
 package top.vchar.security;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 import top.vchar.common.response.ApiCode;
 import top.vchar.common.response.ApiResponse;
 import top.vchar.common.response.ApiResponseBuilder;
+import top.vchar.security.bean.AccessInfo;
 
 import java.nio.charset.Charset;
 
@@ -23,11 +25,14 @@ import java.nio.charset.Charset;
  * @version 1.0
  * @create_date 2020/10/14
  */
+@Slf4j
 public class BizServerAccessDeniedHandler implements ServerAccessDeniedHandler {
 
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, AccessDeniedException denied) {
+
         return Mono.defer(() -> Mono.just(exchange.getResponse()))
+                .doOnNext(response->log.info(AccessInfo.builder(exchange).message("权限不足，请联系管理员").build().toString()))
                 .flatMap(response -> {
                     response.setStatusCode(HttpStatus.FORBIDDEN);
                     response.getHeaders().setContentType(MediaType.APPLICATION_JSON);

@@ -8,9 +8,12 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationEntryPointFailureHandler;
+import org.springframework.security.web.server.util.matcher.*;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import top.vchar.security.filter.AdditionalHeaderWebFilter;
 
 /**
  * <p> Security 配置 </p>
@@ -30,24 +33,31 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity httpSecurity
-            , AccessReactiveAuthorizationManager accessManager, TokenReactiveAuthenticationManager tokenManager){
+            , TokenReactiveAuthenticationManager tokenManager){
 
         AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(tokenManager);
         authenticationWebFilter.setServerAuthenticationConverter(new TokenServerAuthenticationConverter());
+        authenticationWebFilter.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(new BizServerAuthenticationEntryPoint()));
+        // 配置反向匹配器 实现白名单不校验
+        ServerWebExchangeMatcher matcher = new PathPatternParserServerWebExchangeMatcher("/**", HttpMethod.OPTIONS);
+        NegatedServerWebExchangeMatcher negateWhiteList = new NegatedServerWebExchangeMatcher(matcher);
+        authenticationWebFilter.setRequiresAuthenticationMatcher(negateWhiteList);
 
         return httpSecurity.csrf().disable()
                 .httpBasic().disable() // 关闭自带的简单认证
                 .formLogin().disable() // 关闭登陆界面
                 .cors().configurationSource(corsConfigurationSource()).and()
                 .exceptionHandling()
+                    .authenticationEntryPoint(new BizServerAuthenticationEntryPoint())
                     .accessDeniedHandler(new BizServerAccessDeniedHandler())
-                    .authenticationEntryPoint(new BizServerAuthenticationEntryPoint()).and()
-                .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .and()
+                .addFilterAt(new AdditionalHeaderWebFilter(), SecurityWebFiltersOrder.FIRST)
+                .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHORIZATION)
                 .authorizeExchange()
                     // OPTIONS请求不拦截
                     .pathMatchers(HttpMethod.OPTIONS).permitAll()
                     // 设置自定义的授权策略
-                    .anyExchange().access(accessManager).and()
+                    .anyExchange().access(new AccessReactiveAuthorizationManager()).and()
                 .build();
     }
 

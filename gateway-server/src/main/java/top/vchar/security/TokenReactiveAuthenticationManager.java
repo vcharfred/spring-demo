@@ -1,10 +1,11 @@
 package top.vchar.security;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +22,7 @@ public class TokenReactiveAuthenticationManager implements ReactiveAuthenticatio
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
+        System.out.println("认证...");
         if(authentication.getClass().isAssignableFrom(AnonymousAuthenticationToken.class)){
             authentication.setAuthenticated(false);
             return Mono.just(authentication);
@@ -33,7 +35,7 @@ public class TokenReactiveAuthenticationManager implements ReactiveAuthenticatio
             roles = "ROLE_USER";
         }
         authentication = new ApiAuthenticationToken(authentication.getPrincipal(), System.currentTimeMillis()
-                , AuthorityUtils.createAuthorityList(roles));
+                , Lists.newArrayList(new SimpleGrantedAuthority(roles)));
         return Mono.just(authentication);
     }
 }

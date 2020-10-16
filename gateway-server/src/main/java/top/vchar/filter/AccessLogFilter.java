@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import top.vchar.security.filter.AdditionalHeaderWebFilter;
 import top.vchar.util.NetworkUtil;
 
 import java.net.URI;
@@ -53,8 +54,8 @@ public class AccessLogFilter implements GlobalFilter, Ordered {
         MediaType mediaType = headers.getContentType();
 
 
-        String requestId = headers.getFirst(AdditionalHeaderFilter.REQUEST_TRACE_ID);
-        String ip = headers.getFirst(AdditionalHeaderFilter.REQUEST_IP);
+        String requestId = headers.getFirst(AdditionalHeaderWebFilter.REQUEST_TRACE_ID);
+        String ip = headers.getFirst(AdditionalHeaderWebFilter.REQUEST_IP);
 
         switch (method){
             case GET:

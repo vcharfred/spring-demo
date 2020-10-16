@@ -43,7 +43,7 @@ import java.util.Optional;
 @Component
 public class XssFilter implements GlobalFilter, Ordered {
 
-    public static final int ORDER = RequestContentFilter.ORDER+1;
+    public static final int ORDER = 2;
 
     /**
      * xss 白名单
