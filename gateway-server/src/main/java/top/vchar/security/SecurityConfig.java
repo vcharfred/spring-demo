@@ -15,6 +15,7 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import top.vchar.security.filter.AdditionalHeaderWebFilter;
 import top.vchar.security.filter.SignValidateWebFilter;
+import top.vchar.util.JwtTokenProvider;
 
 /**
  * <p> Security 配置 </p>
@@ -81,4 +82,8 @@ public class SecurityConfig {
         return corsConfig;
     }
 
+    @Bean
+    public JwtTokenProvider jwtTokenProvider(){
+        return new JwtTokenProvider("fd18347e9b5247d98b9169720d7cb0fd");
+    }
 }

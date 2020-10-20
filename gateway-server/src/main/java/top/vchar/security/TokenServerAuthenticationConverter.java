@@ -1,19 +1,12 @@
 package top.vchar.security;
 
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 /**
  * <p> token认证信息转换器 </p>
@@ -31,11 +24,7 @@ public class TokenServerAuthenticationConverter implements ServerAuthenticationC
      */
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
-        System.out.println("解析...");
-        // TODO 解析请求头信息
-        String sign = exchange.getRequest().getHeaders().getFirst(SecurityConstant.SIGNATURE);
-
-        // token
+        // 解析请求头token
         String token = exchange.getRequest().getHeaders().getFirst(SecurityConstant.ACCESS_TOKEN);
         if(null==token){
             // 请求头部没有token；从请求地址上获取
@@ -43,13 +32,8 @@ public class TokenServerAuthenticationConverter implements ServerAuthenticationC
         }
 
         if(StringUtils.isBlank(token)){
-            return Mono.just(new AnonymousAuthenticationToken("ANONYMOUS", "dd", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+            return Mono.just(new AnonymousAuthenticationToken("ANONYMOUS", "NONE", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
         }
-
-//        System.out.println(params.toJSONString());
-
-//
-        Authentication authentication = new ApiAuthenticationToken("admin", 110L);
-        return Mono.just(authentication);
+        return Mono.just(new ApiAuthenticationToken(token));
     }
 }

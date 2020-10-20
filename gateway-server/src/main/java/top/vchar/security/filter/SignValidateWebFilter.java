@@ -21,6 +21,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import top.vchar.common.exception.SignException;
+import top.vchar.security.SecurityConstant;
 import top.vchar.util.NetworkUtil;
 
 import java.util.*;
@@ -43,8 +44,13 @@ public class SignValidateWebFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        System.out.println("签名验证...");
+
+        // 签名=md5(随机数+时间戳+请求方式+请求的url+参数字典序字符串+盐)
+        String sign = exchange.getRequest().getHeaders().getFirst(SecurityConstant.SIGNATURE);
+        log.info("签名信息：{}", sign);
+
         ServerHttpRequest request = exchange.getRequest();
+        request.getHeaders().remove(SecurityConstant.SIGNATURE);
         HttpMethod method = request.getMethod();
         switch (method){
             case GET:
@@ -104,6 +110,7 @@ public class SignValidateWebFilter implements WebFilter {
                             FormFieldPart formFieldPart = (FormFieldPart) part;
                             params.put(key, formFieldPart.value());
                         }else {
+                            // TODO 文件的md5指纹验证
                             params.put(key, "");
                         }
                     }

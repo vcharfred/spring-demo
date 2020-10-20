@@ -20,22 +20,15 @@ public class ApiAuthenticationToken extends AbstractAuthenticationToken implemen
      */
     private final Object principal;
 
-    /**
-     * 时间戳
-     */
-    private final Long timestamp;
-
-    public ApiAuthenticationToken(Object principal, Long timestamp) {
+    public ApiAuthenticationToken(Object token) {
         super(null);
-        this.principal = principal;
-        this.timestamp = timestamp;
+        this.principal = token;
         super.setAuthenticated(false);
     }
 
-    public ApiAuthenticationToken(Object principal, Long timestamp, Collection<? extends GrantedAuthority> authorities) {
+    public ApiAuthenticationToken(Object token, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
-        this.principal = principal;
-        this.timestamp = timestamp;
+        this.principal = token;
         super.setAuthenticated(true);
     }
 
@@ -49,7 +42,8 @@ public class ApiAuthenticationToken extends AbstractAuthenticationToken implemen
         return "";
     }
 
-    public Long getTimestamp() {
-        return timestamp;
+    public String getToken(){
+        return this.principal==null? null : (String) this.principal;
     }
+
 }
