@@ -24,6 +24,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import top.vchar.common.exception.BizException;
 import top.vchar.common.exception.BizRunTimeException;
+import top.vchar.common.exception.SignException;
 import top.vchar.common.response.ApiResponse;
 import top.vchar.common.response.ApiResponseBuilder;
 
@@ -127,6 +128,9 @@ public class HandlerException implements ErrorWebExceptionHandler {
         } else if (ex instanceof BizException) {
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
             body = ApiResponseBuilder.error(((BizException) ex).getCode(), ex.getMessage());
+        }else if (ex instanceof SignException) {
+            httpStatus = HttpStatus.UNAUTHORIZED;
+            body = ApiResponseBuilder.error(((SignException) ex).getCode(), ex.getMessage());
         } else if (ex instanceof MethodArgumentNotValidException) {
             httpStatus = HttpStatus.BAD_REQUEST;
             Optional<ObjectError> objectErrorOptional = ((MethodArgumentNotValidException) ex).getBindingResult().getAllErrors().stream().findAny();

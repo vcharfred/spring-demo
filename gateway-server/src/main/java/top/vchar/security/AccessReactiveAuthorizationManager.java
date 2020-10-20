@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -15,6 +16,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p> 路由访问管理器 </p>
@@ -42,18 +46,7 @@ public class AccessReactiveAuthorizationManager implements ReactiveAuthorization
 //        if(sign==null){
 //            throw new AuthenticationCredentialsNotFoundException("");
 //        }
-        JSONObject params = new JSONObject();
-
-        ServerWebExchange exchange = authorizationContext.getExchange();
-        Mono<MultiValueMap<String, String>> formData = exchange.getFormData();
-        Mono<MultiValueMap<String, Part>> multipartData = exchange.getMultipartData();
-
-        ServerHttpRequest request = exchange.getRequest();
-        MultiValueMap<String, String> queryParams = request.getQueryParams();
-        params.put("url", queryParams);
-
-        System.out.println(params.toJSONString());
-        System.out.println("鉴权...");
+        System.out.println("url...");
         return authentication.map(p-> new AuthorizationDecision(p.isAuthenticated()))
                 .defaultIfEmpty(new AuthorizationDecision(false));
     }

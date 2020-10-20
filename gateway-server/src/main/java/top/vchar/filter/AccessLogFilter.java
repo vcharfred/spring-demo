@@ -52,8 +52,6 @@ public class AccessLogFilter implements GlobalFilter, Ordered {
 
         HttpHeaders headers = request.getHeaders();
         MediaType mediaType = headers.getContentType();
-
-
         String requestId = headers.getFirst(AdditionalHeaderWebFilter.REQUEST_TRACE_ID);
         String ip = headers.getFirst(AdditionalHeaderWebFilter.REQUEST_IP);
 

@@ -271,6 +271,6 @@ eureka注册中心客户端的依赖中排除如下依赖
 
 > @Configuration 类似以前写在xml中配置bean，可以认为这就是一个xml配置文件
     
-    
+       
 
           

@@ -63,6 +63,7 @@ public class AdditionalHeaderWebFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
+        System.out.println("请求头验证...");
         ServerHttpRequest request = exchange.getRequest();
         HttpMethod method = request.getMethod();
         String ip = NetworkUtil.getIpAddress(exchange.getRequest());

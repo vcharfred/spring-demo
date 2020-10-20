@@ -14,6 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import top.vchar.security.filter.AdditionalHeaderWebFilter;
+import top.vchar.security.filter.SignValidateWebFilter;
 
 /**
  * <p> Security 配置 </p>
@@ -52,6 +53,7 @@ public class SecurityConfig {
                     .accessDeniedHandler(new BizServerAccessDeniedHandler())
                 .and()
                 .addFilterAt(new AdditionalHeaderWebFilter(), SecurityWebFiltersOrder.FIRST)
+                .addFilterAfter(new SignValidateWebFilter(), SecurityWebFiltersOrder.FIRST)
                 .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHORIZATION)
                 .authorizeExchange()
                     // OPTIONS请求不拦截
