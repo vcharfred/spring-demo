@@ -114,7 +114,7 @@ public class SignValidateWebFilter implements WebFilter {
                             params.put(key, "");
                         }
                     }
-                    System.out.println(JSONObject.toJSONString(params));
+                    log.info(JSONObject.toJSONString(params));
                     if(params.isEmpty()){
                         return Mono.error(new SignException("签名不正确"));
                     }
