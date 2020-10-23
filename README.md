@@ -270,6 +270,50 @@ eureka注册中心客户端的依赖中排除如下依赖
     </dependency>
 
 > @Configuration 类似以前写在xml中配置bean，可以认为这就是一个xml配置文件
+
+## 三、常用中间件
+
+### elasticsearch搜索
+
+spring文档：https://docs.spring.io/spring-data/elasticsearch/docs/current/reference/html
+
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+    </dependency>
+
+根据关键词查询站点信息：
+
+    @Autowired
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
+    
+    public Flux<TrainStationNameDTO> findTrainStationName(String keywords) {
+
+        BoolQueryBuilder boolQuery = new BoolQueryBuilder();
+        QueryBuilder cnNameQuery = new PrefixQueryBuilder("cnName.keyword", keywords);
+        boolQuery.should(cnNameQuery);
+        QueryBuilder pinyinQuery = new MatchPhrasePrefixQueryBuilder("pinyin", keywords);
+        boolQuery.should(pinyinQuery);
+        Query query = new NativeSearchQuery(boolQuery);
+        return Flux.fromIterable(elasticsearchRestTemplate.search(query, TrainStationNameDTO.class)).map(SearchHit::getContent);
+    }
+
+或者：
+
+    @Component
+    @Document(indexName = "train_station_name")
+    public interface TrainStationNameRepository extends ElasticsearchRepository<TrainStationNameDTO, Long> {
+    
+        /**
+         * 查询以keywords开头的站点信息
+         * @param cnName 中文
+         * @param pinyin 拼音
+         * @return 返回结果
+         */
+        List<TrainStationNameDTO> findByCnNameStartingWithOrPinyinStartingWith(String cnName, String pinyin);
+    
+    }    
+
     
        
 

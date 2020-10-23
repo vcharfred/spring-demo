@@ -1,7 +1,5 @@
 server:
   port: 8091
-  servlet:
-    context-path: /train
 spring:
   application:
     name: train-server
@@ -14,6 +12,9 @@ spring:
     loadbalancer:
       ribbon:
         enabled: false
+  elasticsearch:
+    rest:
+      uris: http://192.168.111.55:9200
 # 注册中心eureka配置
 eureka:
   client:
