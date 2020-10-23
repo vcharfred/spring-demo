@@ -362,7 +362,15 @@ spring封装的ElasticsearchRestTemplate实现：
         }
     }
 
-    
+### RocketMQ
+
+使用rocketmq实现支付成功的异步消息通知
+
+添加依赖
+
+
+
+
        
 
           

@@ -140,6 +140,9 @@ public class TrainBaseDataServiceImpl implements TrainBaseDataService {
         return list;
     }
 
+    /**
+     * 导入数据到库中
+     */
     private String batchInsert(List<TrainStationName> list){
         int add = 0;
         int totalPull = list.size();
