@@ -1,9 +1,15 @@
 package top.vchar.train.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.*;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
@@ -23,6 +29,7 @@ import top.vchar.train.mapper.TrainStationNameMapper;
 import top.vchar.train.repository.TrainStationNameRepository;
 import top.vchar.train.service.TrainBaseDataService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,8 +103,28 @@ public class TrainBaseDataServiceImpl implements TrainBaseDataService {
         boolQuery.should(pinyinQuery);
         Query query = new NativeSearchQuery(boolQuery);
 ///     return elasticsearchRestTemplate.search(query, TrainStationNameDTO.class).map(SearchHit::getContent);
+        useClient(keywords);
         return Flux.fromIterable(elasticsearchRestTemplate.search(query, TrainStationNameDTO.class)).map(SearchHit::getContent);
     }
+
+    @Autowired
+    private RestHighLevelClient client;
+    private void useClient(String keywords) {
+        SearchRequest request = new SearchRequest("train_station_name");
+        request.source(SearchSourceBuilder.searchSource()
+                .query(QueryBuilders.boolQuery()
+                        .should(QueryBuilders.prefixQuery("cnName.keyword", keywords))
+                        .should(QueryBuilders.matchPhrasePrefixQuery("pinyin", keywords))
+                )
+        );
+        try {
+            SearchResponse search = client.search(request, RequestOptions.DEFAULT);
+            log.info(JSONObject.toJSONString(search.getHits()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private List<TrainStationName> extractStationName(String str){
         String[] arr = str.split("\\|");

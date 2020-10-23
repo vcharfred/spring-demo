@@ -286,6 +286,32 @@ spring文档：https://docs.spring.io/spring-data/elasticsearch/docs/current/ref
 
 根据关键词查询站点信息：
 
+es的DLS语句：
+
+    GET /train_station_name/_search
+    {
+      "query": {
+        "bool": {
+          "should": [
+            {
+              "prefix": {
+                "cnName.keyword": {
+                  "value": "beib"
+                }
+              }
+            },
+            {
+              "match_phrase_prefix": {
+                "pinyin": "beib"
+              }
+            }
+          ]
+        }
+      }
+    }
+
+spring封装的ElasticsearchRestTemplate实现：
+
     @Autowired
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
     
@@ -315,6 +341,26 @@ spring文档：https://docs.spring.io/spring-data/elasticsearch/docs/current/ref
         List<TrainStationNameDTO> findByCnNameStartingWithOrPinyinStartingWith(String cnName, String pinyin);
     
     }    
+
+或者使用client
+
+    @Autowired
+    private RestHighLevelClient client;
+    private void useClient(String keywords) {
+        SearchRequest request = new SearchRequest("train_station_name");
+        request.source(SearchSourceBuilder.searchSource()
+                .query(QueryBuilders.boolQuery()
+                        .should(QueryBuilders.prefixQuery("cnName.keyword", keywords))
+                        .should(QueryBuilders.matchPhrasePrefixQuery("pinyin", keywords))
+                )
+        );
+        try {
+            SearchResponse search = client.search(request, RequestOptions.DEFAULT);
+            log.info(JSONObject.toJSONString(search.getHits()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     
        
