@@ -282,6 +282,8 @@ spring文档：https://docs.spring.io/spring-data/elasticsearch/docs/current/ref
         <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
     </dependency>
 
+> 引入es包版本最好和使用的elasticsearch版本相同，避免出现问题
+
 根据关键词查询站点信息：
 
     @Autowired
