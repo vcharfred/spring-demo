@@ -364,6 +364,32 @@ spring封装的ElasticsearchRestTemplate实现：
 
 ### RocketMQ
 
+#### 基本概念说明
+
+    Producer:消息生产者
+    Producer Group:消息生产者组，发送同类消息的一个消息生产组
+    Consumer:消费者
+    Consumer Group:消费同个消息的多个实例
+    Tag:标签，子主题（二级分类）,用于区分同一个主题下的不同业务的消息
+    Topic:主题
+    Message：消息
+    Broker：MQ程序，接收生产的消息，提供给消费者消费的程序
+    Name Server：给生产和消费者提供路由信息，提供轻量级的服务发现和路由
+
+#### docker部署RocketMQ
+
+    docker pull rocketmqinc/rocketmq
+    
+    docker run -d -p 9876:9876 -v /opt/rocketmq/data/namesrv/logs:/root/logs -v /opt/rocketmq/data/namesrv/store:/root/store --name rmqnamesrv -e "MAX_POSSIBLE_HEAP=100000000" rocketmqinc/rocketmq sh mqnamesrv
+
+    docker run -d -p 10911:10911 -p 10909:10909 -v /opt/rocketmq/data/broker/logs:/root/logs -v /opt/rocketmq/data/broker/store:/root/store --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "MAX_POSSIBLE_HEAP=200000000" rocketmqinc/rocketmq sh mqbroker
+    
+    docker pull styletang/rocketmq-console-ng
+    
+    docker run --name rocketmq-console -e "JAVA_OPTS=-Drocketmq.namesrv.addr=192.168.111.63:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" -p 8080:8080 -t styletang/rocketmq-console-ng
+
+
+
 使用rocketmq实现支付成功的异步消息通知
 
 添加依赖
