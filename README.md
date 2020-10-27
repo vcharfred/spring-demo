@@ -376,27 +376,59 @@ spring封装的ElasticsearchRestTemplate实现：
     Broker：MQ程序，接收生产的消息，提供给消费者消费的程序
     Name Server：给生产和消费者提供路由信息，提供轻量级的服务发现和路由
 
-#### docker部署RocketMQ
+#### 使用rocketmq封装好了的spring-boot启动类
 
-    docker pull rocketmqinc/rocketmq
+添加依赖：
+
+        <!-- rocketmq-->
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+在application.yml配置文件中添加如下配置：
+
+    rocketmq:
+       # name server地址，有多个的时候用逗号分开
+      name-server: 192.168.111.63:9876
+      producer:
+        ## 这个是消息分组，必须配置
+        group: pay_server
+
+代码中使用：
+
+    private final RocketMQTemplate rocketMQTemplate;
     
-    docker run -d -p 9876:9876 -v /opt/rocketmq/data/namesrv/logs:/root/logs -v /opt/rocketmq/data/namesrv/store:/root/store --name rmqnamesrv -e "MAX_POSSIBLE_HEAP=100000000" rocketmqinc/rocketmq sh mqnamesrv
-
-    docker run -d -p 10911:10911 -p 10909:10909 -v /opt/rocketmq/data/broker/logs:/root/logs -v /opt/rocketmq/data/broker/store:/root/store --name rmqbroker --link rmqnamesrv:namesrv -e "NAMESRV_ADDR=namesrv:9876" -e "MAX_POSSIBLE_HEAP=200000000" rocketmqinc/rocketmq sh mqbroker
+        public PayOrderServiceImpl(RocketMQTemplate rocketMQTemplate) {
+            this.rocketMQTemplate = rocketMQTemplate;
+        }
     
-    docker pull styletang/rocketmq-console-ng
+        /**
+         * 支付成功订单处理
+         * @param payDTO 支付订单信息
+         * @return 返回处理结果
+         */
+        @Override
+        public Mono<String> pay(PayDTO payDTO) {
+            // 存储支付订单
+            log.info("存储订单信息:{}", payDTO);
     
-    docker run --name rocketmq-console -e "JAVA_OPTS=-Drocketmq.namesrv.addr=192.168.111.63:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false" -p 8080:8080 -t styletang/rocketmq-console-ng
+            return Mono.defer(()->Mono.just(savePayOrder(payDTO))).flatMap(p->{
+                if(p){
+                    // 向业务系统推送支付成功通知
+                    log.info("推送rocket mq 消息");
+                    this.rocketMQTemplate.convertAndSend("pay:pay_success", payDTO);
+                    return Mono.just("操作成功");
+                }
+                return Mono.just("数据库异常");
+            });
+        }    
+    }
+
+> 目前定制的RocketMQTemplate工具感觉还不太全面，参数也不明确，建议还是使用原始的依赖包
+
+#### 使用原始的rocketmq的包
 
 
 
-使用rocketmq实现支付成功的异步消息通知
-
-添加依赖
-
-
-
-
-       
-
-          

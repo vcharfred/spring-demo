@@ -1,8 +1,8 @@
 server:
-  port: 8092
+  port: 8093
 spring:
   application:
-    name: train-server
+    name: pay-server
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/life?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
@@ -12,11 +12,12 @@ spring:
     loadbalancer:
       ribbon:
         enabled: false
-  elasticsearch:
-    rest:
-      uris: http://192.168.111.55:9200
 # 注册中心eureka配置
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+rocketmq:
+  name-server: 192.168.111.63:9876
+  producer:
+    group: pay_server

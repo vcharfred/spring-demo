@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_HOME" value="/home/pay/logs/"/>
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{50}.%M.%L) - %highlight(%msg) %n</pattern>
+        </layout>
+    </appender>
+    <!--日志文件输出-->
+    <appender name="FILE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/info/info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/info/info-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!--每个日志最大1G-->
+            <maxFileSize>1GB</maxFileSize>
+            <!--最大保留45个-->
+            <maxHistory>45</maxHistory>
+            <!--总日志文件最大为30GB-->
+            <totalSizeCap>30GB</totalSizeCap>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{80}.%M.%L - %msg %n</pattern>
+        </layout>
+    </appender>
+
+    <root level="INFO">
+        <!--本地开发调试将控制台输出打开，同时将日志文件输出关闭，提高日志性能；线上部署请务必将控制台输出关闭-->
+        <appender-ref ref="STDOUT"/>
+        <!--<appender-ref ref="FILE_LOG"/>-->
+    </root>
+</configuration>
