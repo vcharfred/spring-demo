@@ -20,3 +20,8 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+rocketmq:
+  name-server: 192.168.111.63:9876
+  producer:
+    group: train_server
+

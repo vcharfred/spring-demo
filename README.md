@@ -426,9 +426,71 @@ spring封装的ElasticsearchRestTemplate实现：
         }    
     }
 
-> 目前定制的RocketMQTemplate工具感觉还不太全面，参数也不明确，建议还是使用原始的依赖包
+> 目前定制的RocketMQTemplate工具感觉还不太全面，参数也不明确，建议还是使用原始的
 
 #### 使用原始的rocketmq的包
 
+添加依赖：
 
+     <dependency>
+        <groupId>org.apache.rocketmq</groupId>
+        <artifactId>rocketmq-client</artifactId>
+        <version>4.7.1</version>
+    </dependency>
+
+创建生产者：
+
+    @Slf4j
+    @Component
+    public class RocketProducerBuilder implements DisposableBean {
+        
+        private DefaultMQProducer producer;
+    
+        /**
+         * 初始化DefaultMQProducer
+         * 
+         * 参考rocketmq-spring-boot包中的org.apache.rocketmq.spring.autoconfigure.RocketMQAutoConfiguration类
+         * 
+         * @throws MQClientException 启动消息生成者异常
+         */
+        @PostConstruct
+        void init() throws MQClientException {
+            //生产者的组名
+            producer = new DefaultMQProducer("pay-server");
+            /// 指定NameServer地址，多个地址以 ; 隔开
+            producer.setNamesrvAddr("192.168.100.141:9876;192.168.100.142:9876;192.168.100.149:9876");
+            // 关闭Channel通道
+            producer.setVipChannelEnabled(false);
+            // 发送消息超时时间，单位毫秒
+            producer.setSendMsgTimeout(3000);
+            // 在同步模式下，消息发送失败后重试次数，注意这个可能导致重复消息
+            producer.setRetryTimesWhenSendFailed(2);
+            // 在异步模式下，消息发送失败后重试次数，注意这个可能导致重复消息
+            producer.setRetryTimesWhenSendAsyncFailed(2);
+            // 发送消息的消息体网络包最大值
+            producer.setMaxMessageSize(1024 * 1024 * 4);
+            // 当消息体网络包大于4k时压缩消息
+            producer.setCompressMsgBodyOverHowmuch(1024 * 4);
+            // 当向一个broker发送消息失败了，是否重新尝试下一个
+            producer.setRetryAnotherBrokerWhenNotStoreOK(false);
+            // Producer对象在使用之前必须要调用start初始化，只能初始化一次
+            producer.start();
+        }
+        
+        /**
+         * 获取DefaultMQProducer
+         * @return  返回消息生产者DefaultMQProducer
+         */
+        public DefaultMQProducer build(){
+            return this.producer;
+        }
+        
+        @Override
+        public void destroy() throws Exception {
+            if(null!=producer){
+                producer.shutdown();
+                log.info("Rocket Producer Destroyed");
+            }
+        }
+    }
 

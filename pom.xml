@@ -15,6 +15,7 @@
         <module>common</module>
         <module>biz-common</module>
         <module>pay-server-rocketmq</module>
+        <module>rocketmq-client-demo</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

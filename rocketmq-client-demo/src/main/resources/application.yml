@@ -1,0 +1,14 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: rocketmq-client-server
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+rocketmq:
+  name-server: 192.168.111.63:9876
+  producer:
+    group: rocketmq-client-server
+
