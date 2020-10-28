@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -19,6 +20,18 @@ import javax.annotation.PostConstruct;
 @Component
 public class RocketProducerBuilder implements DisposableBean {
 
+    /**
+     * NameServer 地址
+     */
+    @Value(value = "${rocketmq.name-server}")
+    private String nameServerAddr;
+
+    /**
+     * 生产者的组名
+     */
+    @Value(value = "${rocketmq.producer.group}")
+    private String producerGroup;
+
     private DefaultMQProducer producer;
 
     /**
@@ -31,9 +44,9 @@ public class RocketProducerBuilder implements DisposableBean {
     @PostConstruct
     void init() throws MQClientException {
         //生产者的组名
-        producer = new DefaultMQProducer("pay-server");
+        producer = new DefaultMQProducer(producerGroup);
         /// 指定NameServer地址，多个地址以 ; 隔开
-        producer.setNamesrvAddr("192.168.100.141:9876;192.168.100.142:9876;192.168.100.149:9876");
+        producer.setNamesrvAddr(nameServerAddr);
         // 关闭Channel通道
         producer.setVipChannelEnabled(false);
         // 发送消息超时时间，单位毫秒
@@ -61,7 +74,7 @@ public class RocketProducerBuilder implements DisposableBean {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         if(null!=producer){
             producer.shutdown();
             log.info("Rocket Producer Destroyed");
