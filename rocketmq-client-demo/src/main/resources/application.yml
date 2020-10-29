@@ -11,4 +11,8 @@ rocketmq:
   name-server: 192.168.111.63:9876
   producer:
     group: client-server
-
+  consumer:
+    - consumerGroup: trian-order
+      consumeFromWhere: CONSUME_FROM_LAST_OFFSET
+      topics: demo-pay
+      rocketConsumerHandler: "top.vchar.rocketmq.config.rocketmq.handler.SimpleRocketConsumerHandler"

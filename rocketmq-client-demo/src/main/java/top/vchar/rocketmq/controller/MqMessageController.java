@@ -60,8 +60,8 @@ public class MqMessageController {
     /**
      * 异步消息
      */
-    @PostMapping("/sync")
-    public String syncSend(@Validated @RequestBody OrderDTO orderDTO) {
+    @PostMapping("/async")
+    public String asyncSend(@Validated @RequestBody OrderDTO orderDTO) {
 
         DefaultMQProducer producer = producerBuilder.build();
         Message message = new Message();
@@ -82,6 +82,26 @@ public class MqMessageController {
             }, 3000);
         } catch (Exception e) {
             log.error("异步消息发送异常：", e);
+        }
+        return "发送成功";
+    }
+
+    /**
+     * 单向消息
+     */
+    @PostMapping("/oneway")
+    public String sendOneway(@Validated @RequestBody OrderDTO orderDTO) {
+
+        DefaultMQProducer producer = producerBuilder.build();
+        Message message = new Message();
+        message.setTopic("demo-pay");
+        message.setTags("train");
+        message.setKeys(UUID.randomUUID().toString());
+        message.setBody(JSONObject.toJSONString(orderDTO).getBytes(StandardCharsets.UTF_8));
+        try {
+            producer.sendOneway(message);
+        } catch (Exception e) {
+            log.error("单向消息发送异常：", e);
         }
         return "发送成功";
     }

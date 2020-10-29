@@ -1,10 +1,13 @@
-package top.vchar.train.config.rocketmq.consumer;
+package top.vchar.rocketmq.config.rocketmq;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.MQPushConsumer;
+import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.springframework.beans.factory.DisposableBean;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * <p> rocketmq 消费者基础信息 </p>
@@ -17,6 +20,21 @@ import java.util.Objects;
 public abstract class AbstractRocketConsumer implements RocketConsumer, DisposableBean {
 
     protected MQPushConsumer consumer;
+
+    @Getter
+    private final String nameServer;
+
+    @Getter
+    private final String consumerGroup;
+
+    @Getter
+    private final ConsumeFromWhere consumeFromWhere;
+
+    public AbstractRocketConsumer(String nameServer, String consumerGroup, ConsumeFromWhere consumeFromWhere){
+        this.nameServer = nameServer;
+        this.consumerGroup = consumerGroup;
+        this.consumeFromWhere = Optional.ofNullable(consumeFromWhere).orElse(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
+    }
 
     /**
      * 初始化
@@ -38,4 +56,6 @@ public abstract class AbstractRocketConsumer implements RocketConsumer, Disposab
         }
         log.info("container destroyed, {}", this.toString());
     }
+
+
 }

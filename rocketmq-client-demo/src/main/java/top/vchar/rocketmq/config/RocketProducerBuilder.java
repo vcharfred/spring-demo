@@ -74,7 +74,7 @@ public class RocketProducerBuilder implements DisposableBean {
     }
 
     @Override
-    public void destroy() {
+    public void destroy() throws Exception {
         if(null!=producer){
             producer.shutdown();
             log.info("Rocket Producer Destroyed");

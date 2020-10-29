@@ -2,6 +2,8 @@ package top.vchar.rocketmq;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import top.vchar.rocketmq.util.SpringBeanUtil;
 
 /**
  * <p> 启动类 </p>
