@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import top.vchar.rocketmq.config.RocketProducerBuilder;
+import top.vchar.rocketmq.config.rocketmq.RocketProducerBuilder;
 import top.vchar.rocketmq.dto.OrderNotify;
 
 import java.nio.charset.StandardCharsets;

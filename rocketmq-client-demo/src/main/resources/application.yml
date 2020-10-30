@@ -20,3 +20,6 @@ rocketmq:
       topics: order-notify
       number: 1
       type: 1
+    - consumerGroup: transaction-message
+      topics: activity-notify
+      number: 3

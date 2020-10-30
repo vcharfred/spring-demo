@@ -2,6 +2,7 @@ package top.vchar.rocketmq.config.rocketmq.bean;
 
 import lombok.Data;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
+import org.apache.rocketmq.common.topic.TopicValidator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -35,7 +36,18 @@ public class RocketMQProperties implements Serializable {
 
     @Data
     public static final class Producer {
+
         private String group;
+
+        /**
+         * Switch flag instance for message trace.
+         */
+        private boolean enableMsgTrace = true;
+
+        /**
+         * The name value of message trace topic.If you don't config,you can use the default trace topic name.
+         */
+        private String customizedTraceTopic = TopicValidator.RMQ_SYS_TRACE_TOPIC;
     }
 
     @Data

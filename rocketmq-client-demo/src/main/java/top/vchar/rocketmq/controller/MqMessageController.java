@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
-import top.vchar.rocketmq.config.RocketProducerBuilder;
+import top.vchar.rocketmq.config.rocketmq.RocketProducerBuilder;
 import top.vchar.rocketmq.dto.OrderDTO;
 
 import java.nio.charset.StandardCharsets;

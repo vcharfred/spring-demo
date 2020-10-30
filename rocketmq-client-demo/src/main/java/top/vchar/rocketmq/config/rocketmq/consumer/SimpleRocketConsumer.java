@@ -32,8 +32,6 @@ public class SimpleRocketConsumer extends AbstractRocketConsumer {
 
     private final RocketConsumerHandler rocketConsumerHandler;
 
-    private Integer number;
-
     /**
      * 创建简单的消费者
      * @param nameServer name server
