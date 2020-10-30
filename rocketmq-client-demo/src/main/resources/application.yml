@@ -8,11 +8,15 @@ spring:
       ribbon:
         enabled: false
 rocketmq:
-  name-server: 192.168.111.63:9876
+  name-server: 192.168.111.53:9876
   producer:
     group: client-server
   consumer:
-    - consumerGroup: trian-order
+    - consumerGroup: simple-message
       consumeFromWhere: CONSUME_FROM_LAST_OFFSET
-      topics: demo-pay
+      topics: pay-info
       rocketConsumerHandler: "top.vchar.rocketmq.config.rocketmq.handler.SimpleRocketConsumerHandler"
+    - consumerGroup: order-message
+      topics: order-notify
+      number: 1
+      type: 1

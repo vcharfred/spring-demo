@@ -42,12 +42,22 @@ public class RocketMQProperties implements Serializable {
     public static final class Consumer {
         private String consumerGroup;
 
-        private ConsumeFromWhere consumeFromWhere;
+        private ConsumeFromWhere consumeFromWhere = ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET;
 
         private String topics;
 
         private String tags;
 
-        private String rocketConsumerHandler;
+        private String rocketConsumerHandler = "top.vchar.rocketmq.config.rocketmq.handler.SimpleRocketConsumerHandler";
+
+        /**
+         * 类型
+         * 0-普通消息
+         * 1-顺序消息
+         */
+        private int type = 0;
+
+        private Integer number;
+
     }
 }

@@ -1,4 +1,4 @@
-package top.vchar.rocketmq.config.rocketmq;
+package top.vchar.rocketmq.config.rocketmq.consumer;
 
 /**
  * <p> 消费者 </p>

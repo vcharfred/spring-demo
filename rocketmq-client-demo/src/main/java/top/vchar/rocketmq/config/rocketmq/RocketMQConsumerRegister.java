@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import top.vchar.rocketmq.config.rocketmq.bean.RocketMQProperties;
+import top.vchar.rocketmq.config.rocketmq.consumer.OrderRocketConsumer;
+import top.vchar.rocketmq.config.rocketmq.consumer.SimpleRocketConsumer;
 import top.vchar.rocketmq.config.rocketmq.handler.RocketConsumerHandler;
 import top.vchar.rocketmq.util.SpringBeanUtil;
 
@@ -31,14 +33,26 @@ public class RocketMQConsumerRegister implements CommandLineRunner {
         List<RocketMQProperties.Consumer> consumers = properties.getConsumer();
         if(consumers!=null && !consumers.isEmpty()){
             for(RocketMQProperties.Consumer consumer:consumers){
-                SimpleRocketConsumer.builder()
-                        .nameServer(this.properties.getNameServer())
-                        .consumerGroup(consumer.getConsumerGroup())
-                        .consumeFromWhere(consumer.getConsumeFromWhere())
-                        .topics(consumer.getTopics())
-                        .tags(consumer.getTags())
-                        .rocketConsumerHandler(getHandler(consumer.getRocketConsumerHandler()))
-                        .build().init();
+                if(consumer.getType()==0){
+                    SimpleRocketConsumer.builder()
+                            .nameServer(this.properties.getNameServer())
+                            .consumerGroup(consumer.getConsumerGroup())
+                            .consumeFromWhere(consumer.getConsumeFromWhere())
+                            .topics(consumer.getTopics())
+                            .tags(consumer.getTags())
+                            .rocketConsumerHandler(getHandler(consumer.getRocketConsumerHandler()))
+                            .number(consumer.getNumber())
+                            .build().init();
+                }else {
+                    OrderRocketConsumer.builder()
+                            .nameServer(this.properties.getNameServer())
+                            .consumerGroup(consumer.getConsumerGroup())
+                            .topics(consumer.getTopics())
+                            .tags(consumer.getTags())
+                            .rocketConsumerHandler(getHandler(consumer.getRocketConsumerHandler()))
+                            .number(consumer.getNumber())
+                            .build().init();
+                }
             }
         }
     }
@@ -50,5 +64,7 @@ public class RocketMQConsumerRegister implements CommandLineRunner {
             throw new RuntimeException(e);
         }
     }
+
+
 
 }

@@ -1,4 +1,4 @@
-package top.vchar.rocketmq.config.rocketmq;
+package top.vchar.rocketmq.config.rocketmq.consumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
@@ -6,9 +6,12 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.apache.rocketmq.common.protocol.heartbeat.MessageModel;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
 import org.springframework.util.Assert;
 import top.vchar.common.exception.BizRunTimeException;
+import top.vchar.rocketmq.config.rocketmq.ConsumerResult;
+import top.vchar.rocketmq.config.rocketmq.handler.ConsumerMessage;
 import top.vchar.rocketmq.config.rocketmq.handler.RocketConsumerHandler;
 
 import java.util.Optional;
@@ -28,6 +31,8 @@ public class SimpleRocketConsumer extends AbstractRocketConsumer {
     private final String tags;
 
     private final RocketConsumerHandler rocketConsumerHandler;
+
+    private Integer number;
 
     /**
      * 创建简单的消费者
@@ -65,16 +70,23 @@ public class SimpleRocketConsumer extends AbstractRocketConsumer {
             // CONSUME_FROM_FIRST_OFFSET, 从队列最开始开始消费，即历史消息（还存在broker的）全部消费一遍
             // CONSUME_FROM_TIMESTAMP;//根据时间消费
             consumer.setConsumeFromWhere(getConsumeFromWhere());
+            // 设置订阅模式 BROADCASTING 广播
+            /// consumer.setMessageModel(MessageModel.BROADCASTING);
 
-//            MessageListenerOrderly 有序的
-            //MessageListenerConcurrently无序的，效率更高
+            /// MessageListenerOrderly 有序的
+            /// MessageListenerConcurrently无序的，效率更高
             consumer.registerMessageListener((MessageListenerConcurrently)(list, context)->{
                 try{
+                    log.warn("本次消息数：{}", list.size());
                     for(MessageExt messageExt:list){
                         //打印消息内容
                         log.info("messageExt: {}", messageExt);
                         String messageBody = new String(messageExt.getBody(), RemotingHelper.DEFAULT_CHARSET);
-                        ConsumerResult consumerResult = rocketConsumerHandler.handler(messageBody);
+
+                        ConsumerResult consumerResult = rocketConsumerHandler.handler(ConsumerMessage.builder()
+                                .number(getNumber())
+                                .message(messageBody)
+                                .build());
                         if(!consumerResult.isSuccess() && consumerResult.isRetry()){
                             return ConsumeConcurrentlyStatus.RECONSUME_LATER;
                         }
@@ -93,11 +105,12 @@ public class SimpleRocketConsumer extends AbstractRocketConsumer {
         }
     }
 
+
     public static SimpleRocketConsumerBuilder builder(){
         return new SimpleRocketConsumerBuilder();
     }
 
-    static class SimpleRocketConsumerBuilder {
+    public static class SimpleRocketConsumerBuilder {
 
         private String nameServer;
 
@@ -111,12 +124,16 @@ public class SimpleRocketConsumer extends AbstractRocketConsumer {
 
         private RocketConsumerHandler rocketConsumerHandler;
 
+        private Integer number;
+
         public SimpleRocketConsumerBuilder(){
 
         }
 
         public SimpleRocketConsumer build(){
-            return new SimpleRocketConsumer(this.nameServer, this.consumerGroup, this.consumeFromWhere, this.topics, this.tags, this.rocketConsumerHandler);
+            SimpleRocketConsumer consumer = new SimpleRocketConsumer(this.nameServer, this.consumerGroup, this.consumeFromWhere, this.topics, this.tags, this.rocketConsumerHandler);
+            consumer.setNumber(this.number);
+            return consumer;
         }
 
         public SimpleRocketConsumerBuilder nameServer(String nameServer){
@@ -149,6 +166,10 @@ public class SimpleRocketConsumer extends AbstractRocketConsumer {
             return this;
         }
 
+        public SimpleRocketConsumerBuilder number(Integer number){
+            this.number = number;
+            return this;
+        }
     }
 
 }

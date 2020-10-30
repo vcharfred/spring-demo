@@ -42,7 +42,7 @@ public class MqMessageController {
 
         DefaultMQProducer producer = producerBuilder.build();
         Message message = new Message();
-        message.setTopic("demo-pay");
+        message.setTopic("pay-info");
         message.setTags("train");
         message.setKeys(UUID.randomUUID().toString());
         message.setBody(JSONObject.toJSONString(orderDTO).getBytes(StandardCharsets.UTF_8));
@@ -65,7 +65,7 @@ public class MqMessageController {
 
         DefaultMQProducer producer = producerBuilder.build();
         Message message = new Message();
-        message.setTopic("demo-pay");
+        message.setTopic("pay-info");
         message.setTags("train");
         message.setKeys(UUID.randomUUID().toString());
         message.setBody(JSONObject.toJSONString(orderDTO).getBytes(StandardCharsets.UTF_8));
@@ -94,7 +94,7 @@ public class MqMessageController {
 
         DefaultMQProducer producer = producerBuilder.build();
         Message message = new Message();
-        message.setTopic("demo-pay");
+        message.setTopic("pay-info");
         message.setTags("train");
         message.setKeys(UUID.randomUUID().toString());
         message.setBody(JSONObject.toJSONString(orderDTO).getBytes(StandardCharsets.UTF_8));
@@ -113,7 +113,7 @@ public class MqMessageController {
     public SendResult delayMessage(@Validated @RequestBody OrderDTO orderDTO){
 
         Message message = new Message();
-        message.setTopic("demo-pay");
+        message.setTopic("pay-info");
         message.setTags("train");
         message.setKeys(UUID.randomUUID().toString());
         message.setBody(JSONObject.toJSONString(orderDTO).getBytes(StandardCharsets.UTF_8));
@@ -134,7 +134,7 @@ public class MqMessageController {
     @PostMapping("/order")
     public SendResult orderMessage(@Validated @RequestBody OrderDTO orderDTO){
         Message message = new Message();
-        message.setTopic("demo-pay");
+        message.setTopic("pay-info");
         message.setTags("train");
         message.setKeys(UUID.randomUUID().toString());
         message.setBody(JSONObject.toJSONString(orderDTO).getBytes(StandardCharsets.UTF_8));

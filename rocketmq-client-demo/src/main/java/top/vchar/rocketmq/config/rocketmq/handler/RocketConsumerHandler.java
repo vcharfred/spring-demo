@@ -16,6 +16,6 @@ public interface RocketConsumerHandler {
      * @param message 消息内容
      * @return 返回处理结果
      */
-    ConsumerResult handler(String message);
+    ConsumerResult handler(ConsumerMessage message);
 
 }

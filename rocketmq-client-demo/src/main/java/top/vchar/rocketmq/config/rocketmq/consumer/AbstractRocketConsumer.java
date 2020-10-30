@@ -1,6 +1,7 @@
-package top.vchar.rocketmq.config.rocketmq;
+package top.vchar.rocketmq.config.rocketmq.consumer;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.MQPushConsumer;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
@@ -30,6 +31,10 @@ public abstract class AbstractRocketConsumer implements RocketConsumer, Disposab
     @Getter
     private final ConsumeFromWhere consumeFromWhere;
 
+    @Getter
+    @Setter
+    private Integer number;
+
     public AbstractRocketConsumer(String nameServer, String consumerGroup, ConsumeFromWhere consumeFromWhere){
         this.nameServer = nameServer;
         this.consumerGroup = consumerGroup;
@@ -56,6 +61,5 @@ public abstract class AbstractRocketConsumer implements RocketConsumer, Disposab
         }
         log.info("container destroyed, {}", this.toString());
     }
-
 
 }
