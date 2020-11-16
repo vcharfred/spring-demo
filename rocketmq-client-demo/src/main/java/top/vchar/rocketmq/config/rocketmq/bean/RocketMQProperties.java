@@ -5,10 +5,6 @@ import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 import org.apache.rocketmq.common.topic.TopicValidator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import top.vchar.rocketmq.config.rocketmq.handler.RocketConsumerHandler;
-import top.vchar.rocketmq.util.SpringBeanUtil;
 
 import java.io.Serializable;
 import java.util.List;

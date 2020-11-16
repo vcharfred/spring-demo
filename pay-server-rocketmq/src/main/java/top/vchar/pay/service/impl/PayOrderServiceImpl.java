@@ -48,7 +48,14 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
             if(p){
                 // 向业务系统推送支付成功通知
                 log.info("推送rocket mq 消息");
-                this.rocketMQTemplate.convertAndSend("pay:pay_success", payDTO);
+                // destination组成规则： topic:tags
+
+                // 发送事务消息
+                Message<PayDTO> message = new GenericMessage<>(payDTO);
+                this.rocketMQTemplate.sendMessageInTransaction("pay-info:pay_success", message, null);
+
+                // 发送普通消息
+                this.rocketMQTemplate.convertAndSend("pay-info:pay_success", payDTO);
                 return Mono.just("操作成功");
             }
             return Mono.just("数据库异常");

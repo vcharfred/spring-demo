@@ -18,6 +18,6 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 rocketmq:
-  name-server: 192.168.111.63:9876
+  name-server: 192.168.111.53:9876
   producer:
     group: pay_server
