@@ -2,6 +2,7 @@ package top.vchar.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 import top.vchar.user.entity.UserInfo;
 
@@ -15,4 +16,13 @@ import top.vchar.user.entity.UserInfo;
 @Mapper
 @Repository
 public interface UserMapper extends BaseMapper<UserInfo> {
+
+
+    @Select("select * from user_info where id=1")
+    UserInfo findById(String name);
+
+    @Select("select * from user_info")
+    UserInfo findById();
+
+
 }

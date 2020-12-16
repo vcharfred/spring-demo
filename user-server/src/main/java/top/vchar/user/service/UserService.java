@@ -18,4 +18,11 @@ public interface UserService extends IService<UserInfo> {
      * @return 返回用户名称
      */
     String findById(Long id);
+
+    /**
+     * 添加用户
+     * @param userInfo 用户信息
+     * @return 结果
+     */
+    String addUser(UserInfo userInfo);
 }

@@ -70,4 +70,10 @@ public class UserController {
         return JSONObject.toJSONString(parameterMap);
     }
 
+
+    @PostMapping("/add")
+    public String add(@RequestBody UserInfo userInfo){
+        return this.userService.addUser(userInfo);
+    }
+
 }
