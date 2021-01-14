@@ -494,3 +494,50 @@ spring封装的ElasticsearchRestTemplate实现：
         }
     }
 
+### 腾讯Tendis
+
+Tendis存储版是腾讯互娱CROS DBA团队 & 腾讯云数据库团队 自主设计和研发的开源分布式高性能KV存储。完全兼容redis协议，并使用rocksdb作为存储引擎。用户可以通过redis client访问Tendis存储版，几乎不用修改代码。同时，Tendis存储版支持远超内存的磁盘容量，可以大大降低用户的存储成本。
+
+类似于Redis Cluster, Tendis存储版使用去中心化的集群管理架构。数据节点之间通过gossip协议通讯，用户访问集群中的任意数据节，请求都能路由到正确的节点。并且集群节点支持自动发现、故障探测、自动故障切换、数据搬迁等能力，极大降低运维成本。
+
+#### 相关文档
+
+* [Tendis官方文档](http://tendis.cn/)
+* [Tendis Github](https://github.com/Tencent/Tendis)
+
+#### 安装
+
+从Tendis的github上下载安装包即可；
+
+* 解压
+
+```shell
+tar zxvf tendisplus-2.1.2-rocksdb-v5.13.4.tgz
+```
+
+* 修改配置
+
+进入解压后的目录中，修改配置文件`scripts/tendisplus.conf`；在里面添加一行`bind 服务器的IP`；之后将里面路径相关改为你想要的； 注意catalog这个目录需要你手动创建，否则将启动失败；
+比如： `mkdir -p  /home/tendis/db/catalog`；如果启动失败可以到日志文件里面去查看失败原因。
+
+```text
+# tendisplus configuration for testing
+port 51002
+loglevel notice
+logdir /home/tendis/log
+dumpdir /home/tendis/dump
+dir /home/tendis/db
+pidfile /home/tendis/tendisplus.pid
+slowlog /home/tendis/log/slowlog
+rocks.blockcachemb 4096
+executorThreadNum 48
+bind 192.168.56.102
+```
+
+* 启动
+
+```shell
+bin/tendisplus scripts/tendisplus.conf
+```
+
+之后直接将项目中的redis的连接地址切换到这个的即可，注意端口号变为了51002；

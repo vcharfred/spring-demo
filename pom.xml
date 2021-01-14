@@ -17,6 +17,7 @@
         <module>pay-server-rocketmq</module>
         <module>rocketmq-client-demo</module>
         <module>kafka-template</module>
+        <module>tendis-template</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

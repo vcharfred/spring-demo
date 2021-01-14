@@ -1,0 +1,23 @@
+server:
+  port: 8092
+spring:
+  redis:
+    # 地址
+    host: 192.168.56.102
+    port: 51002
+    # 超时时间，单位毫秒
+    timeout: 3000
+    database: 0
+    # 注意这里配置lettuce，不再使用jedis了
+    lettuce:
+      pool:
+        # 连接池中的最小空闲连接
+        min-idle: 1
+        # 连接池中的最大空闲连接
+        max-idle: 6
+        # 连接池最大连接数（使用负值表示没有限制,不要配置过大，否则可能会影响redis的性能）
+        max-active: 10
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: 1000
+      #关闭超时时间,ms
+      shutdown-timeout: 100
