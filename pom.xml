@@ -20,6 +20,7 @@
         <module>tendis-template</module>
         <module>redis-template</module>
         <module>redis-template-rw</module>
+        <module>redis-template-sentinel</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>
