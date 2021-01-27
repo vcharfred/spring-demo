@@ -19,6 +19,7 @@
         <module>kafka-template</module>
         <module>tendis-template</module>
         <module>redis-template</module>
+        <module>redis-template-rw</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

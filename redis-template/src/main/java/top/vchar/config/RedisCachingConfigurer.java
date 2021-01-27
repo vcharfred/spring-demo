@@ -31,7 +31,7 @@ import java.time.Duration;
  * @create_date 2021/1/26
  */
 @Configuration
-public class RedisConfig<K, V> extends CachingConfigurerSupport {
+public class RedisCachingConfigurer<K, V> extends CachingConfigurerSupport {
 
     /**
      * 自定义缓存注解key的生成策略。默认的生成策略是看不懂的(乱码内容)
