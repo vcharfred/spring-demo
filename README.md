@@ -12,12 +12,13 @@
 
 ## 目录
 
+```text
     |---注册中心改为nacos（nacos也可以作为配置中心）；用于替换eureka
     |---熔断限流组件sentinel；用于替换掉Hystrix
     |---网关`spring-cloud-gateway`，使用nacos做注册中心替换eureka
     |---`nacos配置中心`，替换掉spring-cloud的config组件，其实原理也是在spring-cloud-config的基础上进行扩展的
     |---分布式事务
-    
+```
 
 ## 一、注册中心nacos
 
@@ -38,168 +39,179 @@ Linux/Unix/Mac
 
 访问[http://127.0.0.1:8848/nacos](http://127.0.0.1:8848/nacos)即可，账号和密码默认为`nacos`
 
-### docker部署nacos
-
 ## 二、注册服务到nacos
 
 1. 在项目中添加如下依赖：
 
+```xml
+<dependency>
+  <groupId>com.alibaba.cloud</groupId>
+  <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
 
-    <dependency>
-        <groupId>com.alibaba.cloud</groupId>
-        <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-    </dependency>
-    
 > 这个依赖用于替换eureka的客户端依赖包 `spring-cloud-starter-netflix-eureka-client`
 
 2. 在启动类上添加 `@EnableDiscoveryClient`注解；其实使用eureka做注册中心时，也建议使用此注解，方便后期更换注册中心。
 
 3. 在application配置文件中添加nacos的配置
 
+```yaml
+spring:
+   cloud:
+     nacos:
+       discovery:
+         # nacos的地址
+         server-addr: 127.0.0.1:8848
+```
 
-    spring:
-      cloud:
-        nacos:
-          discovery:
-            # nacos的地址
-            server-addr: 127.0.0.1:8848
+成功后即可在nacos控制台中查看；pom依赖示例如下： 父工程pom.xml
 
-成功后即可在
-
-
-
-pom依赖示例如下：
-
-父工程pim.xml
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- spring boot依赖约束 -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.1.14.RELEASE</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            
-            <!-- spring cloud alibaba依赖约束 -->
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-                <version>2.1.0.RELEASE</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            
-            <!-- spring cloud 依赖约束 -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>Greenwich.SR5</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            
-            <!-- 数据库依赖 -->
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
-                <version>3.3.2</version>
-            </dependency>
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.20</version>
-            </dependency>
-            
-            <!-- 业务依赖包 -->
-            <dependency>
-                <groupId>top.vchar</groupId>
-                <artifactId>common-dto</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-
-子工程依赖：
-
-    <parent>
-        <artifactId>alibaba-micro-services</artifactId>
-        <groupId>top.vchar</groupId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>order-center</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>order-center</name>
-    <description>订单中心</description>
-
+```xml
+<dependencyManagement>
     <dependencies>
+        <!-- spring boot依赖约束 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>2.3.7.RELEASE</version>
+            <type>pom</type>
+            <scope>import</scope>
         </dependency>
         
-        <!-- nacos 服务注册客户端依赖 -->
+        <!-- spring cloud alibaba依赖约束 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+            <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+            <version>2.2.2.RELEASE</version>
+            <type>pom</type>
+            <scope>import</scope>
         </dependency>
-
-        <!-- lombok 注解，自动生成get/set方法，开发工具上需要安装lombok插件 -->
+        
+        <!-- spring cloud 依赖约束 -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Hoxton.SR9</version>
+            <type>pom</type>
+            <scope>import</scope>
         </dependency>
         
         <!-- 数据库依赖 -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.3.2</version>
         </dependency>
-
-        <!-- 业务依赖 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.20</version>
+        </dependency>
+        
+        <!-- 业务依赖包 -->
         <dependency>
             <groupId>top.vchar</groupId>
             <artifactId>common-dto</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+</dependencyManagement>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+                <encoding>UTF-8</encoding>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <version>2.3.7.RELEASE</version>
+            <configuration>
+                <mainClass>top.vchar.ConfigApplication</mainClass>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>repackage</id>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+子工程依赖：
+
+```xml
+<parent>
+  <artifactId>alibaba-micro-services</artifactId>
+  <groupId>top.vchar</groupId>
+  <version>1.0-SNAPSHOT</version>
+</parent>
+<modelVersion>4.0.0</modelVersion>
+
+<artifactId>order-center</artifactId>
+<version>0.0.1-SNAPSHOT</version>
+<packaging>jar</packaging>
+<name>order-center</name>
+<description>订单中心</description>
+
+<dependencies>
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+  </dependency>
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+      <exclusions>
+          <exclusion>
+              <groupId>org.junit.vintage</groupId>
+              <artifactId>junit-vintage-engine</artifactId>
+          </exclusion>
+      </exclusions>
+  </dependency>
+  
+  <!-- nacos 服务注册客户端依赖 -->
+  <dependency>
+      <groupId>com.alibaba.cloud</groupId>
+      <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+  </dependency>
+
+  <!-- lombok 注解，自动生成get/set方法，开发工具上需要安装lombok插件 -->
+  <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+  </dependency>
+  
+  <!-- 数据库依赖 -->
+  <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+  </dependency>
+  <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-boot-starter</artifactId>
+  </dependency>
+
+  <!-- 业务依赖 -->
+  <dependency>
+      <groupId>top.vchar</groupId>
+      <artifactId>common-dto</artifactId>
+  </dependency>
+</dependencies>
+```
 
 ## 三、服务调用
 
@@ -207,84 +219,98 @@ pom依赖示例如下：
 
 #### 注入RestTemplate的bean
 
-    /**
-     * 加上 @LoadBalanced使其使用ribbon的负载均衡
-     */
-    @Bean
-    @LoadBalanced
-    public RestTemplate restTemplate(){
-        return new RestTemplate();
-    }
+```java
+ /**
+  * 加上 @LoadBalanced使其使用ribbon的负载均衡
+  */
+ @Bean
+ @LoadBalanced
+ public RestTemplate restTemplate(){
+     return new RestTemplate();
+ }
+```
 
 #### 方式一：直接写服务地址调用服务
 
 这种方式就不需要注册中心了, 直接像普通的接口请求即可
 
-    GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://127.0.0.1:8093/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+```java
+GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://127.0.0.1:8093/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+```
 
 #### 方式二：通过`org.springframework.cloud.client.discovery.DiscoveryClient`来获取服务信息
 
 `DiscoveryClient` 对象中保存有注册到注册中心的服务信息，包括服务的名称、IP、端口号等信息。通过服务名称可以获取到该服务的信息。
 
-    // discoveryClient.getInstances 返回的是一个list列表，因此可以基于此可以自己去实现负载均衡；  
-    ServiceInstance goodsServer = discoveryClient.getInstances("goods-server").get(0);
-    GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://"+goodsServer.getHost()+":"+goodsServer.getPort()+"/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+```java
+// discoveryClient.getInstances 返回的是一个list列表，因此可以基于此可以自己去实现负载均衡；  
+ServiceInstance goodsServer = discoveryClient.getInstances("goods-server").get(0);
+GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://"+goodsServer.getHost()+":"+goodsServer.getPort()+"/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+```
 
 #### 方式三：在restTemplate bean注入的地方添加 @LoadBalanced注解；会自动使用ribbon来实现负载均衡
 
-    // 在restTemplate bean注入的地方添加 @LoadBalanced注解；会自动使用ribbon来实现负载均衡
-    GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://goods-server/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+```java
+// 在restTemplate bean注入的地方添加 @LoadBalanced注解；会自动使用ribbon来实现负载均衡
+GoodsDetailDTO goodsDetailDTO = restTemplate.getForObject("http://goods-server/goods/detail/"+createOrderDTO.getGoodsNo(), GoodsDetailDTO.class);
+```
 
 > 默认的负载均衡规则是轮询的方式；可以在配置文件中指定服务使用那种方式；示例如下：
 
-    # 服务名称
-    goods-server:
-      ribbon:
-        # 使用随机的方式
-        NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+```yml
+#服务名称
+goods-server:
+   ribbon:
+     # 使用随机的方式
+     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+```
 
 ### 3.2 使用feign调用服务
 
 1.添加feign依赖
-       
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>
+ 
+```xml
+<dependency>
+   <groupId>org.springframework.cloud</groupId>
+   <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```      
 
 2.在启动类上添加`@EnableFeignClients`注解，启动feign功能
 
 3.编写feign客户端
 
-    import org.springframework.cloud.openfeign.FeignClient;
-    import org.springframework.web.bind.annotation.GetMapping;
-    import org.springframework.web.bind.annotation.PathVariable;
-    import top.vchar.goods.dto.GoodsDetailDTO;
-    
-    /**
-     * <p> 商品服务 feign客户端 </p>
-     *
-     * value 就是服务的名称
-     * @author vchar fred
-     * @version 1.0
-     * @create_date 2020/6/15
-     */
-    @FeignClient(value = "goods-server")
-    public interface GoodsFeignClient {
-    
-        /**
-         * 通过商品编号获取商品
-         * @param goodsNo 商品编号
-         * @return 返回结果
-         */
-        @GetMapping("/goods/detail/{goodsNo}")
-        GoodsDetailDTO findGoodsDetailByGoodsNo(@PathVariable("goodsNo") String goodsNo);
-    }
+```java
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import top.vchar.goods.dto.GoodsDetailDTO;
 
+/**
+* <p> 商品服务 feign客户端 </p>
+*
+* value 就是服务的名称
+* @author vchar fred
+* @version 1.0
+* @create_date 2020/6/15
+*/
+@FeignClient(value = "goods-server")
+public interface GoodsFeignClient {
+
+  /**
+   * 通过商品编号获取商品
+   * @param goodsNo 商品编号
+   * @return 返回结果
+   */
+  @GetMapping("/goods/detail/{goodsNo}")
+  GoodsDetailDTO findGoodsDetailByGoodsNo(@PathVariable("goodsNo") String goodsNo);
+}
+```
 4.业务代码中调用    
-    
-    GoodsDetailDTO goodsDetailDTO = goodsFeignClient.findGoodsDetailByGoodsNo(createOrderDTO.getGoodsNo());
-    
+
+```java
+GoodsDetailDTO goodsDetailDTO = goodsFeignClient.findGoodsDetailByGoodsNo(createOrderDTO.getGoodsNo());
+```    
 
 ## 四、熔断限流组件 sentinel 
 
@@ -309,7 +335,9 @@ pom依赖示例如下：
 
 在Sentinel的Github上下载安装包[https://github.com/alibaba/Sentinel/releases](https://github.com/alibaba/Sentinel/releases)；就是一个jar包直接使用命令启动即可。
 
-    java -Dserver.port=9080 -Dcsp.sentinel.dashboard.server=localhost:9080 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard.jar
+```shell
+java -Dserver.port=9080 -Dcsp.sentinel.dashboard.server=localhost:9080 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard.jar
+```
 
 > -Dserver.port 是设置访问的端口号； 
 > sentinel-dashboard.jar就是刚刚下载的jar包名称；
@@ -321,22 +349,26 @@ pom依赖示例如下：
 
 添加如下依赖
 
-    <dependency>
-        <groupId>com.alibaba.cloud</groupId>
-        <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-    </dependency>
+```xml
+<dependency>
+  <groupId>com.alibaba.cloud</groupId>
+  <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+</dependency>
+```
 
 添加配置
 
-    spring:
-      cloud:
-        # 配置 sentinel
-        sentinel:
-          transport:
-            # 指定和sentinel控制台服务交换的端口，随意指定一个没有使用的即可
-            port: 8719
-            # sentinel控制台的访问地址
-            dashboard: 127.0.0.1:9080
+```yaml
+spring:
+   cloud:
+     # 配置 sentinel
+     sentinel:
+       transport:
+         # 指定和sentinel控制台服务交换的端口，随意指定一个没有使用的即可
+         port: 8719
+         # sentinel控制台的访问地址
+         dashboard: 127.0.0.1:9080
+```
 
 ### Sentinel规则
 
@@ -355,12 +387,14 @@ Sentinel默认定义如下规则：
 
 > 链路限流不生效的问题：由于sentinel基于filter开发的拦截使用的链路收敛的模式，因此需要设置关闭链路收敛使链路收敛能够生效，
 
-    spring:
-      cloud:
-        sentinel:
-          filter:
-            # 关闭链路收敛使链路收敛能够生效
-            enabled: false
+```yaml
+spring:
+   cloud:
+     sentinel:
+       filter:
+         # 关闭链路收敛使链路收敛能够生效
+         enabled: false
+```
 
 #### 降级规则
 
@@ -383,37 +417,39 @@ Sentinel默认定义如下规则：
 
 自定义来源获取规则：
 
-    import com.alibaba.csp.sentinel.adapter.servlet.callback.RequestOriginParser;
-    import org.apache.commons.lang3.StringUtils;
-    import org.springframework.stereotype.Component;
-    
-    import javax.servlet.http.HttpServletRequest;
+```java
+import com.alibaba.csp.sentinel.adapter.servlet.callback.RequestOriginParser;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
-    /**
-     * <p> sentinel自定义授权来源获取规则 </p>
-     *
-     * @author vchar fred
-     * @version 1.0
-     * @create_date 2020/6/15
-     */
-    @Component
-    public class RequestOriginParserDefinition implements RequestOriginParser {
-    
-        /**
-         * 定义区分来源的规则：本质上是通过获取request域中获取来源标识，然后交给流控应用来进行匹配处理
-         *
-         * @param request request域
-         * @return 返回区分来源的值
-         */
-        @Override
-        public String parseOrigin(HttpServletRequest request) {
-            String client = request.getHeader("client");
-            if(StringUtils.isNotBlank(client)){
-                return "NONE";
-            }
-            return client;
-        }
-    }
+import javax.servlet.http.HttpServletRequest;
+
+/**
+* <p> sentinel自定义授权来源获取规则 </p>
+*
+* @author vchar fred
+* @version 1.0
+* @create_date 2020/6/15
+*/
+@Component
+public class RequestOriginParserDefinition implements RequestOriginParser {
+
+  /**
+   * 定义区分来源的规则：本质上是通过获取request域中获取来源标识，然后交给流控应用来进行匹配处理
+   *
+   * @param request request域
+   * @return 返回区分来源的值
+   */
+  @Override
+  public String parseOrigin(HttpServletRequest request) {
+      String client = request.getHeader("client");
+      if(StringUtils.isNotBlank(client)){
+          return "NONE";
+      }
+      return client;
+  }
+}
+```
 
 #### 系统规则
 
@@ -429,90 +465,93 @@ Sentinel默认定义如下规则：
 
 通过实现`com.alibaba.csp.sentinel.adapter.servlet.callback.UrlBlockHandler`接口来自定义异常返回。
 
-    @Component
-    public class SentinelExceptionHandler implements UrlBlockHandler {
-    
-        /**
-         * 异常处理
-         * 
-         * @param request 请求
-         * @param response 响应
-         * @param e BlockException异常接口，包含Sentinel的五个异常
-         *              FlowException  限流异常
-         *              DegradeException  降级异常
-         *              ParamFlowException  参数限流异常
-         *              AuthorityException  授权异常
-         *              SystemBlockException  系统负载异常
-         *              
-         * @throws IOException IO异常
-         */
-        @Override
-        public void blocked(HttpServletRequest request, HttpServletResponse response, BlockException e) throws IOException {
-            JSONObject responseData = new JSONObject();
-            if (e instanceof FlowException) {
-                responseData.put("message", "限流异常");
-                responseData.put("code", "C5001");
-            } else if (e instanceof DegradeException) {
-                responseData.put("message", "降级异常");
-                responseData.put("code", "C5002");
-            } else if(e instanceof ParamFlowException){
-                responseData.put("message", "参数限流异常");
-                responseData.put("code", "C5003");
-            } else if(e instanceof AuthorityException){
-                responseData.put("message", "授权异常");
-                responseData.put("code", "C5004");
-            } else if(e instanceof SystemBlockException){
-                responseData.put("message", "系统负载异常");
-                responseData.put("code", "C5005");
-            }
-            response.setContentType("application/json;charset=utf-8");
-            response.getWriter().write(responseData.toJSONString());
-        }
-    }
+```java
+@Component
+public class SentinelExceptionHandler implements UrlBlockHandler {
+
+  /**
+   * 异常处理
+   * 
+   * @param request 请求
+   * @param response 响应
+   * @param e BlockException异常接口，包含Sentinel的五个异常
+   *              FlowException  限流异常
+   *              DegradeException  降级异常
+   *              ParamFlowException  参数限流异常
+   *              AuthorityException  授权异常
+   *              SystemBlockException  系统负载异常
+   *              
+   * @throws IOException IO异常
+   */
+  @Override
+  public void blocked(HttpServletRequest request, HttpServletResponse response, BlockException e) throws IOException {
+      JSONObject responseData = new JSONObject();
+      if (e instanceof FlowException) {
+          responseData.put("message", "限流异常");
+          responseData.put("code", "C5001");
+      } else if (e instanceof DegradeException) {
+          responseData.put("message", "降级异常");
+          responseData.put("code", "C5002");
+      } else if(e instanceof ParamFlowException){
+          responseData.put("message", "参数限流异常");
+          responseData.put("code", "C5003");
+      } else if(e instanceof AuthorityException){
+          responseData.put("message", "授权异常");
+          responseData.put("code", "C5004");
+      } else if(e instanceof SystemBlockException){
+          responseData.put("message", "系统负载异常");
+          responseData.put("code", "C5005");
+      }
+      response.setContentType("application/json;charset=utf-8");
+      response.getWriter().write(responseData.toJSONString());
+  }
+}
+```
 
 ### 注解@SentinelResource的说明
 
 使用`@SentinelResource`可以定义资源点，在定义了资源点之后，我们可以通过Dashboard来设置限流和降级策略来对资源点进行保护。同时还能通过@SentinelResource来指定出现异常时的处理策略。
 
-    /**
-     * 查询订单信息 @SentinelResource注解实现熔断
-     *
-     * <p>
-     *     blockHandler: 当内部发生BlockException异常时触发
-     *     fallback：     当内部发生Throwable异常时触发
-     * </p>
-     *
-     * @param orderNo 订单编号
-     * @return 返回订单信息
-     */
-    @SentinelResource(value = "order-detail", blockHandler = "blockHandler", fallbackClass = SentinelResourceDemoFallback.class)
-    @Override
-    public OrderDetailDTO sentinelResourceDemo(String orderNo) {
-        OrderDetailDTO orderDetail = findOrderByOrderNo(orderNo);
-        Assert.notNull(orderDetail, "无此订单信息");
-        return orderDetail;
-    }
+```java
+/**
+* 查询订单信息 @SentinelResource注解实现熔断
+*
+* <p>
+*     blockHandler: 当内部发生BlockException异常时触发
+*     fallback：     当内部发生Throwable异常时触发
+* </p>
+*
+* @param orderNo 订单编号
+* @return 返回订单信息
+*/
+@SentinelResource(value = "order-detail", blockHandler = "blockHandler", fallbackClass = SentinelResourceDemoFallback.class)
+@Override
+public OrderDetailDTO sentinelResourceDemo(String orderNo) {
+  OrderDetailDTO orderDetail = findOrderByOrderNo(orderNo);
+  Assert.notNull(orderDetail, "无此订单信息");
+  return orderDetail;
+}
 
-    /**
-     * 发生BlockException异常时触发，注意返回值和参数必须和原理的相同，这个和feign的差不多
-     */
-    public OrderDetailDTO blockHandler(String orderNo, BlockException e) {
-        log.error("触发降级限流异常", e);
-        return null;
-    }
+/**
+* 发生BlockException异常时触发，注意返回值和参数必须和原理的相同，这个和feign的差不多
+*/
+public OrderDetailDTO blockHandler(String orderNo, BlockException e) {
+  log.error("触发降级限流异常", e);
+  return null;
+}
 
-    /**
-     * 发生Throwable异常时触发，注意返回值和参数必须和原理的相同，这个和feign的差不多；这个异常处理类通常会单独写到一个类文件中，避免业务类代码臃肿。
-     */
-    @Slf4j
-    public static class SentinelResourceDemoFallback{
-        // 这个方法必须使用 static 修饰方法
-        public static OrderDetailDTO fallback(String orderNo, Throwable throwable){
-            log.error("无此订单信息", throwable);
-            return null;
-        }
-    }
-    
+/**
+* 发生Throwable异常时触发，注意返回值和参数必须和原理的相同，这个和feign的差不多；这个异常处理类通常会单独写到一个类文件中，避免业务类代码臃肿。
+*/
+@Slf4j
+public static class SentinelResourceDemoFallback{
+  // 这个方法必须使用 static 修饰方法
+  public static OrderDetailDTO fallback(String orderNo, Throwable throwable){
+      log.error("无此订单信息", throwable);
+      return null;
+  }
+}
+``` 
 > 定义限流和降级后的处理方法可以直接定义在方法中，也可以重新定义一个类来处理            
 
 ### Sentinel规则持久化     
@@ -521,134 +560,136 @@ Sentinel 控制台通过 API 将规则推送至客户端并更新到内存中，
 
 编写一个实现InitFunc接口的类，在里面定义持久化的方式，这里使用文件
 
-    public class FilePersistence implements InitFunc {
-    
-        @Value("spring.application.name")
-        private String applicationName;
-    
-        @Override
-        public void init() throws Exception {
-            String ruleDir = System.getProperty("user.home") + "/sentinel-rules/" + applicationName;
-            String flowRulePath = ruleDir + "/flow-rule.json";
-            String degradeRulePath = ruleDir + "/degrade-rule.json";
-            String systemRulePath = ruleDir + "/system-rule.json";
-            String authorityRulePath = ruleDir + "/authority-rule.json";
-            String paramFlowRulePath = ruleDir + "/param-flow-rule.json";
-    
-            this.mkdirIfNotExits(ruleDir);
-            this.createFileIfNotExits(flowRulePath);
-            this.createFileIfNotExits(degradeRulePath);
-            this.createFileIfNotExits(systemRulePath);
-            this.createFileIfNotExits(authorityRulePath);
-            this.createFileIfNotExits(paramFlowRulePath);
-    
-            // 流控规则
-            ReadableDataSource<String, List<FlowRule>> flowRuleRDS = new FileRefreshableDataSource<>(
-                    flowRulePath,
-                    flowRuleListParser
-            );
-            FlowRuleManager.register2Property(flowRuleRDS.getProperty());
-            WritableDataSource<List<FlowRule>> flowRuleWDS = new FileWritableDataSource<>(
-                    flowRulePath,
-                    this::encodeJson
-            );
-            WritableDataSourceRegistry.registerFlowDataSource(flowRuleWDS);
-    
-            // 降级规则
-            ReadableDataSource<String, List<DegradeRule>> degradeRuleRDS = new FileRefreshableDataSource<>(
-                    degradeRulePath,
-                    degradeRuleListParser
-            );
-            DegradeRuleManager.register2Property(degradeRuleRDS.getProperty());
-            WritableDataSource<List<DegradeRule>> degradeRuleWDS = new FileWritableDataSource<>(
-                    degradeRulePath,
-                    this::encodeJson
-            );
-            WritableDataSourceRegistry.registerDegradeDataSource(degradeRuleWDS);
-    
-            // 系统规则
-            ReadableDataSource<String, List<SystemRule>> systemRuleRDS = new FileRefreshableDataSource<>(
-                    systemRulePath,
-                    systemRuleListParser
-            );
-            SystemRuleManager.register2Property(systemRuleRDS.getProperty());
-            WritableDataSource<List<SystemRule>> systemRuleWDS = new FileWritableDataSource<>(
-                    systemRulePath,
-                    this::encodeJson
-            );
-            WritableDataSourceRegistry.registerSystemDataSource(systemRuleWDS);
-    
-            // 授权规则
-            ReadableDataSource<String, List<AuthorityRule>> authorityRuleRDS = new FileRefreshableDataSource<>(
-                    authorityRulePath,
-                    authorityRuleListParser
-            );
-            AuthorityRuleManager.register2Property(authorityRuleRDS.getProperty());
-            WritableDataSource<List<AuthorityRule>> authorityRuleWDS = new FileWritableDataSource<>(
-                    authorityRulePath,
-                    this::encodeJson
-            );
-            WritableDataSourceRegistry.registerAuthorityDataSource(authorityRuleWDS);
-    
-            // 热点参数规则
-            ReadableDataSource<String, List<ParamFlowRule>> paramFlowRuleRDS = new FileRefreshableDataSource<>(
-                    paramFlowRulePath,
-                    paramFlowRuleListParser
-            );
-            ParamFlowRuleManager.register2Property(paramFlowRuleRDS.getProperty());
-            WritableDataSource<List<ParamFlowRule>> paramFlowRuleWDS = new FileWritableDataSource<>(
-                    paramFlowRulePath,
-                    this::encodeJson
-            );
-            ModifyParamFlowRulesCommandHandler.setWritableDataSource(paramFlowRuleWDS);
-        }
-    
-        private Converter<String, List<FlowRule>> flowRuleListParser = source -> JSON.parseObject(
-                source,
-                new TypeReference<List<FlowRule>>() {
-                }
-        );
-        private Converter<String, List<DegradeRule>> degradeRuleListParser = source -> JSON.parseObject(
-                source,
-                new TypeReference<List<DegradeRule>>() {
-                }
-        );
-        private Converter<String, List<SystemRule>> systemRuleListParser = source -> JSON.parseObject(
-                source,
-                new TypeReference<List<SystemRule>>() {
-                }
-        );
-    
-        private Converter<String, List<AuthorityRule>> authorityRuleListParser = source -> JSON.parseObject(
-                source,
-                new TypeReference<List<AuthorityRule>>() {
-                }
-        );
-    
-        private Converter<String, List<ParamFlowRule>> paramFlowRuleListParser = source -> JSON.parseObject(
-                source,
-                new TypeReference<List<ParamFlowRule>>() {
-                }
-        );
-    
-        private void mkdirIfNotExits(String filePath) throws IOException {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-        }
-    
-        private void createFileIfNotExits(String filePath) throws IOException {
-            File file = new File(filePath);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-        }
-    
-        private <T> String encodeJson(T t) {
-            return JSON.toJSONString(t);
-        }
-    }
+```java
+public class FilePersistence implements InitFunc {
+
+  @Value("spring.application.name")
+  private String applicationName;
+
+  @Override
+  public void init() throws Exception {
+      String ruleDir = System.getProperty("user.home") + "/sentinel-rules/" + applicationName;
+      String flowRulePath = ruleDir + "/flow-rule.json";
+      String degradeRulePath = ruleDir + "/degrade-rule.json";
+      String systemRulePath = ruleDir + "/system-rule.json";
+      String authorityRulePath = ruleDir + "/authority-rule.json";
+      String paramFlowRulePath = ruleDir + "/param-flow-rule.json";
+
+      this.mkdirIfNotExits(ruleDir);
+      this.createFileIfNotExits(flowRulePath);
+      this.createFileIfNotExits(degradeRulePath);
+      this.createFileIfNotExits(systemRulePath);
+      this.createFileIfNotExits(authorityRulePath);
+      this.createFileIfNotExits(paramFlowRulePath);
+
+      // 流控规则
+      ReadableDataSource<String, List<FlowRule>> flowRuleRDS = new FileRefreshableDataSource<>(
+              flowRulePath,
+              flowRuleListParser
+      );
+      FlowRuleManager.register2Property(flowRuleRDS.getProperty());
+      WritableDataSource<List<FlowRule>> flowRuleWDS = new FileWritableDataSource<>(
+              flowRulePath,
+              this::encodeJson
+      );
+      WritableDataSourceRegistry.registerFlowDataSource(flowRuleWDS);
+
+      // 降级规则
+      ReadableDataSource<String, List<DegradeRule>> degradeRuleRDS = new FileRefreshableDataSource<>(
+              degradeRulePath,
+              degradeRuleListParser
+      );
+      DegradeRuleManager.register2Property(degradeRuleRDS.getProperty());
+      WritableDataSource<List<DegradeRule>> degradeRuleWDS = new FileWritableDataSource<>(
+              degradeRulePath,
+              this::encodeJson
+      );
+      WritableDataSourceRegistry.registerDegradeDataSource(degradeRuleWDS);
+
+      // 系统规则
+      ReadableDataSource<String, List<SystemRule>> systemRuleRDS = new FileRefreshableDataSource<>(
+              systemRulePath,
+              systemRuleListParser
+      );
+      SystemRuleManager.register2Property(systemRuleRDS.getProperty());
+      WritableDataSource<List<SystemRule>> systemRuleWDS = new FileWritableDataSource<>(
+              systemRulePath,
+              this::encodeJson
+      );
+      WritableDataSourceRegistry.registerSystemDataSource(systemRuleWDS);
+
+      // 授权规则
+      ReadableDataSource<String, List<AuthorityRule>> authorityRuleRDS = new FileRefreshableDataSource<>(
+              authorityRulePath,
+              authorityRuleListParser
+      );
+      AuthorityRuleManager.register2Property(authorityRuleRDS.getProperty());
+      WritableDataSource<List<AuthorityRule>> authorityRuleWDS = new FileWritableDataSource<>(
+              authorityRulePath,
+              this::encodeJson
+      );
+      WritableDataSourceRegistry.registerAuthorityDataSource(authorityRuleWDS);
+
+      // 热点参数规则
+      ReadableDataSource<String, List<ParamFlowRule>> paramFlowRuleRDS = new FileRefreshableDataSource<>(
+              paramFlowRulePath,
+              paramFlowRuleListParser
+      );
+      ParamFlowRuleManager.register2Property(paramFlowRuleRDS.getProperty());
+      WritableDataSource<List<ParamFlowRule>> paramFlowRuleWDS = new FileWritableDataSource<>(
+              paramFlowRulePath,
+              this::encodeJson
+      );
+      ModifyParamFlowRulesCommandHandler.setWritableDataSource(paramFlowRuleWDS);
+  }
+
+  private Converter<String, List<FlowRule>> flowRuleListParser = source -> JSON.parseObject(
+          source,
+          new TypeReference<List<FlowRule>>() {
+          }
+  );
+  private Converter<String, List<DegradeRule>> degradeRuleListParser = source -> JSON.parseObject(
+          source,
+          new TypeReference<List<DegradeRule>>() {
+          }
+  );
+  private Converter<String, List<SystemRule>> systemRuleListParser = source -> JSON.parseObject(
+          source,
+          new TypeReference<List<SystemRule>>() {
+          }
+  );
+
+  private Converter<String, List<AuthorityRule>> authorityRuleListParser = source -> JSON.parseObject(
+          source,
+          new TypeReference<List<AuthorityRule>>() {
+          }
+  );
+
+  private Converter<String, List<ParamFlowRule>> paramFlowRuleListParser = source -> JSON.parseObject(
+          source,
+          new TypeReference<List<ParamFlowRule>>() {
+          }
+  );
+
+  private void mkdirIfNotExits(String filePath) throws IOException {
+      File file = new File(filePath);
+      if (!file.exists()) {
+          file.mkdirs();
+      }
+  }
+
+  private void createFileIfNotExits(String filePath) throws IOException {
+      File file = new File(filePath);
+      if (!file.exists()) {
+          file.createNewFile();
+      }
+  }
+
+  private <T> String encodeJson(T t) {
+      return JSON.toJSONString(t);
+  }
+}
+```
 
 在resources下创建配置目录`META-INF/services`,然后添加文件 `com.alibaba.csp.sentinel.init.InitFunc`；在文件中添加上面写的配置类的全路径`top.vchar.order.config.FilePersistence`
 
@@ -658,77 +699,86 @@ Sentinel 控制台通过 API 将规则推送至客户端并更新到内存中，
 
 1. 首先添加Sentinel的依赖
 
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-        </dependency>
+```xml
+<dependency>
+   <groupId>com.alibaba.cloud</groupId>
+   <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+</dependency>
+```
 
 2. 在配置文件中开启Feign对Sentinel的支持
 
-
-        feign:
-          sentinel:
-            enabled: true
+```yaml
+feign:
+ sentinel:
+   enabled: true
+```
 
 3. 创建容错类
 
 > 容错类要求必须实现被容错的接口,并为每个方法实现容错方案
 
-    /**
-     * <p> feign 的Sentinel容错类 </p>
-     *
-     * 容错类要求必须实现被容错的接口,并为每个方法实现容错方案
-     *
-     * @author vchar fred
-     * @version 1.0
-     * @create_date 2020/6/15
-     */
-    @Slf4j
-    @Component
-    public class GoodsFeignClientFallBack implements GoodsFeignClient {
-    
-        @Override
-        public GoodsDetailDTO findGoodsDetailByGoodsNo(String goodsNo) {
-            log.error("服务异常");
-            // TODO
-            return null;
-        }
-    }
-    
+```java
+/**
+  * <p> feign 的Sentinel容错类 </p>
+  *
+  * 容错类要求必须实现被容错的接口,并为每个方法实现容错方案
+  *
+  * @author vchar fred
+  * @version 1.0
+  * @create_date 2020/6/15
+  */
+ @Slf4j
+ @Component
+ public class GoodsFeignClientFallBack implements GoodsFeignClient {
+ 
+     @Override
+     public GoodsDetailDTO findGoodsDetailByGoodsNo(String goodsNo) {
+         log.error("服务异常");
+         // TODO
+         return null;
+     }
+ }
+```
+
 4. 为被容器的接口指定容错类 
 
+```java
+@FeignClient(value = "goods-server", fallback = GoodsFeignClientFallBack.class)
+public interface GoodsFeignClient {
 
-    @FeignClient(value = "goods-server", fallback = GoodsFeignClientFallBack.class)
-    public interface GoodsFeignClient {
-    
-        /**
-         * 通过商品编号获取商品
-         *
-         * @param goodsNo 商品编号
-         * @return 返回结果
-         */
-        @GetMapping("/goods/detail/{goodsNo}")
-        GoodsDetailDTO findGoodsDetailByGoodsNo(@PathVariable("goodsNo") String goodsNo);
-    
-    }
+  /**
+   * 通过商品编号获取商品
+   *
+   * @param goodsNo 商品编号
+   * @return 返回结果
+   */
+  @GetMapping("/goods/detail/{goodsNo}")
+  GoodsDetailDTO findGoodsDetailByGoodsNo(@PathVariable("goodsNo") String goodsNo);
+
+}
+```
 
 上面这种方式无法将异常记录下来，建议使用下面这种方式
 
-    @Component
-    public class GoodsFeignClientFallBackFactory implements FallbackFactory<GoodsFeignClient> {
-        
-        @Override
-        public GoodsFeignClient create(Throwable throwable) {
-            throwable.printStackTrace();
-            return new GoodsFeignClient() {
-                @Override
-                public GoodsDetailDTO findGoodsDetailByGoodsNo(String goodsNo) {
-                    // TODO
-                    return null;
-                }
-            };
-        }
-    }
+```java
+@Component
+public class GoodsFeignClientFallBackFactory implements FallbackFactory<GoodsFeignClient> {
+  
+  @Override
+  public GoodsFeignClient create(Throwable throwable) {
+      throwable.printStackTrace();
+      return new GoodsFeignClient() {
+          @Override
+          public GoodsDetailDTO findGoodsDetailByGoodsNo(String goodsNo) {
+              // TODO
+              return null;
+          }
+      };
+  }
+}
+```
+
 上面的容错配置改为使用`fallbackFactory`;
 
 > 注意2种方式只能使用1种
@@ -746,10 +796,12 @@ TODO ...
 
 ### 5.1 添加依赖：
 
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-gateway</artifactId>
-    </dependency>
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-gateway</artifactId>
+</dependency>
+```
 
 > 不要引入 spring-boot-starter-web的包，因为spring-cloud-gateway使用的是响应式编程webflux
 
@@ -757,24 +809,26 @@ TODO ...
 
 #### 简单的配置
 
-    spring:
-      cloud:
-          gateway:
-            # 配置路由
-            routes:
-              # 当前路由转发标识，需要唯一；默认是UUID
-              - id: order_server
-              # 请求最终要转发的地址
-                uri: http://127.0.0.1:8095
-              # 路由优先级，数字越小优先级越大
-                order: 1
-              # 断言（返回的是boolean, 即路由转发满足的条件；可以写多个条件）
-                predicates:
-                  - Path=/order/**  # 以/order开头的地址
-              # 过滤器
-                filters:
-                  - StripPrefix=1  # 在请求转发前去掉一层路径
- 
+```yaml
+spring:
+   cloud:
+       gateway:
+         # 配置路由
+         routes:
+           # 当前路由转发标识，需要唯一；默认是UUID
+           - id: order_server
+           # 请求最终要转发的地址
+             uri: http://127.0.0.1:8095
+           # 路由优先级，数字越小优先级越大
+             order: 1
+           # 断言（返回的是boolean, 即路由转发满足的条件；可以写多个条件）
+             predicates:
+               - Path=/order/**  # 以/order开头的地址
+           # 过滤器
+             filters:
+               - StripPrefix=1  # 在请求转发前去掉一层路径
+```
+
 > 最终转发地址说明：当请求路径符合predicates中配置的规则时，最终转发的地址为 `uri+predicates.Path`, 即会将实际访问地址的前面的`http://127.0.0.1:7000`替换为配置的uri。
 > 因此我们可以通过filters来对转发路径进行处理。
 
@@ -784,31 +838,33 @@ TODO ...
 
 引入依赖包：
 
-    <dependency>
-        <groupId>com.alibaba.cloud</groupId>
-        <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-    </dependency>
+```xml
+<dependency>
+  <groupId>com.alibaba.cloud</groupId>
+  <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
 
-在启动类上添加`@EnableDiscoveryClient`注解
-    
-修改配置
+在启动类上添加`@EnableDiscoveryClient`注解；修改配置
 
-    spring:
-      cloud:
-        nacos:
-          discovery:
-            server-addr: 127.0.0.1:8848
-        gateway:
-          discovery:
-            locator:
-              # 开启网关对注册中心的支持
-              enabled: true
-          routes:
-            - id: order_server
-            # lb是设置从注册中心按服务名称获取服务信息，并遵循负载均衡策略
-              uri: lb://order-server
-              predicates:
-                - Path=/order/**
+```yaml
+spring:
+   cloud:
+     nacos:
+       discovery:
+         server-addr: 127.0.0.1:8848
+     gateway:
+       discovery:
+         locator:
+           # 开启网关对注册中心的支持
+           enabled: true
+       routes:
+         - id: order_server
+         # lb是设置从注册中心按服务名称获取服务信息，并遵循负载均衡策略
+           uri: lb://order-server
+           predicates:
+             - Path=/order/**
+```
 
 > 配置上唯一的区别就是`uri`的配置
 
@@ -850,7 +906,7 @@ TODO ...
 8. 基于路由权重的断言工厂：WeightRoutePredicateFactory，接收一个[组名, 权重]，
 然后对于同一个组内的路由按照权重转发。
 
-```$yml
+```yml
 routes:
     - id: order_server1
       uri: lb://order-server1
@@ -868,55 +924,52 @@ routes:
 
 参考内置断言工厂，其都继承了AbstractRoutePredicateFactory类，类名字必须以RoutePredicateFactory结尾，`使用的时候用面部分`；示例如下：
 
-    @Component
-    public class SexRoutePredicateFactory extends AbstractRoutePredicateFactory<SexRoutePredicateFactory.Config> {
-    
-        public SexRoutePredicateFactory(){
-            super(SexRoutePredicateFactory.Config.class);
-        }
-    
-        /**
-         * 从配置中获取配置的信息并赋值给配置类
-         * @return 返回配置信息
-         */
-        @Override
-        public List<String> shortcutFieldOrder() {
-            // 这里的顺序需要和配置文件中的一致，会将配置的值拆分后按这里的顺序赋值
-            return Collections.singletonList("sex");
-        }
-    
-        /**
-         * 定义匹配规则
-         * @param config 配置信息
-         * @return 返回结果
-         */
-        @Override
-        public Predicate<ServerWebExchange> apply(SexRoutePredicateFactory.Config config) {
-            return new Predicate<ServerWebExchange>(){
-                @Override
-                public boolean test(ServerWebExchange serverWebExchange) {
-                    // 获取请求中的信息
-                    String sex = serverWebExchange.getRequest().getQueryParams().getFirst("sex");
-                    if(StringUtils.isBlank(sex)){
-                        return false;
-                    }
-                    return Integer.parseInt(sex)==0;
-                }
-            };
-        }
-    
-        @Validated
-        @Data
-        public static class Config{
-            @NotNull
-            private Integer sex;
-        }
-    }
+```java
+@Component
+public class SexRoutePredicateFactory extends AbstractRoutePredicateFactory<SexRoutePredicateFactory.Config> {
 
+  public SexRoutePredicateFactory(){
+      super(SexRoutePredicateFactory.Config.class);
+  }
 
+  /**
+   * 从配置中获取配置的信息并赋值给配置类
+   * @return 返回配置信息
+   */
+  @Override
+  public List<String> shortcutFieldOrder() {
+      // 这里的顺序需要和配置文件中的一致，会将配置的值拆分后按这里的顺序赋值
+      return Collections.singletonList("sex");
+  }
 
+  /**
+   * 定义匹配规则
+   * @param config 配置信息
+   * @return 返回结果
+   */
+  @Override
+  public Predicate<ServerWebExchange> apply(SexRoutePredicateFactory.Config config) {
+      return new Predicate<ServerWebExchange>(){
+          @Override
+          public boolean test(ServerWebExchange serverWebExchange) {
+              // 获取请求中的信息
+              String sex = serverWebExchange.getRequest().getQueryParams().getFirst("sex");
+              if(StringUtils.isBlank(sex)){
+                  return false;
+              }
+              return Integer.parseInt(sex)==0;
+          }
+      };
+  }
 
- 
+  @Validated
+  @Data
+  public static class Config{
+      @NotNull
+      private Integer sex;
+  }
+}
+```
 
 ### 5.4 过滤器
 
@@ -931,79 +984,82 @@ gateway同样内置了一些过滤器；整体思路基本是一样的
 
 #### 自定义局部过滤器GatewayFilter
 
+```java
+@Component
+public class LogGatewayFilterFactory extends AbstractGatewayFilterFactory<LogGatewayFilterFactory.Config> {
 
-    @Component
-    public class LogGatewayFilterFactory extends AbstractGatewayFilterFactory<LogGatewayFilterFactory.Config> {
-    
-        public LogGatewayFilterFactory(){
-            super(LogGatewayFilterFactory.Config.class);
-        }
-    
-        @Override
-        public List<String> shortcutFieldOrder() {
-            return Arrays.asList("console", "file");
-        }
-    
-        @Override
-        public GatewayFilter apply(LogGatewayFilterFactory.Config config) {
-            return new GatewayFilter() {
-                @Override
-                public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-                    Boolean console = config.getConsole();
-                    if(console){
-                        System.out.println("console");
-                    }
-                    if(config.getFile()){
-                        System.out.println("---file---");
-                    }
-                    return null;
-                }
-            };
-        }
-    
-        @Validated
-        @Data
-        public static class Config{
-    
-            private Boolean console;
-    
-            private Boolean file;
-        }
-    }
+  public LogGatewayFilterFactory(){
+      super(LogGatewayFilterFactory.Config.class);
+  }
+
+  @Override
+  public List<String> shortcutFieldOrder() {
+      return Arrays.asList("console", "file");
+  }
+
+  @Override
+  public GatewayFilter apply(LogGatewayFilterFactory.Config config) {
+      return new GatewayFilter() {
+          @Override
+          public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+              Boolean console = config.getConsole();
+              if(console){
+                  System.out.println("console");
+              }
+              if(config.getFile()){
+                  System.out.println("---file---");
+              }
+              return null;
+          }
+      };
+  }
+
+  @Validated
+  @Data
+  public static class Config{
+
+      private Boolean console;
+
+      private Boolean file;
+  }
+}
+```
 
 #### 自定义全局过滤器GlobalFilter
 
-    @Component
-    public class AuthGlobalFilter implements GlobalFilter, Ordered {
-    
-        /**
-         * 过滤器优先级，越小优先级越高
-         */
-        public static final int AUTH_GLOBAL_FILTER_FILTER_ORDER = 10;
-    
-        /**
-         * 过滤器逻辑
-         * @param exchange ServerWebExchange
-         * @param chain GatewayFilterChain
-         * @return 返回结果
-         */
-        @Override
-        public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-            String token = exchange.getRequest().getQueryParams().getFirst("token");
-            if(!StringUtils.equals(token, "admin")){
-                // 拦截
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
-            }
-            // 放行
-            return chain.filter(exchange);
-        }
-    
-        @Override
-        public int getOrder() {
-            return AUTH_GLOBAL_FILTER_FILTER_ORDER;
-        }
-    }
+```java
+@Component
+public class AuthGlobalFilter implements GlobalFilter, Ordered {
+
+  /**
+   * 过滤器优先级，越小优先级越高
+   */
+  public static final int AUTH_GLOBAL_FILTER_FILTER_ORDER = 10;
+
+  /**
+   * 过滤器逻辑
+   * @param exchange ServerWebExchange
+   * @param chain GatewayFilterChain
+   * @return 返回结果
+   */
+  @Override
+  public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+      String token = exchange.getRequest().getQueryParams().getFirst("token");
+      if(!StringUtils.equals(token, "admin")){
+          // 拦截
+          exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+          return exchange.getResponse().setComplete();
+      }
+      // 放行
+      return chain.filter(exchange);
+  }
+
+  @Override
+  public int getOrder() {
+      return AUTH_GLOBAL_FILTER_FILTER_ORDER;
+  }
+}
+```
 
 ### 5.5 网关sentinel限流
 
@@ -1014,89 +1070,90 @@ gateway同样内置了一些过滤器；整体思路基本是一样的
 
 添加如下依赖：
 
-    <dependency>
-        <groupId>com.alibaba.csp</groupId>
-        <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
-    </dependency>
+```xml
+<dependency>
+  <groupId>com.alibaba.csp</groupId>
+  <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
+</dependency>
+```
 
 #### 添加配置类
 
-    @Configuration
-    public class GatewayConfiguration {
-    
-        private final List<ViewResolver> viewResolvers;
-        private final ServerCodecConfigurer serverCodecConfigurer;
-    
-        public GatewayConfiguration(ObjectProvider<List<ViewResolver>> viewResolversProvider,
-                                    ServerCodecConfigurer serverCodecConfigurer) {
-            this.viewResolvers = viewResolversProvider.getIfAvailable(Collections::emptyList);
-            this.serverCodecConfigurer = serverCodecConfigurer;
-        }
-    
-        @Bean
-        @Order(Ordered.HIGHEST_PRECEDENCE)
-        public SentinelGatewayBlockExceptionHandler sentinelGatewayBlockExceptionHandler() {
-            // Register the block exception handler for Spring Cloud Gateway.
-            return new SentinelGatewayBlockExceptionHandler(viewResolvers, serverCodecConfigurer);
-        }
-    
-        /**
-         * 初始化一个限流的过滤器
-         * @return 返回限流过滤器对象
-         */
-        @Bean
-        @Order(-1)
-        public GlobalFilter sentinelGatewayFilter() {
-            return new SentinelGatewayFilter();
-        }
-    
-        /**
-         * 初始化限流配置
-         */
-        @PostConstruct
-        public void doInit() {
-            initCustomizedApis();
-            initGatewayRules();
-        }
-    
-        /**
-         * 自定义API分组(这个的应用场景是相关关联的接口进行联合限流)
-         */
-        private void initCustomizedApis() {
-            Set<ApiDefinition> definitions = new HashSet<>();
-            // 配置指定资源的 某个路由为前缀的地址
-            ApiDefinition api1 = new ApiDefinition("order_server")
-                    .setPredicateItems(new HashSet<ApiPredicateItem>() {{
-                        add(new ApiPathPredicateItem().setPattern("/order/detail/**"));
-                        add(new ApiPathPredicateItem().setPattern("/order/mall/**")
-                                .setMatchStrategy(SentinelGatewayConstants.URL_MATCH_STRATEGY_PREFIX));
-                    }});
-            definitions.add(api1);
-            /// other api config
-    
-            GatewayApiDefinitionManager.loadApiDefinitions(definitions);
-        }
-    
-        /**
-         * 配置初始化的限流参数: 根据资源来限流
-         */
-        private void initGatewayRules() {
-            Set<GatewayFlowRule> rules = new HashSet<>();
-    
-            // resource: 资源名称，对应路由ID   count: 限流阀值  intervalSec: 统计时间窗口，单位时秒，默认是1秒
-            rules.add(new GatewayFlowRule("order_server")
-                    .setCount(5)
-                    .setIntervalSec(1));
-    
-            /// other resource config
-    
-            GatewayRuleManager.loadRules(rules);
-        }
-    
-    }
+```java
+@Configuration
+public class GatewayConfiguration {
 
+  private final List<ViewResolver> viewResolvers;
+  private final ServerCodecConfigurer serverCodecConfigurer;
 
-    
+  public GatewayConfiguration(ObjectProvider<List<ViewResolver>> viewResolversProvider,
+                              ServerCodecConfigurer serverCodecConfigurer) {
+      this.viewResolvers = viewResolversProvider.getIfAvailable(Collections::emptyList);
+      this.serverCodecConfigurer = serverCodecConfigurer;
+  }
+
+  @Bean
+  @Order(Ordered.HIGHEST_PRECEDENCE)
+  public SentinelGatewayBlockExceptionHandler sentinelGatewayBlockExceptionHandler() {
+      // Register the block exception handler for Spring Cloud Gateway.
+      return new SentinelGatewayBlockExceptionHandler(viewResolvers, serverCodecConfigurer);
+  }
+
+  /**
+   * 初始化一个限流的过滤器
+   * @return 返回限流过滤器对象
+   */
+  @Bean
+  @Order(-1)
+  public GlobalFilter sentinelGatewayFilter() {
+      return new SentinelGatewayFilter();
+  }
+
+  /**
+   * 初始化限流配置
+   */
+  @PostConstruct
+  public void doInit() {
+      initCustomizedApis();
+      initGatewayRules();
+  }
+
+  /**
+   * 自定义API分组(这个的应用场景是相关关联的接口进行联合限流)
+   */
+  private void initCustomizedApis() {
+      Set<ApiDefinition> definitions = new HashSet<>();
+      // 配置指定资源的 某个路由为前缀的地址
+      ApiDefinition api1 = new ApiDefinition("order_server")
+              .setPredicateItems(new HashSet<ApiPredicateItem>() {{
+                  add(new ApiPathPredicateItem().setPattern("/order/detail/**"));
+                  add(new ApiPathPredicateItem().setPattern("/order/mall/**")
+                          .setMatchStrategy(SentinelGatewayConstants.URL_MATCH_STRATEGY_PREFIX));
+              }});
+      definitions.add(api1);
+      /// other api config
+
+      GatewayApiDefinitionManager.loadApiDefinitions(definitions);
+  }
+
+  /**
+   * 配置初始化的限流参数: 根据资源来限流
+   */
+  private void initGatewayRules() {
+      Set<GatewayFlowRule> rules = new HashSet<>();
+
+      // resource: 资源名称，对应路由ID   count: 限流阀值  intervalSec: 统计时间窗口，单位时秒，默认是1秒
+      rules.add(new GatewayFlowRule("order_server")
+              .setCount(5)
+              .setIntervalSec(1));
+
+      /// other resource config
+
+      GatewayRuleManager.loadRules(rules);
+  }
+
+}
+```
 
 ## 六、nacos配置中心
 
@@ -1104,23 +1161,27 @@ nacos既可以是注册中心同时也可以作为配置中心，支持将配置
 
 添加配置中心的依赖：
 
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-        </dependency>
+```yaml
+<dependency>
+   <groupId>com.alibaba.cloud</groupId>
+   <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+</dependency>
+```
 
-创建`bootstrap.properties`配置文件，也可以是`bootstrap.yml`;在里面添加如下配置(bootstrap.properties示例)：
+创建`bootstrap.properties`配置文件，也可以是`bootstrap.yml` （不建议使用这种，因为可能会识别不到）;在里面添加如下配置(bootstrap.properties示例)：
 
-    # 配置文件名称前缀，使用的是服务名称
-    spring.application.name=nacos-config
-    # 分组
-    spring.cloud.nacos.config.group=DEFAULT_GROUP
-    # nacos 配置中心地址
-    spring.cloud.nacos.config.server-addr=127.0.0.1:8848
-    # 配置文件后缀
-    spring.cloud.nacos.config.file-extension=yml
-    # 激活文件，这个配置可以通过启动参数指定 -Dspring.profiles.active=dev来切换环境, 实现打一次包就可以了
-    spring.profiles.active=dev
+```properties
+# 配置文件名称前缀，使用的是服务名称
+spring.application.name=nacos-config
+# 分组
+spring.cloud.nacos.config.group=DEFAULT_GROUP
+# nacos 配置中心地址
+spring.cloud.nacos.config.server-addr=127.0.0.1:8848
+# 配置文件后缀
+spring.cloud.nacos.config.file-extension=yml
+# 激活文件，这个配置可以通过启动参数指定 -Dspring.profiles.active=dev来切换环境, 实现打一次包就可以了
+spring.profiles.active=dev
+```
 
 > 因为spring会以这个bootstrap配置文件的优先；
 > 
@@ -1134,46 +1195,37 @@ nacos既可以是注册中心同时也可以作为配置中心，支持将配置
 
 #### 将各个组件的配置拆分
 
-将redis、MySQL的等公共基础组件的配置拆分到单个文件中，如在nacos控制台创建一个名为`db-config-dev.yml`的MySQL的配置; 项目中bootstrap配置的信息如下（bootstrap.yml示例）：
+将redis、MySQL的等公共基础组件的配置拆分到单个文件中，如在nacos控制台创建一个名为`db-config-dev.yml`的MySQL的配置; 项目中bootstrap配置的信息如下（bootstrap.properties示例）：
 
-    spring:
-      application:
-        # 配置文件名称前缀，即服务名称
-        name: nacos-config
-      cloud:
-        nacos:
-          config:
-            # nacos 配置中心地址
-            server-addr: 127.0.0.1:8848
-            #  分组
-            group: DEFAULT_GROUP
-            # # 配置文件后缀
-            file-extension: yml
-            # 
-            ext-config:
-              - data-id: db-config-${spring.profiles.active}.yml
-                group: DEFAULT_GROUP
-                refresh: true
+```properties
+spring.application.name=nacos-config-demo
+spring.cloud.nacos.server-addr=192.168.56.102:8848
+spring.cloud.nacos.config.file-extension=yml
+spring.cloud.nacos.config.group=DEFAULT_GROUP
+# 附加配置文件
+spring.cloud.nacos.config.extension-configs[0].data-id=db-config-${spring.profiles.active}.yml
+spring.cloud.nacos.config.extension-configs[0].group=DEFAULT_GROUP
+spring.cloud.nacos.config.extension-configs[0].refresh=true
+```
+
+> 记得在启动参数中添加`spring.profiles.active=dev`
 
 `db-config-dev.yml`的MySQL的配置：
 
-    spring:
-      datasource:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://127.0.0.1:3306/demo?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
-        username: root
-        password: 123456
+```yaml
+spring:
+   datasource:
+     driver-class-name: com.mysql.cj.jdbc.Driver
+     url: jdbc:mysql://127.0.0.1:3306/demo?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+     username: root
+     password: 123456
+```
 
 > 这拆分后其他微服务需要相关的基础组件，直接添加即可，无需再在自己的配置文件中单独去写这些配置，若需要特殊配置单独配置即可。
 
 #### 关于动态刷新配置
 
 需要在类上添加`@RefreshScope`注解才能实现动态刷新
-
-在配置中添加如下配置实现刷新：
-    
-    shared-dataids: shared.yml
-    refreshable-dataids: shared.yml
 
 ## 七、分布式事务
 
@@ -1207,55 +1259,46 @@ seata原来叫Fescar，后来更名为seata。其设计目标是对业务的无�
 * [Seata下载](https://github.com/seata/seata/releases)，下载好后解压
 * 进入解压的目录中，修改conf目录下的 registry.conf配置文件，将注册方式改为nacos
 
+```text
+registry {
+   type = "nacos"
+   nacos {
+     application = "seata-server"
+     serverAddr = "localhost"
+     namespace = "public"
+     cluster = "default"
+     username = ""
+     password = ""
+   }
+}
+config {
+   type = "nacos"
+   nacos {
+     serverAddr = "localhost"
+     namespace = "public"
+     group = "SEATA_GROUP"
+     username = ""
+     password = ""
+   }
+}
+```
 
-    registry {
-      type = "nacos"
-      nacos {
-        application = "seata-server"
-        serverAddr = "localhost"
-        namespace = "public"
-        cluster = "default"
-        username = ""
-        password = ""
-      }
-    }
-    config {
-      type = "nacos"
-      nacos {
-        serverAddr = "localhost"
-        namespace = "public"
-        group = "SEATA_GROUP"
-        username = ""
-        password = ""
-      }
-    }
-    
 * 事务日志存储方式，默认file，修改`file.conf`配置文件里面的`mode`为db, 修改MySQL的连接信息；同时在数据库中创建如下的表：
 
-
-    CREATE TABLE `undo_log` (
-      `id` bigint(20) NOT NULL AUTO_INCREMENT,
-      `branch_id` bigint(20) NOT NULL,
-      `xid` varchar(100) NOT NULL,
-      `context` varchar(128) NOT NULL,
-      `rollback_info` longblob NOT NULL,
-      `log_status` int(11) NOT NULL,
-      `log_created` datetime NOT NULL,
-      `log_modified` datetime NOT NULL,
-      `ext` varchar(100) DEFAULT NULL,
-      PRIMARY KEY (`id`),
-      UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-
+```sql
+CREATE TABLE `undo_log` (
+   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+   `branch_id` bigint(20) NOT NULL,
+   `xid` varchar(100) NOT NULL,
+   `context` varchar(128) NOT NULL,
+   `rollback_info` longblob NOT NULL,
+   `log_status` int(11) NOT NULL,
+   `log_created` datetime NOT NULL,
+   `log_modified` datetime NOT NULL,
+   `ext` varchar(100) DEFAULT NULL,
+   PRIMARY KEY (`id`),
+   UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+```
     
 * 启动Seata服务，运行bin目录下的 `seata-server.bat`文件
-
-### 
-
-
-
-
-
-
-    
-    

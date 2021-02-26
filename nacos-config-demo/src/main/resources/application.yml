@@ -2,4 +2,6 @@ server:
   port: 8099
 spring:
   application:
-    name: nacos-config
+    name: nacos-config-demo
+  profiles:
+    active: dev
