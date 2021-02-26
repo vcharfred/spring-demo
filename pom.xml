@@ -11,14 +11,16 @@
     <description>阿里巴巴微服务套装</description>
 
     <modules>
+        <module>common-dto</module>
         <module>gateway</module>
         <module>user-center</module>
         <module>order-center</module>
-        <module>common-dto</module>
         <module>goods-center</module>
         <module>nacos-config-demo</module>
         <module>seata</module>
-        <module>dubbo-template</module>
+        <module>dubbo-template-api</module>
+        <module>dubbo-template-provider</module>
+        <module>dubbo-template-customer</module>
     </modules>
 
     <properties>
@@ -87,22 +89,6 @@
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.3.7.RELEASE</version>
-                <configuration>
-                    <mainClass>top.vchar.ConfigApplication</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
