@@ -6,17 +6,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import top.vchar.RedisApplication;
 import top.vchar.entity.Student;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -118,6 +113,104 @@ public class RedisTemplateTest {
         // 局部更新：只更新sut2的名字为李四
         opsForHash2.put("sut2", "name", "李四");
         System.out.println(opsForHash2.entries("sut2"));
+    }
+
+    /**
+     * 无序不重复集合Set；注意set的结构是 Set<String> 这种格式的；可以用来存储登陆认证的token信息
+     */
+    @Test
+    public void setDemo() {
+
+        SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
+        opsForSet.add("session", "token");
+        opsForSet.add("session", "session");
+
+        opsForSet.add("token", "token");
+        opsForSet.add("token", "auth_token");
+
+        // 查找2个集合中相同的元素；返回第一个key中相同的元素
+        Set<String> intersect = opsForSet.intersect("session", "token");
+        System.out.println("相同的元素：" + intersect);
+
+        // 查找2个集合中不相同的元素；返回第一个key中不相同的元素
+        Set<String> difference = opsForSet.difference("token", "session");
+        System.out.println("不相同的元素：" + difference);
+
+        // 随机取一个
+        String session = opsForSet.randomMember("session");
+        System.out.println("随机元素：" + session);
+
+        // 将key为session的集合中的值session移到到token集合中去
+        opsForSet.move("session", "session", "token");
+        System.out.println("session的元素：" + opsForSet.members("session"));
+
+        // 插入100w条数据
+//        int i=0;
+//        while (i<1000){
+//            String[] sets = new String[1000];
+//            for(int j=0; j<1000; j++){
+//                sets[j] = UUID.randomUUID().toString();
+//            }
+//            opsForSet.add("set_max_size", sets);
+//            i++;
+//        }
+        // 判断集合中是否存在 指定的值
+        System.out.println("判断集合中是否存在 指定的值" + opsForSet.isMember("set_max_size", "39a036dc-6e0d-4b65-9b2e-06b09cbc4768"));
+
+        // 和队列的pop操作一样
+        String val = opsForSet.pop("session");
+        System.out.println("pop的值(从头部推出一个值)：" + val);
+    }
+
+    /**
+     * list集合
+     */
+    @Test
+    public void listDemo() {
+        ListOperations<String, String> operations = stringRedisTemplate.opsForList();
+        // 在队列的左边添加一个
+        operations.leftPush("goods_id:1", "购买0个");
+        operations.leftPush("goods_id:1", "购买1个");
+        operations.leftPush("goods_id:1", "购买2个");
+        operations.leftPush("goods_id:1", "购买3个");
+
+        // 从右边取一个值; 因此可以基于左右推入和弹出的机制实现一个先进先出的队列
+        String booking = operations.rightPop("goods_id:1");
+        System.out.println("取出的值：" + booking);
+
+        Long size = operations.size("goods_id:1");
+        System.out.println("元素个数：" + size);
+
+        List<String> range = operations.range("goods_id:1", 0, size);
+        System.out.println("原始的数据：" + range);
+
+        // 分页查询；后面的参数表示开始下标和结束下标；包含起始和结束的下标
+        range = operations.range("goods_id:1", 1, 3);
+        System.out.println("分页查询：" + range);
+
+        // 在某个元素的左边插入一个新的元素
+        operations.leftPush("goods_id:1", "购买1个", "新购4个");
+        range = operations.range("goods_id:1", 0, operations.size("goods_id:1"));
+        System.out.println("插入后的数据：" + range);
+
+        // 更新某个下标的值
+        operations.set("goods_id:1", 1, "新购4个");
+        range = operations.range("goods_id:1", 0, operations.size("goods_id:1"));
+        System.out.println("更新后的数据：" + range);
+
+        // 裁剪list，即lTrim命令；只保留设置的区间内的元素
+        operations.trim("goods_id:1", 1, 2);
+        range = operations.range("goods_id:1", 0, operations.size("goods_id:1"));
+        System.out.println("裁剪后的数据：" + range);
+
+        // 移除指定的的个数;lRem命苦
+        operations.remove("goods_id:1", 2, "新购4个");
+        range = operations.range("goods_id:1", 0, operations.size("goods_id:1"));
+        System.out.println("移除后的数据：" + range);
+
+        // 设置等待超时时间，如果没有将阻塞等待，在超过指定时间还没有的话就抛出异常
+        String val = operations.leftPop("goods_id:1", 60, TimeUnit.SECONDS);
+        System.out.println(val);
     }
 
 }
