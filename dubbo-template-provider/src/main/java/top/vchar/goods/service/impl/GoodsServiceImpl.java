@@ -1,10 +1,13 @@
 package top.vchar.goods.service.impl;
 
 import org.apache.dubbo.config.annotation.DubboService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import top.vchar.goods.dao.GoodsDao;
 import top.vchar.goods.dto.GoodsDetailDTO;
+import top.vchar.goods.entity.Goods;
 import top.vchar.goods.service.GoodsService;
 
-import java.math.BigDecimal;
 
 /**
  * <p> 商品服务业务接口实现 </p>
@@ -16,19 +19,27 @@ import java.math.BigDecimal;
 @DubboService
 public class GoodsServiceImpl implements GoodsService {
 
+    @Autowired
+    private GoodsDao goodsDao;
+
     @Override
     public GoodsDetailDTO findGoodsById(Long id) {
-        System.out.println("查询数据");
-        GoodsDetailDTO goods = new GoodsDetailDTO();
-        goods.setGoodsNo(String.valueOf(id));
-        goods.setGoodsName("手机");
-        goods.setInventory(2);
-        goods.setPrice(new BigDecimal("3000"));
-        return goods;
+        Goods goods = goodsDao.getById(id);
+        if(null!=goods){
+            GoodsDetailDTO detail = new GoodsDetailDTO();
+            BeanUtils.copyProperties(goods, detail);
+            return detail;
+        }
+        return null;
     }
 
     @Override
     public boolean deductInventory(Long id, int num) {
-        return false;
+        Goods goods = goodsDao.getById(id);
+        if(null==goods){
+            System.out.println("商品不存在");
+            return false;
+        }
+        return goodsDao.deductInventory(id, num);
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.vchar.order.dto.BookingDTO;
 import top.vchar.order.service.OrderService;
 
 /**
@@ -21,7 +22,7 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public String booking(){
-        return this.orderService.booking(1L, 1);
+    public String booking(BookingDTO bookingDTO){
+        return this.orderService.booking(bookingDTO);
     }
 }

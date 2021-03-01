@@ -1,5 +1,7 @@
 package top.vchar.order.service;
 
+import top.vchar.order.dto.BookingDTO;
+
 /**
  * <p> 订单服务 </p>
  *
@@ -11,10 +13,9 @@ public interface OrderService {
 
     /**
      * 预定
-     * @param id 商品ID
-     * @param num 数量
+     * @param bookingDTO 参数
      * @return 返回预定结果
      */
-    String booking(Long id, int num);
+    String booking(BookingDTO bookingDTO);
 
 }

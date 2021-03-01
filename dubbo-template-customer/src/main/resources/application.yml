@@ -9,6 +9,7 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.56.1:8848
+        namespace: ${spring.profiles.active}
 dubbo:
   protocol:
     name: dubbo
