@@ -18,6 +18,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public GoodsDetailDTO findGoodsById(Long id) {
+        System.out.println("查询数据");
         GoodsDetailDTO goods = new GoodsDetailDTO();
         goods.setGoodsNo(String.valueOf(id));
         goods.setGoodsName("手机");

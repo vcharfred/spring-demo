@@ -17,7 +17,7 @@ import top.vchar.order.service.OrderService;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-    @DubboReference(interfaceClass = GoodsService.class)
+    @DubboReference(interfaceClass = GoodsService.class, check = false)
     private GoodsService goodsService;
 
     /**

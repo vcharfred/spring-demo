@@ -8,9 +8,12 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 192.168.56.102:8848
+        server-addr: 192.168.56.1:8848
 dubbo:
+  protocol:
+    name: dubbo
+    port: -1
   registry:
-    address: spring-cloud://192.168.56.102
+    address: spring-cloud://192.168.56.1
   cloud:
     subscribed-services: dubbo-provider-demo

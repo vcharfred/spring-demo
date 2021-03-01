@@ -2,6 +2,7 @@ package top.vchar;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * <p> 消费者启动类 </p>
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @version 1.0
  * @create_date 2021/2/26
  */
+@EnableDiscoveryClient
 @SpringBootApplication
 public class DubboCustomerApplication {
 

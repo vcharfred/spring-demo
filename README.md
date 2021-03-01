@@ -18,6 +18,7 @@
     |---网关`spring-cloud-gateway`，使用nacos做注册中心替换eureka
     |---`nacos配置中心`，替换掉spring-cloud的config组件，其实原理也是在spring-cloud-config的基础上进行扩展的
     |---分布式事务
+    |---Dubbo替换掉feign；使用Dubbo来做RPC服务调用
 ```
 
 ## 一、注册中心nacos
@@ -308,9 +309,83 @@ public interface GoodsFeignClient {
 ```
 4.业务代码中调用    
 
-```java
+```text
 GoodsDetailDTO goodsDetailDTO = goodsFeignClient.findGoodsDetailByGoodsNo(createOrderDTO.getGoodsNo());
 ```    
+
+### 3.3 使用Dubbo调用服务
+
+1.添加dubbo的依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-dubbo</artifactId>
+</dependency>
+```
+
+2.修改配置文件(服务消费者和服务提供者配置都一样)
+```yaml
+dubbo:
+  protocol:
+    name: dubbo
+    # 这个dubbo的协议端口在一台服务器上的时候，每个项目的必须配置成不一样的（否则将启动失败），或者配置为-1，使用随机端口
+    port: 20880
+  registry:
+    # 由于使用的是spring-cloud，因此这里使用spring-cloud的
+    address: spring-cloud://192.168.56.1.102
+  scan:
+    # 配置需要扫描的注解包
+    base-packages: top.vchar
+```
+
+3.使用方式：我们无需像feign那样再去编写一个类，对应需要提供对外服务的接口直接在接口的实现上将`@Service` 注解改为`org.apache.dubbo.config.annotation.DubboService` 注解即可。
+服务调用方直接在要使用的服务接口上加上 `@DubboReference` 注解即可。
+
+接口（因为服务调用方也需要使用，因此我们需要将接口单独提取到一个jar包）
+```java
+public interface GoodsService {
+    /**
+     * 通过ID查询商品详情
+     * @param id 商品ID
+     * @return 返回结果
+     */
+    GoodsDetailDTO findGoodsById(Long id);
+}
+```
+
+服务提供者（就是普通的接口方法实现）
+```java
+@DubboService
+public class GoodsServiceImpl implements GoodsService {
+
+    @Override
+    public GoodsDetailDTO findGoodsById(Long id) {
+        System.out.println("查询数据");
+        GoodsDetailDTO goods = new GoodsDetailDTO();
+        goods.setGoodsNo(String.valueOf(id));
+        goods.setGoodsName("手机");
+        goods.setInventory(2);
+        goods.setPrice(new BigDecimal("3000"));
+        return goods;
+    }
+}
+```
+
+服务调用
+```java
+// 要调用的远程服务
+@DubboReference
+private GoodsService goodsService;
+
+@Override
+public String booking(Long id, int num) {
+    GoodsDetailDTO goods = this.goodsService.findGoodsById(id);
+    System.out.println(JSONObject.toJSONString(goods));
+
+    return goods.getGoodsName();
+}
+```
 
 ## 四、熔断限流组件 sentinel 
 
