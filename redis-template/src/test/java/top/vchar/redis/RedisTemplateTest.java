@@ -160,6 +160,9 @@ public class RedisTemplateTest {
         // 和队列的pop操作一样
         String val = opsForSet.pop("session");
         System.out.println("pop的值(从头部推出一个值)：" + val);
+
+        // 移除指定的值
+        opsForSet.remove("token", "auth_token");
     }
 
     /**
