@@ -135,9 +135,6 @@ spring:
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <version>2.3.7.RELEASE</version>
-            <configuration>
-                <mainClass>top.vchar.ConfigApplication</mainClass>
-            </configuration>
             <executions>
                 <execution>
                     <id>repackage</id>
@@ -1325,7 +1322,7 @@ spring:
 ### 分布式事务组件Seata
 
 seata原来叫Fescar，后来更名为seata。其设计目标是对业务的无侵入，在传统的2阶段提交上做的优化。它将一个分布式事务理解成一个包含了若干分支事务的全局事务，
-全局事务的职责是协调其下辖的分支事务达成一致，要么一起成功，要么一起失败；通常分支事务就是关系数据库的本地事务。
+全局事务的职责是协调其下辖的分支事务达成一致，要么一起成功，要么一起失败；通常分支事务就是关系数据库的本地事务。官方文档[https://seata.io/zh-cn/docs/overview/what-is-seata.html](https://seata.io/zh-cn/docs/overview/what-is-seata.html)
 
 ![](./image/seata组件图.jpg)
 
