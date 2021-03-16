@@ -12,7 +12,7 @@ spring:
 dubbo:
   protocol:
     name: dubbo
-    port: 20880
+    port: 20882
   registry:
     address: spring-cloud://192.168.56.1.102
   scan:

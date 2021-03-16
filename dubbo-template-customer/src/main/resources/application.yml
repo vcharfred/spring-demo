@@ -6,10 +6,30 @@ spring:
   profiles:
     active: dev
   cloud:
+    # 注册中心nacos
     nacos:
       discovery:
         server-addr: 192.168.56.1:8848
-        namespace: ${spring.profiles.active}
+    # sentinel配置
+    sentinel:
+      datasource:
+        flow:
+          nacos:
+            rule-type: FLOW
+            server-addr: 192.168.56.1:8848
+            namespace: public
+            groupId: "DEFAULT_GROUP"
+            dataId: dubbo-customer-demo-sentinel.rule
+            username: nacos
+            password: 123456
+      transport:
+        # 指定和sentinel控制台服务交换的端口，随意指定一个没有使用的即可
+        port: 8719
+        # sentinel控制台的访问地址
+        dashboard: 127.0.0.1:9080
+      # filter:
+      # 关闭链路收敛使链路收敛能够生效
+      # enabled: false
 dubbo:
   protocol:
     name: dubbo
