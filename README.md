@@ -857,12 +857,54 @@ public class GoodsFeignClientFallBackFactory implements FallbackFactory<GoodsFei
 
 ### 使用配置中心Nacos来获取sentinel的规则，然后主动推送到客户端
 
-TODO ...
-
-参考文档如下：
-
 * [动态规则扩展](https://sentinelguard.io/zh-cn/docs/dynamic-rule-configuration.html)
 * [Nacos实现的demo](https://github.com/alibaba/Sentinel/blob/master/sentinel-extension/sentinel-datasource-nacos/src/main/java/com/alibaba/csp/sentinel/datasource/nacos/NacosDataSource.java)
+
+添加如下依赖
+
+```xml
+<dependency>
+    <groupId>com.alibaba.csp</groupId>
+    <artifactId>sentinel-datasource-nacos</artifactId>
+</dependency>
+```
+
+添加如下配置（具体可以参考`SentinelProperties` 配置类）：
+
+```yaml
+spring:
+  cloud:
+    sentinel:
+      datasource:
+        flow:
+          # 配置nacos的
+          nacos:
+            rule-type: FLOW
+            server-addr: 127.0.0.1:8848
+            namespace: public
+            groupId: "DEFAULT_GROUP"
+            dataId: dubbo-customer-demo-sentinel.rule
+            username: nacos
+            password: 123456
+```
+然后在nacos中创建一个配置文件 dubbo-customer-demo-sentinel.rule，类型为text; 具体配置参数见官网说明；下面是一个示例：
+
+```text
+[
+    {
+        "resource": "SentinelDemoService#sentinelDemo2",
+        "count": 0,
+        "grade": 1,
+        "limitApp":"default",
+        "strategy":0,
+        "controlBehavior":0,
+        "clusterMode":false
+    }
+]
+```
+
+实际使用不建议这样做，还是建议使用控制台的方式；因为使用官方提供的集成方式时，nacos的时候会疯狂的拉取数据，同时只支持一个规则的配置；因此要么自己去基于nacos实现，要么使用控制台的方式；
+且配置项很多，因此还是建议使用控制台的方式来实现，或者是对接其rest api接口，在实际操作中还是建议使用界面化的操作。
 
 ## 五、网关`spring-cloud-gateway`
 
