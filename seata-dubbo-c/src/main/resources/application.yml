@@ -1,0 +1,19 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: seata-dubbo-c
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.56.1:8848
+dubbo:
+  protocol:
+    name: dubbo
+    port: 20883
+  registry:
+    address: spring-cloud://192.168.56.1.102
+  scan:
+    base-packages: top.vchar

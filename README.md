@@ -1337,6 +1337,18 @@ spring:
 
 > 这拆分后其他微服务需要相关的基础组件，直接添加即可，无需再在自己的配置文件中单独去写这些配置，若需要特殊配置单独配置即可。
 
+通常每个服务的数据库单独的因此将数据库配置文件修改为如下：
+
+```yaml
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/${db-name}?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+```
+> 各个服务在自己的配置文件中配置 db-name 来指定使用的数据库名称
+
 #### 关于动态刷新配置
 
 需要在类上添加`@RefreshScope`注解才能实现动态刷新
@@ -1416,3 +1428,13 @@ CREATE TABLE `undo_log` (
 ```
     
 * 启动Seata服务，运行bin目录下的 `seata-server.bat`文件
+
+#### Seata和dubbo的集成
+
+我们这里新建了3个服务：seata-dubbo-a、seata-dubbo-b、seata-dubbo-c（后面简称a\b\c）；调用链为 a->b->c；模拟场景：积分商城购买东西生成订单，扣除库存，用户积分扣除。
+
+
+
+
+
+

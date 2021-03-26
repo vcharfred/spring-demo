@@ -21,6 +21,10 @@
         <module>dubbo-template-api</module>
         <module>dubbo-template-provider</module>
         <module>dubbo-template-customer</module>
+        <module>seata-dubbo-a</module>
+        <module>seata-dubbo-b</module>
+        <module>seata-dubbo-c</module>
+        <module>seate-dubbo-api</module>
     </modules>
 
     <properties>
