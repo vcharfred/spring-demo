@@ -120,7 +120,6 @@ public class RedisTemplateTest {
      */
     @Test
     public void setDemo() {
-
         SetOperations<String, String> opsForSet = stringRedisTemplate.opsForSet();
         opsForSet.add("session", "token");
         opsForSet.add("session", "session");
@@ -215,5 +214,4 @@ public class RedisTemplateTest {
         String val = operations.leftPop("goods_id:1", 60, TimeUnit.SECONDS);
         System.out.println(val);
     }
-
 }
