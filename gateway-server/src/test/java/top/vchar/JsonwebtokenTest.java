@@ -2,10 +2,14 @@ package top.vchar;
 
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import top.vchar.util.JwtTokenProvider;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +26,14 @@ public class JsonwebtokenTest {
     private JwtTokenProvider jwtTokenProvider;
     @Before
     public void init(){
-        jwtTokenProvider = new JwtTokenProvider("fd18347e9b5247d98b9169720d7cb0fd");
+        jwtTokenProvider = new JwtTokenProvider("d2FsbGV0MjAyMW1vbmV5MQ==");
     }
 
     @Test
     public void generateToken(){
+        String str = Base64.encodeBase64String("wallet2021money1".getBytes(StandardCharsets.UTF_8));
+        System.out.println(str);
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("uid", "9527");
         claims.put("iss", "vchar");
