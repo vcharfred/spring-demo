@@ -1426,15 +1426,68 @@ CREATE TABLE `undo_log` (
    UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
-    
+
 * 启动Seata服务，运行bin目录下的 `seata-server.bat`文件
 
 #### Seata和dubbo的集成
 
 我们这里新建了3个服务：seata-dubbo-a、seata-dubbo-b、seata-dubbo-c（后面简称a\b\c）；调用链为 a->b->c；模拟场景：积分商城购买东西生成订单，扣除库存，用户积分扣除。
 
+添加maven依赖：
 
+```xml
+<!-- seata-->
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+</dependency>
+```
 
+spring-cloud-starter-alibaba-seata这个依赖中只依赖了spring-cloud-alibaba-seata，所以在项目中添加spring-cloud-starter-alibaba-seata和spring-cloud-alibaba-seata是一样的
+
+```yaml
+spring:
+  cloud:
+    alibaba:
+      seata:
+        # 这里定义seata服务分组名称，必须和下面的seata.service.vgroup-mapping对应，否则将无法获取seata服务端IP信息
+        tx-service-group: seata-dubbo-b-seata-service-group
+seata:
+  registry:
+    type: nacos
+    nacos:
+      serverAddr: 192.168.56.1:8848
+      application: seata-server
+      group: SEATA_GROUP
+  service:
+    vgroup-mapping:
+      seata-dubbo-b-seata-service-group: default
+```
+
+> 上面的配置可以去看 `io.seata.spring.boot.autoconfigure.properties.client.ServiceProperties` 和 `io.seata.discovery.registry.FileRegistryServiceImpl` 这2个类你就明白了为啥这样配置了。
+
+创建数据库表;在每一个业务库里面创建一个undo_log的表，这里表里面会记录事务信息，用于seata后面回滚数据使用。
+
+```sql
+CREATE TABLE `undo_log`
+(
+    `id`            BIGINT(20)   NOT NULL AUTO_INCREMENT,
+    `branch_id`     BIGINT(20)   NOT NULL,
+    `xid`           VARCHAR(100) NOT NULL,
+    `context`       VARCHAR(128) NOT NULL,
+    `rollback_info` LONGBLOB     NOT NULL,
+    `log_status`    INT(11)      NOT NULL,
+    `log_created`   DATETIME     NOT NULL,
+    `log_modified`  DATETIME     NOT NULL,
+    `ext`           VARCHAR(100) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ux_undo_log` (`xid`, `branch_id`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8
+```
+
+最后在需要开启全局事务的方法上添加 `@GlobalTransactional` 注解即可；只需要在起始的调用方法上加即可；注意对应异常情况想要回滚，直接抛出异常即可，否则将无法触发全局事务的回滚。 代码示例如下：
 
 
 

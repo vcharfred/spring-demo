@@ -1,5 +1,7 @@
 package top.vchar.goods.service;
 
+import java.sql.SQLException;
+
 /**
  * <p> 商品接口 </p>
  *
@@ -12,10 +14,10 @@ public interface GoodsService {
     /**
      * 扣除库存
      *
-     * @param id 商品ID
+     * @param id  商品ID
      * @param num 本次扣除的数量
      * @return 返回结果
      */
-    boolean deductInventory(Long id, int num);
+    boolean deductInventory(Long id, int num) throws SQLException;
 
 }
