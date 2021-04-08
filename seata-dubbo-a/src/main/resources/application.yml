@@ -1,8 +1,9 @@
+db-name: demo_order
 server:
-  port: 8083
+  port: 8081
 spring:
   application:
-    name: seata-dubbo-c
+    name: seata-dubbo-a
   profiles:
     active: dev
   cloud:
@@ -11,16 +12,19 @@ spring:
         server-addr: 192.168.56.1:8848
     alibaba:
       seata:
-        tx-service-group: seata-dubbo-c-seata-service-group
+        # 注意这个名字最大长度为32，如果要增加需要修改seat库中字段
+        # 配置自定义的是否分组，默认为服务名称（spring.application.name）-seata-service-group
+        tx-service-group: seata-dubbo-a-seata-service-group
 dubbo:
   protocol:
     name: dubbo
-    port: 20883
+    port: 20881
   registry:
     address: spring-cloud://192.168.56.1
   scan:
     base-packages: top.vchar
-db-name: demo_user
+  cloud:
+    subscribed-services: seata-dubbo-b
 seata:
   registry:
     type: nacos
@@ -30,4 +34,4 @@ seata:
       group: SEATA_GROUP
   service:
     vgroup-mapping:
-      seata-dubbo-c-seata-service-group: default
+      seata-dubbo-a-seata-service-group: default

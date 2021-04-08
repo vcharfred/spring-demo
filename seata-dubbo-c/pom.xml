@@ -12,8 +12,8 @@
     <artifactId>seata-dubbo-c</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>dubbo-template-provider</name>
-    <description>dubbo使用示例-服务提供者</description>
+    <name>seata-dubbo-c</name>
+    <description>seate-dubbo使用示例</description>
     <properties>
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -39,6 +39,12 @@
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
+        <!-- seata-->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
         </dependency>
 
         <!--dubbo-->

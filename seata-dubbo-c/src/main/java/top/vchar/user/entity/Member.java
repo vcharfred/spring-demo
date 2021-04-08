@@ -1,6 +1,7 @@
-package top.vchar.integral.entity;
+package top.vchar.user.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -8,27 +9,29 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * <p> 积分信息 </p>
+ * <p> 用户信息 </p>
  *
  * @author vchar fred
  * @version 1.0
- * @create_date 2021/3/26
+ * @create_date 2021/3/27
  */
-@TableName("integral")
+@TableName("member")
 @Data
-public class Integral implements Serializable {
+public class Member implements Serializable {
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 用户ID
+     * 昵称
      */
-    private Long uid;
+    @TableField("nick_name")
+    private String nickName;
 
     /**
-     * 剩余积分数
+     * 积分值
      */
-    private Integer point;
+    @TableField("integral")
+    private Integer integral;
 
 }
