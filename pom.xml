@@ -25,6 +25,7 @@
         <module>seata-dubbo-b</module>
         <module>seata-dubbo-c</module>
         <module>seate-dubbo-api</module>
+        <module>elk-template</module>
     </modules>
 
     <properties>

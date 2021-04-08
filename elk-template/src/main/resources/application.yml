@@ -1,0 +1,17 @@
+server:
+  port: 8090
+spring:
+  application:
+    name: elk-template
+  profiles:
+    active: dev
+log-config:
+  # 日志级别
+  level: INFO
+  # 控制台日志是否开启
+  stdout: true
+  logstash:
+    # 是否启用logstash记录日志
+    enable: true
+    # logstash 地址
+    destination: 192.168.56.105:5044

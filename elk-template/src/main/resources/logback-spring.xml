@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="server_name" source="spring.application.name"/>
+    <springProperty scope="context" name="env" source="spring.profiles.active"/>
+    <springProperty scope="context" name="logLevel" source="log-config.level" defaultValue="INFO"/>
+    <springProperty scope="context" name="stdoutOpen" source="log-config.stdout" defaultValue="true"/>
+    <springProperty scope="context" name="useLogStash" source="log-config.logstash.enable" defaultValue="false"/>
+    <springProperty scope="context" name="logStashDestination" source="log-config.logstash.destination" defaultValue=""/>
+
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{50}.%M.%L) - %highlight(%msg) %n</pattern>
+        </layout>
+    </appender>
+
+    <if condition='property("useLogStash").equals("true")'>
+        <then>
+            <!--log stash 输出-->
+            <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+                <destination>${logStashDestination}</destination>
+                <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                    <!-- 设置时区-->
+                    <timeZone>UTC</timeZone>
+                </encoder>
+                <queueSize>16384</queueSize>
+            </appender>
+            <root level='${logLevel}'>
+                <if condition='property("stdoutOpen").equals("true")'>
+                    <then>
+                        <appender-ref ref="STDOUT"/>
+                    </then>
+                </if>
+                <appender-ref ref="STASH"/>
+            </root>
+        </then>
+        <else>
+            <root level='${logLevel}'>
+                <if condition='property("stdoutOpen").equals("true")'>
+                    <then>
+                        <appender-ref ref="STDOUT"/>
+                    </then>
+                </if>
+            </root>
+        </else>
+    </if>
+</configuration>
