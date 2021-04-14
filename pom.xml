@@ -22,6 +22,7 @@
         <module>redis-template-rw</module>
         <module>redis-template-sentinel</module>
         <module>redis-template-cluster</module>
+        <module>eureka-standalone</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

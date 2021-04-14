@@ -1,10 +1,19 @@
 server:
-  port: 8761
+  port: 8763
 eureka:
   instance:
-    hostname: localhost
+    prefer-ip-address: true
+    instance-id: 127.0.0.1:8763
   client:
+    # 是否将自己注册到Eureka Server 默认为true
     registerWithEureka: false
+    # 是否从Eureka Server查询注册信息
     fetchRegistry: false
+    # 配置eureka服务的地址；多个使用英文逗号分开(集群的时候就不要在它自己的了)
     serviceUrl:
-      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      defaultZone: http://127.0.0.1:8761/eureka/,http://127.0.0.1:8762/eureka/,http://127.0.0.1:8763/eureka/
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
