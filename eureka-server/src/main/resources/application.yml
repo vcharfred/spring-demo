@@ -1,5 +1,5 @@
 server:
-  port: 8764
+  port: 8763
 eureka:
   instance:
     prefer-ip-address: true
@@ -11,7 +11,7 @@ eureka:
     fetchRegistry: false
     # 配置eureka服务的地址；多个使用英文逗号分开(可以将它自己的配置上去，因为eureka会自动将它自己的地址移除掉)
     serviceUrl:
-      defaultZone: http://127.0.0.1:8763/eureka/
+      defaultZone: http://127.0.0.1:${server.port}/eureka/
   server:
     response-cache-auto-expiration-in-seconds: 180
     remote-region-registry-fetch-interval: 30
