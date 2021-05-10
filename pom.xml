@@ -23,6 +23,8 @@
         <module>redis-template-sentinel</module>
         <module>redis-template-cluster</module>
         <module>eureka-standalone</module>
+        <module>ribbon-template-a</module>
+        <module>ribbon-template-b</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

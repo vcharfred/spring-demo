@@ -6,12 +6,13 @@ eureka:
     instance-id: 127.0.0.1:${server.port}
   client:
     # 是否将自己注册到Eureka Server 默认为true
-    registerWithEureka: false
+    registerWithEureka: true
     # 是否从Eureka Server查询注册信息
-    fetchRegistry: false
+    fetchRegistry: true
     # 配置eureka服务的地址；多个使用英文逗号分开(可以将它自己的配置上去，因为eureka会自动将它自己的地址移除掉)
     serviceUrl:
-      defaultZone: http://127.0.0.1:${server.port}/eureka/
+      defaultZone: http://127.0.0.1:8761/eureka/,http://127.0.0.1:8762/eureka/,http://127.0.0.1:8763/eureka/
+    instance-info-replication-interval-seconds: 30
   server:
     response-cache-auto-expiration-in-seconds: 180
     remote-region-registry-fetch-interval: 30

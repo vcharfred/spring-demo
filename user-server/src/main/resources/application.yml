@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8081
   servlet:
     context-path: /user
 spring:
@@ -18,4 +18,4 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://127.0.0.1:8762/eureka/,http://127.0.0.1:8761/eureka/,http://127.0.0.1:8763/eureka/
+      defaultZone: http://127.0.0.1:8761/eureka/,http://127.0.0.1:8762/eureka/,http://127.0.0.1:8763/eureka/
