@@ -7,3 +7,6 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://127.0.0.1:8761/eureka/
+ribbon:
+  # 设置失败后重试次数
+  ServerListRefreshInterval: 20
