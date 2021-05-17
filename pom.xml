@@ -9,22 +9,26 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>eureka-server</module>
-        <module>user-server</module>
-        <module>gateway-server</module>
-        <module>train-server</module>
-        <module>common</module>
-        <module>biz-common</module>
-        <module>pay-server-rocketmq</module>
-        <module>rocketmq-client-demo</module>
-        <module>kafka-template</module>
-        <module>tendis-template</module>
+        <module>eureka-server-standalone</module>
+        <module>eureka-client-template</module>
+        <module>ribbon-template-a</module>
+        <module>ribbon-template-b</module>
+        <module>feign-template-a</module>
+        <module>feign-template-b</module>
         <module>redis-template</module>
         <module>redis-template-rw</module>
         <module>redis-template-sentinel</module>
         <module>redis-template-cluster</module>
-        <module>eureka-standalone</module>
-        <module>ribbon-template-a</module>
-        <module>ribbon-template-b</module>
+        <module>tendis-template</module>
+        <module>kafka-template</module>
+        <module>rocketmq-client-demo</module>
+        <module>pay-server-rocketmq</module>
+
+        <module>common</module>
+        <module>biz-common</module>
+        <module>gateway-server</module>
+        <module>user-server</module>
+        <module>train-server</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>eureka-standalone</artifactId>
+    <artifactId>eureka-server-standalone</artifactId>
     <packaging>jar</packaging>
     <description>eureka注册中心-单机版</description>
     <properties>
