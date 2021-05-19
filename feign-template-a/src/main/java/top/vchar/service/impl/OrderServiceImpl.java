@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.vchar.entity.Goods;
 import top.vchar.entity.GoodsParams;
-import top.vchar.feign.GoodsFeignClientDemo1;
-import top.vchar.feign.GoodsFeignClientDemo2;
-import top.vchar.feign.GoodsFeignClientDemo3;
-import top.vchar.feign.GoodsFeignClientDemo4;
+import top.vchar.feign.*;
 import top.vchar.service.OrderService;
 
 /**
@@ -69,6 +66,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void demo4() {
         Goods goods = goodsFeignClientDemo4.findById(2L);
-        System.out.println("示例3：" + goods);
+        System.out.println("示例4：" + goods);
+    }
+
+    @Autowired
+    private GoodsFeignClientDemo5 goodsFeignClientDemo5;
+
+    @Override
+    public void demo5() {
+        Goods goods = goodsFeignClientDemo5.findById(1L);
+        System.out.println("示例5：" + goods);
     }
 }

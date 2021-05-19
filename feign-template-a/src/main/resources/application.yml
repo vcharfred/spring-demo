@@ -13,3 +13,24 @@ eureka:
 feign:
   hystrix:
     enabled: true
+  compression:
+    # 请求和响应压缩配置
+    request:
+      enabled: true
+      mime-types: text/xml,application/xml,application/json
+      min-request-size: 2048
+    response:
+      enabled: true
+  client:
+    config:
+      # 全局配置
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: BASIC
+      # 单独某个服务配置
+      feign-server-b:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+logging.level.top.vchar.feign.GoodsFeignClientDemo5: DEBUG

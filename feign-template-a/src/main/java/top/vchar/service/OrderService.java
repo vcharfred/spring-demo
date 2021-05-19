@@ -22,4 +22,6 @@ public interface OrderService {
     void demo3();
 
     void demo4();
+
+    void demo5();
 }

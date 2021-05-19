@@ -41,4 +41,9 @@ public class FeignDemoTest {
         orderService.demo4();
     }
 
+    @Test
+    public void demo5() {
+        orderService.demo5();
+    }
+
 }
