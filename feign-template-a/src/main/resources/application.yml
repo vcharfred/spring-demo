@@ -5,6 +5,11 @@ spring:
     name: feign-server-a
   main:
     allow-bean-definition-overriding: true
+  # feign重试测试
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
 # 注册中心eureka配置
 eureka:
   client:
@@ -12,7 +17,7 @@ eureka:
       defaultZone: http://127.0.0.1:8761/eureka
 feign:
   hystrix:
-    enabled: true
+    enabled: false
   compression:
     # 请求和响应压缩配置
     request:
@@ -34,3 +39,11 @@ feign:
         readTimeout: 5000
         loggerLevel: full
 logging.level.top.vchar.feign.GoodsFeignClientDemo5: DEBUG
+
+ribbon:
+  # 超时时间，单位ms
+  ConnectTimeout: 1000
+  ReadTimeout: 1000
+  OkToRetryOnAllOperations: true
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 3

@@ -11,6 +11,6 @@ import top.vchar.entity.Goods;
  */
 public interface GoodsService {
 
-    Goods findById(Long id);
+    Goods findById(Long id) throws InterruptedException;
 
 }
