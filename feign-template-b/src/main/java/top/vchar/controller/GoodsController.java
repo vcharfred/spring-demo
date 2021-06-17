@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import top.vchar.entity.Goods;
 import top.vchar.service.GoodsService;
 
+import java.time.LocalDateTime;
+
 /**
  * <p> 商品路由 </p>
  *
@@ -28,7 +30,7 @@ public class GoodsController {
 
     @GetMapping
     public Goods findById(@RequestHeader(name = "uid") String uid, Long id) throws InterruptedException {
-        System.out.println("========" + port + "请求用户为：" + uid);
+        System.out.println(LocalDateTime.now().toString() + "--->>>" + port + " 请求用户为：" + uid);
         return this.goodsService.findById(id);
     }
 

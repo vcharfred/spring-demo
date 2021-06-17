@@ -6,10 +6,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
   # feign重试测试
-  cloud:
-    loadbalancer:
-      retry:
-        enabled: true
+#  cloud:
+#    loadbalancer:
+#      retry:
+#        enabled: true
 # 注册中心eureka配置
 eureka:
   client:
@@ -26,18 +26,18 @@ feign:
       min-request-size: 2048
     response:
       enabled: true
-  client:
-    config:
-      # 全局配置
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
-        loggerLevel: BASIC
-      # 单独某个服务配置
-      feign-server-b:
-        connectTimeout: 5000
-        readTimeout: 5000
-        loggerLevel: full
+#  client:
+#    config:
+#      # 全局配置
+#      default:
+#        connectTimeout: 5000
+#        readTimeout: 5000
+#        loggerLevel: BASIC
+#      # 单独某个服务配置
+#      feign-server-b:
+#        connectTimeout: 5000
+#        readTimeout: 5000
+#        loggerLevel: full
 logging.level.top.vchar.feign.GoodsFeignClientDemo5: DEBUG
 
 ribbon:

@@ -1,6 +1,7 @@
 package top.vchar.feign;
 
 import feign.RequestInterceptor;
+import feign.Retryer;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -15,5 +16,14 @@ public class FeignConfiguration {
     @Bean
     public RequestInterceptor requestInterceptor() {
         return new CustomRequestInterceptor();
+    }
+
+    /**
+     * 配置feign的重试策略
+     */
+    @Bean
+    public Retryer retryer() {
+        // 这个feign提供的默认实现；可以自定义，实现 Retryer 接口即可
+        return new Retryer.Default();
     }
 }
