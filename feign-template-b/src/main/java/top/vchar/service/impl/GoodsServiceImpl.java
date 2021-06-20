@@ -16,7 +16,7 @@ import top.vchar.service.GoodsService;
 public class GoodsServiceImpl implements GoodsService {
 
     @Override
-    public Goods findById(Long id) {
+    public Goods findById(Long id) throws InterruptedException {
 
         System.out.println("查询商品ID为：" + id);
 
@@ -27,6 +27,10 @@ public class GoodsServiceImpl implements GoodsService {
         goods.setId(1L);
         goods.setGoodsName("华为P50 Pro");
         goods.setNum(100);
+
+        // 等待3s
+        Thread.sleep(3000);
+
         return goods;
     }
 }
