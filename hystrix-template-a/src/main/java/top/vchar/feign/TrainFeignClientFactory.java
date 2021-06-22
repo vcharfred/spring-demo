@@ -1,6 +1,8 @@
-package feign;
+package top.vchar.feign;
 
 import feign.hystrix.FallbackFactory;
+import org.springframework.stereotype.Component;
+import top.vchar.entity.Train;
 
 /**
  * <p>  TODO 功能描述 </p>
@@ -9,12 +11,17 @@ import feign.hystrix.FallbackFactory;
  * @version 1.0
  * @create_date 2021/6/21
  */
+@Component
 public class TrainFeignClientFactory implements FallbackFactory<TrainFeignClient> {
 
     @Override
     public TrainFeignClient create(Throwable cause) {
         cause.printStackTrace();
         return new TrainFeignClient() {
+            @Override
+            public Train findTrain() {
+                return null;
+            }
         };
     }
 }

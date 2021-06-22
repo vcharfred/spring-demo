@@ -21,6 +21,7 @@ public class TrainController {
 
     @GetMapping("/find")
     public Train findTrain() {
+        System.out.println("接收到请求...");
         return this.trainService.findTrain();
     }
 
