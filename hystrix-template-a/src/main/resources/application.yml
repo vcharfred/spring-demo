@@ -11,3 +11,12 @@ eureka:
 feign:
   hystrix:
     enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+hystrix:
+  dashboard:
+    proxyStreamAllowList:
+      - "localhost"
