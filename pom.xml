@@ -5,16 +5,33 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.vchar.demo.spring</groupId>
-    <artifactId>springboot2-demo</artifactId>
+    <artifactId>SpringBoot2.x</artifactId>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>springboot-start-demo</module>
-        <module>base-demo</module>
-        <module>test-demo</module>
+        <module>springboot-demo1</module>
+        <module>springboot-demo2</module>
+        <module>springboot-demo3</module>
+        <module>springboot-thymeleaf-demo</module>
+        <module>springboot-freemarker-demo</module>
+        <module>springboot-dev-demo</module>
+        <module>springboot-test-demo</module>
+        <module>springboot-customer-banner-demo</module>
+        <module>springboot-exception-demo</module>
+        <module>springboot-war-demo</module>
+        <module>springboot-timer-demo</module>
+        <module>springboot-filter-demo</module>
+        <module>springboot-mybatis-demo</module>
+        <module>springboot-redis-demo</module>
+        <module>springboot-elasticsearch-demo</module>
+        <module>springboot-mq-demo</module>
+        <module>springboot-rocketMQ-demo</module>
+        <module>springboot-more-environment</module>
+        <module>springboot-webflux-demo</module>
+        <module>springboot-actuator-demo</module>
     </modules>
     <packaging>pom</packaging>
-    <name>SpringBoot2-Demo</name>
-    <description>SpringBoot2学习笔记</description>
+    <name>spring-demo</name>
+    <description>spring全家桶学习教程</description>
 
 
 </project>
