@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import top.vchar.demo.spring.StartApplication;
+import top.vchar.demo.spring.TestDemoApplication;
 
 /**
  * <p>  TODO 功能描述 </p>
@@ -15,7 +15,7 @@ import top.vchar.demo.spring.StartApplication;
  * @create_date 2019/7/8 23:01
  */
 @RunWith(SpringRunner.class)  //底层用junit  SpringJUnit4ClassRunner
-@SpringBootTest(classes={StartApplication.class})//启动整个springboot工程
+@SpringBootTest(classes={TestDemoApplication.class})//启动整个springboot工程
 public class TestDemo {
 
     @Before

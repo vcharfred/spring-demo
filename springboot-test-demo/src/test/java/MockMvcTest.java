@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import top.vchar.demo.spring.StartApplication;
+import top.vchar.demo.spring.TestDemoApplication;
 
 /**
  * <p> mockmvc 测试 </p>
@@ -19,7 +19,7 @@ import top.vchar.demo.spring.StartApplication;
  * @create_date 2019/7/8 23:11
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = StartApplication.class)
+@SpringBootTest(classes = TestDemoApplication.class)
 @AutoConfigureMockMvc
 public class MockMvcTest {
 

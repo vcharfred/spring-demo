@@ -1,5 +1,6 @@
 package top.vchar.demo.spring;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -11,10 +12,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @create_date 2019/7/7 23:41
  */
 @SpringBootApplication
-public class StartApplication {
+@MapperScan(value = {"top.vchar.demo.spring.mapper"})
+public class TestDemoApplication {
 
     public static void main(String[] args){
-        SpringApplication.run(StartApplication.class);
+        SpringApplication.run(TestDemoApplication.class);
     }
 
 }
