@@ -17,4 +17,10 @@ public interface AccountService {
      */
     boolean addAccount(Integer id, String name);
 
+    /**
+     * 通过ID查询账号
+     * @param id 酒店ID
+     * @return 返回酒店名称
+     */
+    String findAccount(Integer id);
 }

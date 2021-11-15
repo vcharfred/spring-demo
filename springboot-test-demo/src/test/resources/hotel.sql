@@ -1,0 +1,1 @@
+INSERT INTO `demo`.`hotel`(`id`, `hotel_name`, `room_num`, `price`) VALUES (100, '云山雾隐酒店', 100, 500.00);

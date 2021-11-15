@@ -6,6 +6,7 @@ import top.vchar.demo.spring.bean.Hotel;
 import top.vchar.demo.spring.mapper.HotelMapper;
 import top.vchar.demo.spring.service.AccountService;
 import top.vchar.demo.spring.service.HotelService;
+import top.vchar.demo.spring.util.CacheUtil;
 
 /**
  * <p> 业务逻辑接口实现 </p>
@@ -36,13 +37,24 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public Integer joinHotel(Hotel hotel) {
         Integer id = addHotel(hotel);
+        if(null!=accountService.findAccount(id)){
+            throw new RuntimeException("数据异常");
+        }
         accountService.addAccount(id, hotel.getHotelName());
         return id;
     }
 
     @Override
     public Hotel findById(Integer id) {
-        return this.hotelMapper.selectById(id);
+        Hotel hotel = (Hotel) CacheUtil.getVal(String.valueOf(id));
+        if(null==hotel){
+            System.out.println("缓存无数据...");
+            hotel = this.hotelMapper.selectById(id);
+            if(hotel!=null){
+                CacheUtil.setVal(String.valueOf(id), hotel);
+            }
+        }
+        return hotel;
     }
 
 

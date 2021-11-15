@@ -16,7 +16,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean addAccount(Integer id, String name) {
         // TODO 添加账号
-        System.out.println("账号服务研发中...");
+        System.out.println("addAccount: 账号服务研发中...");
         return false;
+    }
+
+    @Override
+    public String findAccount(Integer id) {
+        // TODO 查询账号
+        System.out.println("findAccount: 账号服务研发中...");
+        return null;
     }
 }
