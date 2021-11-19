@@ -48,7 +48,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
 
 ## 一、eureka注册中心
 
