@@ -41,6 +41,7 @@ public class HystrixDemoServiceImpl implements HystrixDemoService {
 
     @Override
     public Train hystrixMethodDemo3() {
+        // 因为hystrix是通过AOP来实现的；因此一个类的方法间调用时不会生效的。
         return this.hystrixMethodDemo2();
     }
 

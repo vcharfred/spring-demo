@@ -15,21 +15,22 @@ import top.vchar.feign.TrainFeignClient;
  * @version 1.0
  * @create_date 2021/12/6
  */
-@Component
-public class HystrixCommandDemo extends HystrixCommand<String> {
+public class TrainHystrixCommand extends HystrixCommand<String> {
 
-    @Autowired
     private TrainFeignClient trainFeignClient;
 
-    protected HystrixCommandDemo() {
-        super(HystrixCommandGroupKey.Factory
-                .asKey("group_name")
-                .wait(2000));
+    public TrainHystrixCommand() {
+        super(HystrixCommandGroupKey.Factory.asKey("group_name"));
+    }
+
+    public TrainHystrixCommand(TrainFeignClient trainFeignClient){
+        this();
+        this.trainFeignClient = trainFeignClient;
     }
 
     @Override
     protected String run() throws Exception {
-        System.out.println("执行方法");
+        System.out.println("线程池隔离1执行方法");
         Train train = trainFeignClient.findTrain();
         return JSONObject.toJSONString(train);
     }

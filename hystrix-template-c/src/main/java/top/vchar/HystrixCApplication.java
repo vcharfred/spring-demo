@@ -1,0 +1,27 @@
+package top.vchar;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+
+/**
+ * <p> 启动类 </p>
+ *
+ * @author vchar fred
+ * @version 1.0
+ * @create_date 2022/2/11
+ */
+@EnableHystrixDashboard
+@EnableCircuitBreaker
+@EnableFeignClients
+@EnableDiscoveryClient
+@SpringBootApplication
+public class HystrixCApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(HystrixCApplication.class, args);
+    }
+}

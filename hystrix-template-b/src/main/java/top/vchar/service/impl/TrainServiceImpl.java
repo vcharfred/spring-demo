@@ -26,6 +26,11 @@ public class TrainServiceImpl implements TrainService {
         train.setArr("北京");
         train.setPrice(new BigDecimal("300"));
         train.setNum(100);
+        try {
+            Thread.sleep(500L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return train;
     }
 

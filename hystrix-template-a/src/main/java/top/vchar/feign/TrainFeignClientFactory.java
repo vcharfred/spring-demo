@@ -20,6 +20,7 @@ public class TrainFeignClientFactory implements FallbackFactory<TrainFeignClient
         return new TrainFeignClient() {
             @Override
             public Train findTrain() {
+                System.out.println("服务异常....");
                 return null;
             }
         };

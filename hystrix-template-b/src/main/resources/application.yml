@@ -1,5 +1,14 @@
 server:
   port: 8111
+  tomcat:
+    # 线程池配置
+    threads:
+      # 最大链接数
+      max: 2
+    # 最大等待数
+    accept-count: 0
+    # 最大链接数：这个参数是指在同一时间，tomcat能够接受的最大连接数。一般这个值要大于maxThreads+acceptCount
+    max-connections: 2
 spring:
   application:
     name: hystrix-server-b
