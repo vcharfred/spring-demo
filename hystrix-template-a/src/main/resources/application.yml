@@ -23,7 +23,6 @@ feign:
     enabled: true
   httpclient:
     connection-timeout: 20000
-  t
 management:
   endpoints:
     web:
@@ -33,3 +32,29 @@ hystrix:
   dashboard:
     proxyStreamAllowList:
       - "localhost"
+  command:
+    default:
+      execution:
+        isolation:
+          # 隔离模式：线程池隔离
+          strategy: THREAD
+          thread:
+            # 线程超时时间，单位毫秒
+            timeoutInMilliseconds: 1000
+            # 设置HystrixCommand.run()的执行是否在超时发生时被中断
+            interruptOnTimeout: true
+        semaphore:
+          # 流量阀值
+          maxConcurrentRequests: 10
+        timeout:
+          # 超时是否开启
+          enabled: true
+      circuitBreaker:
+        # 短路器是否开启
+        enabled: true
+        # 熔断触发最小请求次数
+        requestVolumeThreshold: 20
+        # 熔断后休眠多久，单位毫秒
+        sleepWindowInMilliseconds: 5000
+        # 触发熔断错误的比例阀值
+        errorThresholdPercentage: 50

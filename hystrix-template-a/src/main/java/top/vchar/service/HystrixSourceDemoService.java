@@ -1,5 +1,9 @@
 package top.vchar.service;
 
+import top.vchar.entity.Train;
+
+import java.util.concurrent.ExecutionException;
+
 /**
  * <p> 资源隔离示例 </p>
  *
@@ -8,5 +12,7 @@ package top.vchar.service;
  * @create_date 2022/2/16
  */
 public interface HystrixSourceDemoService {
-    String findOne1();
+    Train findOne1();
+
+    Train findOne2() throws ExecutionException, InterruptedException;
 }

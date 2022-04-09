@@ -17,7 +17,6 @@ import top.vchar.feign.TrainFeignClient;
  * @version 1.0
  * @create_date 2022/1/4
  */
-@Component
 public class TrainHystrixObservableCommand extends HystrixObservableCommand<Train> {
 
     private final String name;
@@ -39,7 +38,6 @@ public class TrainHystrixObservableCommand extends HystrixObservableCommand<Trai
         return Observable.unsafeCreate((Observable.OnSubscribe<Train>) subscriber -> {
             try {
                 if (!subscriber.isUnsubscribed()) {
-                    subscriber.onNext(trainFeignClient.findTrain());
                     subscriber.onNext(trainFeignClient.findTrain());
                     subscriber.onCompleted();
                 }
