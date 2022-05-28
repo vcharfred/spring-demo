@@ -1,0 +1,42 @@
+server:
+  port: 9000
+  # 开启对响应数据做压缩处理
+  compression:
+    enabled: true
+    mime-types: application/json,application/stream+json,application/xml,application/xhtml+xml,text/html,text/xml,text/plain
+spring:
+  application:
+    name: zuul-server
+# 注册中心eureka配置
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://127.0.0.1:8761/eureka/
+#    registry-fetch-interval-seconds: 10
+
+# 配置路由转发规则
+zuul:
+  routes:
+#    server_a:
+#      path: /store/**
+#      url: http://127.0.0.1:8081
+#    server_b:
+#      path: /user/**
+#      url: http://127.0.0.1:8082
+   # 服务名，和eureka 中注册的名称保持一致
+   server_a:
+     # 匹配的路由规则
+     path: /store/**
+   server_b:
+     path: /user/**
+  # 忽略某些服务不对外提供
+#  ignored-services: feign-server-b
+    # 通过正则表达式匹配，来屏蔽服务的直接访问；这样就只能使用apigetway提供的服务
+    #ignored-patterns: /*-service/**
+ribbon:
+  # 超时时间，单位ms
+  ConnectTimeout: 5000
+  ReadTimeout: 5000
+  OkToRetryOnAllOperations: true
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 3
