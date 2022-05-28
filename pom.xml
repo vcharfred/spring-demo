@@ -32,6 +32,9 @@
         <module>user-server</module>
         <module>train-server</module>
         <module>hystrix-template-c</module>
+        <module>zuul-template</module>
+        <module>zuul-template-server-a</module>
+        <module>zuul-template-server-b</module>
     </modules>
     <packaging>pom</packaging>
     <name>spring-cloud-hoxton</name>

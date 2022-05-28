@@ -34,4 +34,9 @@ public class GoodsController {
         return this.goodsService.findById(id);
     }
 
+    @GetMapping("/inner")
+    public Goods findGoods(Long id) throws InterruptedException {
+        return this.goodsService.findById(id);
+    }
+
 }
