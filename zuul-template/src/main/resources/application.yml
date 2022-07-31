@@ -30,9 +30,9 @@ zuul:
    server_b:
      path: /user/**
   # 忽略某些服务不对外提供
-#  ignored-services: feign-server-b
-    # 通过正则表达式匹配，来屏蔽服务的直接访问；这样就只能使用apigetway提供的服务
-    #ignored-patterns: /*-service/**
+  ignored-services: server_b
+  # 通过正则表达式匹配，来屏蔽服务的直接访问；这样就只能使用apigetway提供的服务
+  ignored-patterns: /server_*/**
 ribbon:
   # 超时时间，单位ms
   ConnectTimeout: 5000
