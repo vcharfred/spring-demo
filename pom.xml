@@ -12,6 +12,8 @@
     <description>spring全家桶学习教程</description>
     <modules>
         <module>springboot-simple-demo</module>
+        <module>parent-custom-demo</module>
+        <module>parent-spring-demo</module>
     </modules>
 
 
