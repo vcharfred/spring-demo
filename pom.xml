@@ -10,6 +10,10 @@
     <packaging>pom</packaging>
     <name>spring-demo</name>
     <description>spring全家桶学习教程</description>
+    <modules>
+        <module>parent-custom-demo</module>
+        <module>parent-spring-demo</module>
+    </modules>
 
 
 </project>
