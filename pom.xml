@@ -9,11 +9,17 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>spring-demo</name>
-    <description>spring全家桶学习教程</description>
+    <description>spring3.x 全家桶学习教程</description>
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <modules>
         <module>parent-custom-demo</module>
         <module>parent-spring-demo</module>
+        <module>springboot-kafka-demo</module>
     </modules>
-
 
 </project>

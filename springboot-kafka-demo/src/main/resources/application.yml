@@ -1,0 +1,13 @@
+server:
+  port: 9999
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,application/xhtml+xml,text/html,text/xml,text/plain
+  shutdown: graceful
+spring:
+  application:
+    name: kafka-server-demo
+  jackson:
+    default-property-inclusion: NON_NULL
